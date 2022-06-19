@@ -3,8 +3,16 @@ marp: true
 theme: uncover
 ---
 
+# `Flux`
 
-# Flux Demo
+A liquid types based verifier for `rust`
+
+---
+# `Flux`
+
+`flux` (/flʌks/) n. 1 a flowing or flow. 2 a substance used to refine metals. v. 3 to melt; make fluid.
+
+---
 
 ## `basics.rs`
 
@@ -23,6 +31,8 @@ theme: uncover
   - `fn inc(x: i32) -> i32[x+1]`
 
 - `fn test(z: i32) { assert(x < inc(x)) }`
+
+---
 
 ## `borrows.rs`
 
@@ -50,6 +60,8 @@ fn test_strg(mut y: i32) {
 }
 ```
 
+---
+
 ## `vectors.rs`
 
 - new
@@ -74,10 +86,13 @@ fn test_vec() {
 TODO
   - ini
 
+---
 
 ## Quantitative Comparison (v. Prusti)
 
   Table
+
+---
 
 ## Qualitative Comparison (v. Prusti)
 

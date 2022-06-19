@@ -2,7 +2,9 @@
 #![register_tool(lr)]
 
 pub mod basics;
+pub mod borrows;
 
+/*
 #[lr::sig(fn(bool[true]) -> ())]
 pub fn assert(_b: bool) {}
 
@@ -11,6 +13,7 @@ pub fn inc(x: i32) -> i32 {
     assert(100 < 20);
     x + 1
 }
+*/
 
 fn main() {
     return;
