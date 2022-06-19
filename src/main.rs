@@ -1,6 +1,8 @@
 #![feature(register_tool)]
 #![register_tool(lr)]
 
+pub mod basics;
+
 #[lr::sig(fn(bool[true]) -> ())]
 pub fn assert(_b: bool) {}
 
