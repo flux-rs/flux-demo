@@ -1,8 +1,5 @@
+use crate::basics::*;
 
-pub mod basics;
-use basics::*;
-
-fn test_assert() {
-    assert(10 < 2);
+fn _test_assert() {
+    assert(1 < 2);
 }
-
