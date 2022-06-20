@@ -5,6 +5,8 @@ theme: default
 
 # `Flux`: Liquid types for Rust
 
+**Nico Lehmann**, Adam Geller, Gilles Barthe, Niki Vazou, Ranjit Jhala
+
 ---
 
 ## Motivation
@@ -40,7 +42,7 @@ type Nat = {v: Int | 0 <= v}
 Generate the sequence of values between `lo` and `hi`
 
 ```haskell
-range :: lo:Int -> {hi:Int | lo <= hi} -> List {v:Int|lo <= v < hi}
+range :: lo:Int -> {hi:Int | lo <= hi} -> List {v:Int|lo <= v && v < hi}
 ```
 
 ---
@@ -50,7 +52,7 @@ range :: lo:Int -> {hi:Int | lo <= hi} -> List {v:Int|lo <= v < hi}
 Generate the sequence of values between `lo` and `hi`
 
 ```haskell
-range :: lo:Int -> {hi:Int | lo <= hi} -> List {v:Int|lo <= v < hi}
+range :: lo:Int -> {hi:Int | lo <= hi} -> List {v:Int|lo <= v && v < hi}
 ```
 
 #### Input Type is a Precondition
@@ -64,7 +66,7 @@ range :: lo:Int -> {hi:Int | lo <= hi} -> List {v:Int|lo <= v < hi}
 Generate the sequence of values between `lo` and `hi`
 
 ```haskell
-range :: lo:Int -> {hi:Int | lo <= hi} -> List {v:Int|lo <= v < hi}
+range :: lo:Int -> {hi:Int | lo <= hi} -> List {v:Int|lo <= v && v < hi}
 ```
 
 #### Output Type is a Postcondition
@@ -91,22 +93,23 @@ _Every element_ in sequence is between `lo` and `hi`
 
 ![width:1100px](img/why_types_1_2.png)
 
-
-**Floyd-Hoare** Requires `elements` and _quantified_ axioms
+**Floyd-Hoare** requires `elements` and _quantified_ axioms
 
 **Liquid** Parametric _polymorphism_ yields spec for free
 
+
 ---
+
 ## Building and Using Lists
 
-![width:1000px](img/why_types_1_3.png)
+![width:1100px](img/why_types_1_3.png)
 
 **Floyd-Hoare** _Quantified_ postcondition (hard to infer)
 
 ---
 ## Building and Using Lists
 
-![width:1000px](img/why_types_1_3.png)
+![width:1100px](img/why_types_1_3.png)
 
 **Liquid** _Quantifier-free_ type (easy to infer)
 
@@ -118,7 +121,7 @@ Int -> k:Int -> List {v:Int| k <= v}
 
 # Types vs. Floyd-Hoare logic
 
-Types decompose assertions to quantif-free refinements
+Types decompose assertions to quantif-free refinements ...
 
 ... but what about **imperative programs**
 
@@ -156,6 +159,7 @@ n. 1 a flowing or flow. 2 a substance used to refine metals. v. 3 to melt; make 
 
 4. [`vectors`](src/vectors.rs)
 
+
 ---
 
 ## Motivation
@@ -178,7 +182,7 @@ _`Flux` Liquid Types for Rust_
 
 ---
 
-## `Flux` v. `Prusti` : By the numbers
+## `Flux` v. `Prusti`  by the numbers
 
 ![width:800px](img/flux-v-prusti.png)
 
@@ -255,7 +259,7 @@ pub fn set(&mut self, i: usize, j: usize, value: T) {
 }
 ```
 
-### Burden programmer with dimension preservation invariants
+### Hassle programmer for dimension preservation invariants
 
 * `kmeans::normalize_centers` in [prusti](prusti-kmeans.rs) vs. [flux](flux-kmeans.rs)
 
@@ -272,9 +276,15 @@ pub fn set(&mut self, i: usize, j: usize, value: T) {
 
 ## `Flux` v. `Prusti` : Types Simplify Invariants & Inference
 
-### Types _decompose_ quantified assertions to _quantifier-free_ refinements
+![width:850px](img/flux-v-prusti-vectors.png)
 
-<br>
+### Types _decompose_ quantified assertions to _quantifier-free_ refinements
+`flux` infers quantifier-free refinements via Horn-clauses/Liquid Typing
+
+---
+
+## `Flux` v. `Prusti` : Types Simplify Invariants & Inference
+
 
 `kmp_search` in [prusti](prusti-kmp.rs) vs. [flux](flux-kmp.rs)
 
@@ -286,11 +296,21 @@ body_invariant!(forall(|x: usize| x < t.len() ==> t.lookup(x) < pat_len));
 t: RVec<{v:v < pat_len}>
 ```
 
-![width:800px](img/flux-v-prusti-kmp.png)
-
 <br>
 
-### `flux` infers quantifier-free refinements via Horn-clauses/Liquid Typing
+### Types _decompose_ quantified assertions to _quantifier-free_ refinements
+`flux` infers quantifier-free refinements via Horn-clauses/Liquid Typing
+
+---
+
+### Types _decompose_ quantified assertions to _quantifier-free_ refinements
+
+
+`kmp_search` in [prusti](prusti-kmp.rs) vs. [flux](flux-kmp.rs)
+
+
+![width:1000px](img/flux-v-prusti-kmp.png)
+
 
 ---
 
