@@ -1,19 +1,11 @@
 #![feature(register_tool)]
 #![register_tool(lr)]
+#![feature(custom_inner_attributes)]
 
 pub mod basics;
 pub mod borrows;
-
-/*
-#[lr::sig(fn(bool[true]) -> ())]
-pub fn assert(_b: bool) {}
-
-#[lr::sig(fn(x:i32) -> i32{v: v > x})]
-pub fn inc(x: i32) -> i32 {
-    assert(100 < 20);
-    x + 1
-}
-*/
+pub mod rvec;
+pub mod vectors;
 
 fn main() {
     return;

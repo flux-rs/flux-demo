@@ -69,23 +69,41 @@ fn test_vec() {
 }
 ```
 
-## `kmeans.rs`
+---
 
-TODO
-  - ini
-
-
-## Quantitative Comparison (v. Prusti)
+# Quantitative Comparison (v. Prusti)
 
   Table
 
-## Qualitative Comparison (v. Prusti)
+---
 
-1. Compact Specifications
+# Qualitative Comparison (v. Prusti)
 
-- polymorphism => simple specifications (`RVec::get_mut`)
 
-2. Code Reuse
+1. Type polymorphism Simplifies API Specifications
+
+```rust
+// Rust
+fn store(&mut self, idx: usize, value: T)
+
+// Flux
+fn store(self: &mut RVec<T>[@n], idx: usize{idx < n}, value: T)
+
+// Prusti
+#[trusted]
+#[requires(index < self.len())]
+#[ensures(self.len() == old(self.len()))]
+#[ensures(forall(|i:usize| (i < self.len() && i != index) ==> self.lookup(i) < old(self.lookup(i))))]
+#[ensures(self.lookup(index) == value)]
+```
+
+Boo! Quantifiers!
+
+* Make SMT checking slow
+
+2. Type Polymorphism Enables API Reuse
+
+* Prevent code reuse
 
 - polymorphism => API composition (`RVec.rs` and `RMat.rs`)
 
