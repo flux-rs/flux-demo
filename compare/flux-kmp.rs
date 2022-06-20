@@ -31,21 +31,23 @@ fn kmp_table(p: &RVec<u8>) -> RVec<usize> {
 }
 
 #[lr::sig(fn(pat: RVec<u8>{0 < pat && pat <= n}, target: &n@RVec<u8>{0 < n}) -> usize)]
-pub fn kmp_search(mut pat: RVec<u8>, target: &RVec<u8>) -> usize {
+fn kmp_search(mut pat: RVec<u8>, target: &RVec<u8>) -> usize {
     let mut t_i = 0;
     let mut p_i = 0;
     let mut result_idx = 0;
+    let target_len = target.len();
+    let pat_len = pat.len();
 
     let t = kmp_table(&mut pat);
 
-    while t_i < target.len() && p_i < pat.len() {
+    while t_i < target_len && p_i < pat_len {
         if *target.get(t_i) == *pat.get(p_i) {
             if result_idx == 0 {
                 result_idx = t_i;
             }
             t_i = t_i + 1;
             p_i = p_i + 1;
-            if p_i >= pat.len() {
+            if p_i >= pat_len {
                 return result_idx;
             }
         } else {

@@ -3,7 +3,7 @@ extern crate prusti_contracts;
 use prusti_contracts::*;
 
 #[path = "vecwrapper.rs"]
-pub mod vecwrapper;
+mod vecwrapper;
 use vecwrapper::VecWrapper;
 
 pub struct MatWrapper<T> {

@@ -75,7 +75,7 @@ _Every element_ in sequence is between `lo` and `hi`
 
 # Types vs. Floyd-Hoare logic
 
-Types _decompose_ assertions to _quantif-free_ refinements
+> Types _decompose_ (quantified) assertions to _quantifier-free_ refinements
 
 ---
 
@@ -152,7 +152,7 @@ n. 1 a flowing or flow. 2 a substance used to refine metals. v. 3 to melt; make 
 
 2. [`borrows`](src/borrows.rs)
 
-3. [`ref-vec`](src/rvec.rs)
+3. [`rvec-api`](src/rvec.rs)
 
 4. [`vectors`](src/vectors.rs)
 
@@ -197,7 +197,7 @@ fn store(self: &mut RVec<T>[@n], idx: usize{idx < n}, value: T)
 requires(index < self.len())
 ensures(self.len() == old(self.len()))
 ensures(forall(|i:usize| (i < self.len() && i != index) ==>
-                    self.lookup(i) < old(self.lookup(i))))
+                    self.lookup(i) == old(self.lookup(i))))
 ensures(self.lookup(index) == value)
 ```
 
@@ -207,21 +207,90 @@ ensures(self.lookup(index) == value)
 
 ## `Flux` v. `Prusti` : Types Enable Code Reuse
 
-- `flux-kmeans.rs` vs. `prusti-kmeans.rs`
+<br>
 
-- polymorphism => API composition (`RVec.rs` and `RMat.rs`)
+### **Example:** `kmeans.rs` in `flux`
 
-TODO -- vimdiff
+<br>
+
+```rust
+fn kmeans(n:usize, cs: k@RVec<RVec<f32>[n]>, ps: &RVec<RVec<f32>[n]>, iters: i32) -> RVec<RVec<f32>[n]>[k] where 0 < k
+```
+
+* **Point** is an `n` dimensional float-vec `RVec<f32>[n]`
+
+* **Centers** are a vector of `k` points  `RVec<RVec<f32>[n]>[k]`
+
+---
+
+
+## `Flux` v. `Prusti` : Types Enable Code Reuse
+
+<br>
+
+### **Example:** `kmeans.rs` in `prusti`
+
+<br>
+
+```rust
+ensures(forall(|i:usize| (i < self.len() && i != index) ==>
+                    self.lookup(i) == old(self.lookup(i))))
+```
+
+### Value equality _prevents vector nesting!_
+
+Have to duplicate code in new (untrusted) [wrapper library](compare/matwrapper.rs)
 
 ---
 
 ## `Flux` v. `Prusti` : Types Simplify Invariants & Inference
 
-- easy length invariant (due to `RVec::set` and `fft`)
+### Dimension preservation obfuscated by `Prusti` spec
 
-- polymorphism => quantifier-free invariants (`kmp.rs`)
+```rust
+#[requires(i < self.rows() && j < self.cols())]
+#[ensures(self.cols() == old(self.cols()) && self.rows() == old(self.rows()))]
+pub fn set(&mut self, i: usize, j: usize, value: T) {
+  self.inner[i][j] = value;
+}
+```
 
-TODO -- vimdiff
+### Burden programmer with dimension preservation invariants
+
+* `kmeans::normalize_centers` in [prusti](prusti-kmeans.rs) vs. [flux](flux-kmeans.rs)
+
+* `fft::loop_a` in  [prusti](prusti-fft.rs) vs. [flux](flux-fft.rs)
+
+---
+### Burden programmer with dimension preservation invariants
+
+* `fft::loop_a` in  [prusti](prusti-fft.rs) vs. [flux](flux-fft.rs)
+
+![width:850px](img/flux-v-prusti-fft.png)
+
+---
+
+## `Flux` v. `Prusti` : Types Simplify Invariants & Inference
+
+### Types _decompose_ quantified assertions to _quantifier-free_ refinements
+
+<br>
+
+`kmp_search` in [prusti](prusti-kmp.rs) vs. [flux](flux-kmp.rs)
+
+```rust
+// Prusti
+body_invariant!(forall(|x: usize| x < t.len() ==> t.lookup(x) < pat_len));
+
+// Flux
+t: RVec<{v:v < pat_len}>
+```
+
+![width:800px](img/flux-v-prusti-kmp.png)
+
+<br>
+
+### `flux` infers quantifier-free refinements via Horn-clauses/Liquid Typing
 
 ---
 
@@ -231,11 +300,11 @@ Types vs. Floyd-Hoare logic
 
 ## Demonstration
 
-_`Flux` Liquid Types for Rust_
+`Flux` Liquid Types for Rust
 
 ## Evaluation
 
-`Flux` v. `Prusti` for Memory Safety
+_`Flux` v. `Prusti` for Memory Safety_
 
 ---
 
@@ -263,6 +332,8 @@ _`Flux` Liquid Types for Rust_
 * `Flux` restricts specifications, `Prusti` allows _way_ more ...
 
 * ... how to stretch types to "full functional correctness"?
+
+**What are interesting application domains to focus on?**
 
 ---
 
