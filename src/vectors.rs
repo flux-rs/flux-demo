@@ -45,3 +45,32 @@ fn _test_range(lo: i32, hi: i32) {
         }
     }
 }
+
+/* Horn Constraints for `range` 
+ 
+// Horn Constraint
+
+∀ lo: int.
+  true ⇒
+    ∀ hi: int.
+      lo ≤ hi ⇒
+        $k_i(lo)
+        $k_size(0)
+        ∀ v: int{false}. $k_val(v)
+        ∀ n: int{$k_size(n)}, i: int{$k_i(i)}.
+          ¬(i < hi) ⇒
+            ∀ v: int{$k_val(v)}. (lo ≤ v ∧ v < hi)
+            (n = hi - lo)
+          i < hi ⇒
+            $k_val(i)
+            $k_size(n + 1)
+            $k_i(i + 1)
+
+// Solution 
+
+$k_i(i)    := lo <= i && i <= hi 
+$k_val(i)  := lo <= i && i < hi
+$k_size(n) := n = i - lo
+
+
+ */
