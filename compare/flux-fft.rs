@@ -6,48 +6,48 @@
 pub mod rvec;
 use rvec::RVec;
 
-#[lr::sig(fn() -> f32)]
+#[flux::sig(fn() -> f32)]
 fn pi() -> f32 {
     3.14159265358979323846
 }
 
-#[lr::sig(fn() -> f32)]
+#[flux::sig(fn() -> f32)]
 fn two_pi() -> f32 {
     2.0 * pi()
 }
 
-#[lr::assume]
-#[lr::sig(fn(n:usize) -> f32)]
+#[flux::assume]
+#[flux::sig(fn(n:usize) -> f32)]
 fn float_of_int(n: usize) -> f32 {
     n as f32
 }
 
-#[lr::assume]
-#[lr::sig(fn(x:f32) -> f32)]
+#[flux::assume]
+#[flux::sig(fn(x:f32) -> f32)]
 pub fn fabs(x: f32) -> f32 {
     f32::abs(x)
 }
 
-#[lr::assume]
-#[lr::sig(fn(x:f32) -> f32)]
+#[flux::assume]
+#[flux::sig(fn(x:f32) -> f32)]
 fn cos(x: f32) -> f32 {
     f32::cos(x)
 }
 
-#[lr::assume]
-#[lr::sig(fn(x:f32) -> f32)]
+#[flux::assume]
+#[flux::sig(fn(x:f32) -> f32)]
 fn sin(x: f32) -> f32 {
     f32::sin(x)
 }
 
-#[lr::sig(fn(px: &mut n@RVec<f32>, py: &mut RVec<f32>{v:v == n}) where 2 <= n)]
+#[flux::sig(fn(px: &mut n@RVec<f32>, py: &mut RVec<f32>{v:v == n}) where 2 <= n)]
 pub fn fft(px: &mut RVec<f32>, py: &mut RVec<f32>) {
     loop_a(px, py);
     loop_b(px, py);
     loop_c(px, py);
 }
 
-#[lr::sig(fn(px: &mut n@RVec<f32>, py: &mut RVec<f32>[n]))]
+#[flux::sig(fn(px: &mut n@RVec<f32>, py: &mut RVec<f32>[n]))]
 fn loop_a(px: &mut RVec<f32>, py: &mut RVec<f32>) {
     let n = px.len() - 1;
     let mut n2 = n;
@@ -110,7 +110,7 @@ fn loop_a(px: &mut RVec<f32>, py: &mut RVec<f32>) {
     }
 }
 
-#[lr::sig(fn (px: &mut n@RVec<f32>, py: &mut RVec<f32>[n]))]
+#[flux::sig(fn (px: &mut n@RVec<f32>, py: &mut RVec<f32>[n]))]
 fn loop_b(px: &mut RVec<f32>, py: &mut RVec<f32>) {
     let n = px.len() - 1;
     let mut is = 1;
@@ -135,7 +135,7 @@ fn loop_b(px: &mut RVec<f32>, py: &mut RVec<f32>) {
     }
 }
 
-#[lr::sig(fn (px: &mut n@RVec<f32>, py: &mut RVec<f32>[n]) -> i32 where 2 <= n)]
+#[flux::sig(fn (px: &mut n@RVec<f32>, py: &mut RVec<f32>[n]) -> i32 where 2 <= n)]
 fn loop_c(px: &mut RVec<f32>, py: &mut RVec<f32>) -> i32 {
     let n = px.len() - 1;
     let mut i = 1;
@@ -155,7 +155,7 @@ fn loop_c(px: &mut RVec<f32>, py: &mut RVec<f32>) -> i32 {
     }
 }
 
-#[lr::sig(fn (j:usize{0<=j}, k: usize{0<=k}) -> usize{v:0<=v && v<=k+k})]
+#[flux::sig(fn (j:usize{0<=j}, k: usize{0<=k}) -> usize{v:0<=v && v<=k+k})]
 pub fn loop_c1(j: usize, k: usize) -> usize {
     if j <= k {
         j + k
@@ -164,7 +164,7 @@ pub fn loop_c1(j: usize, k: usize) -> usize {
     }
 }
 
-#[lr::sig(fn (np:usize) -> f32 where 2 <= np)]
+#[flux::sig(fn (np:usize) -> f32 where 2 <= np)]
 pub fn fft_test(np: usize) -> f32 {
     let enp = float_of_int(np);
     let n2 = np / 2;
@@ -215,7 +215,7 @@ pub fn fft_test(np: usize) -> f32 {
     }
 }
 
-#[lr::sig(fn() -> i32)]
+#[flux::sig(fn() -> i32)]
 pub fn doit() -> i32 {
     let mut i = 4;
     let mut np = 16;

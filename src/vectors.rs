@@ -1,7 +1,7 @@
 use crate::basics::*;
 use crate::rvec::RVec;
 
-#[lr::sig(fn() -> usize{v: 10 <= v})]
+#[flux::sig(fn() -> usize{v: 10 <= v})]
 fn _test_rvec() -> usize {
     let mut v = RVec::new();
     v.push(10);
@@ -10,7 +10,7 @@ fn _test_rvec() -> usize {
     *r
 }
 
-#[lr::sig(fn(start: i32, n:i32{0 <= n}) -> RVec<i32{v: start <= v && v < start + n}>[n])]
+#[flux::sig(fn(start: i32, n:i32{0 <= n}) -> RVec<i32{v: start <= v && v < start + n}>[n])]
 pub fn fill(start: i32, n: i32) -> RVec<i32> {
     let mut res = RVec::new();
     let mut val = start;
@@ -25,7 +25,7 @@ pub fn fill(start: i32, n: i32) -> RVec<i32> {
     res
 }
 
-#[lr::sig(fn(lo: i32, hi:i32{lo <= hi}) -> RVec<i32{v:lo<=v && v<hi}>[hi - lo])]
+#[flux::sig(fn(lo: i32, hi:i32{lo <= hi}) -> RVec<i32{v:lo<=v && v<hi}>[hi - lo])]
 pub fn range(lo: i32, hi: i32) -> RVec<i32> {
     let mut i = lo;
     let mut res = RVec::new();
@@ -46,8 +46,16 @@ fn _test_range(lo: i32, hi: i32) {
     }
 }
 
-/* Horn Constraints for `range` 
- 
+// #[flux::sig(fn(vec<i32{v:0<=v}>) -> ())]
+// pub fn test_loop(vec: Vec<i32>) {
+//     for val in vec.iter() {
+//         assert(true);
+//         assert(0 <= *val)
+//     }
+// }
+
+/* Horn Constraints for `range`
+
 // Horn Constraint
 
 ∀ lo: int.
@@ -66,9 +74,9 @@ fn _test_range(lo: i32, hi: i32) {
             $k_size(n + 1)
             $k_i(i + 1)
 
-// Solution 
+// Solution
 
-$k_i(i)    := lo <= i && i <= hi 
+$k_i(i)    := lo <= i && i <= hi
 $k_val(i)  := lo <= i && i < hi
 $k_size(n) := n = i - lo
 

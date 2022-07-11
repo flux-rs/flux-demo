@@ -268,7 +268,7 @@ pub fn fft_test(np: usize) -> f32 {
     }
 }
 
-//#[lr::sig(fn() -> i32)]
+//#[flux::sig(fn() -> i32)]
 pub fn doit() {
     let mut i = 4;
     let mut np = 16;

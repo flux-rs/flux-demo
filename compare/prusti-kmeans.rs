@@ -118,7 +118,7 @@ fn nearest(p: &VecWrapper<f32>, cs: &MatWrapper<f32>) -> usize {
 }
 
 /// updating the centers
-//#[lr::sig(fn(n:usize, cs: k@RVec<RVec<f32>[n]>{0 < k}, ps: &RVec<RVec<f32>[n]>) -> RVec<RVec<f32>[n]>[k])]
+//#[flux::sig(fn(n:usize, cs: k@RVec<RVec<f32>[n]>{0 < k}, ps: &RVec<RVec<f32>[n]>) -> RVec<RVec<f32>[n]>[k])]
 #[requires(cs.rows() == ps.rows())]
 #[requires(ps.cols() == n)]
 #[requires(cs.cols() == n)]
@@ -152,7 +152,7 @@ fn kmeans_step(n: usize, cs: MatWrapper<f32>, ps: &MatWrapper<f32>) -> MatWrappe
 }
 
 /// kmeans: iterating the center-update-steps
-//#[lr::sig(fn(n:usize, cs: k@RVec<RVec<f32>[n]>{0 < k}, ps: &RVec<RVec<f32>[n]>, iters: i32) -> RVec<RVec<f32>[n]>[k])]
+//#[flux::sig(fn(n:usize, cs: k@RVec<RVec<f32>[n]>{0 < k}, ps: &RVec<RVec<f32>[n]>, iters: i32) -> RVec<RVec<f32>[n]>[k])]
 #[requires(cs.rows() == ps.rows())]
 #[requires(ps.cols() == n)]
 #[requires(cs.cols() == n)]
