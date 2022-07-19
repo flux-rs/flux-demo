@@ -3,7 +3,7 @@
 // --------------------------------------------------------------------
 
 // output type = post-condition, specifies function returns 'true'
-#[flux::sig(fn () -> bowol[true])]
+#[flux::sig(fn () -> bool[true])]
 pub fn tt() -> bool {
     return true;
 }
