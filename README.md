@@ -1,6 +1,11 @@
 ---
 marp: true
 theme: default
+style: |
+  img[alt~="center"] {
+    display: block;
+    margin: 0 auto;
+  }
 ---
 
 # `Flux`: Liquid types for Rust
@@ -14,9 +19,11 @@ theme: default
 _Types vs. Floyd-Hoare logic_
 
 ## Demonstration
+
 Flux - Liquid Types for Rust
 
 ## Evaluation
+
 Flux v. Prusti for Memory safety
 
 ---
@@ -31,9 +38,9 @@ Flux v. Prusti for Memory safety
 type Nat = {v: Int | 0 <= v}
 ```
 
-* `Int` is the _base type_ of the value
-* `v` names the _value_ being described
-* `0 <=v` is a _predicate_ constraint
+- `Int` is the _base type_ of the value
+- `v` names the _value_ being described
+- `0 <=v` is a _predicate_ constraint
 
 ---
 
@@ -97,7 +104,6 @@ _Every element_ in sequence is between `lo` and `hi`
 
 **Liquid** Parametric _polymorphism_ yields spec for free
 
-
 ---
 
 ## Building and Using Lists
@@ -107,6 +113,7 @@ _Every element_ in sequence is between `lo` and `hi`
 **Floyd-Hoare** _Quantified_ postcondition (hard to infer)
 
 ---
+
 ## Building and Using Lists
 
 ![width:1100px](img/why_types_1_3.png)
@@ -136,6 +143,7 @@ Types vs. Floyd-Hoare logic
 _`Flux` Liquid Types for Rust_
 
 ## Evaluation
+
 `Flux` v. `Prusti` for Memory Safety
 
 ---
@@ -145,7 +153,6 @@ _`Flux` Liquid Types for Rust_
 `flux` (/flʌks/)
 
 n. 1 a flowing or flow. 2 a substance used to refine metals. v. 3 to melt; make fluid.
-
 
 ---
 
@@ -158,7 +165,6 @@ n. 1 a flowing or flow. 2 a substance used to refine metals. v. 3 to melt; make 
 3. [`rvec-api`](src/rvec.rs)
 
 4. [`vectors`](src/vectors.rs)
-
 
 ---
 
@@ -182,9 +188,9 @@ _`Flux` Liquid Types for Rust_
 
 ---
 
-## `Flux` v. `Prusti`  by the numbers
+## `Flux` v. `Prusti` by the numbers
 
-![width:800px](img/flux-v-prusti.png)
+![width:800px center](img/flux-v-prusti.png)
 
 ---
 
@@ -221,12 +227,11 @@ ensures(self.lookup(index) == value)
 fn kmeans(n:usize, cs: k@RVec<RVec<f32>[n]>, ps: &RVec<RVec<f32>[n]>, iters: i32) -> RVec<RVec<f32>[n]>[k] where 0 < k
 ```
 
-* **Point** is an `n` dimensional float-vec `RVec<f32>[n]`
+- **Point** is an `n` dimensional float-vec `RVec<f32>[n]`
 
-* **Centers** are a vector of `k` points  `RVec<RVec<f32>[n]>[k]`
+- **Centers** are a vector of `k` points `RVec<RVec<f32>[n]>[k]`
 
 ---
-
 
 ## `Flux` v. `Prusti` : Types Enable Code Reuse
 
@@ -261,16 +266,17 @@ pub fn set(&mut self, i: usize, j: usize, value: T) {
 
 ### Hassle programmer for dimension preservation invariants
 
-* `kmeans::normalize_centers` in [prusti](prusti-kmeans.rs) vs. [flux](flux-kmeans.rs)
+- `kmeans::normalize_centers` in [prusti](prusti-kmeans.rs) vs. [flux](flux-kmeans.rs)
 
-* `fft::loop_a` in  [prusti](prusti-fft.rs) vs. [flux](flux-fft.rs)
+- `fft::loop_a` in [prusti](prusti-fft.rs) vs. [flux](flux-fft.rs)
 
 ---
+
 ### Burden programmer with dimension preservation invariants
 
-* `fft::loop_a` in  [prusti](prusti-fft.rs) vs. [flux](flux-fft.rs)
+- `fft::loop_a` in [prusti](prusti-fft.rs) vs. [flux](flux-fft.rs)
 
-![width:850px](img/flux-v-prusti-fft.png)
+![width:850px center](img/flux-v-prusti-fft.png)
 
 ---
 
@@ -279,12 +285,12 @@ pub fn set(&mut self, i: usize, j: usize, value: T) {
 ![width:850px](img/flux-v-prusti-vectors.png)
 
 ### Types _decompose_ quantified assertions to _quantifier-free_ refinements
+
 `flux` infers quantifier-free refinements via Horn-clauses/Liquid Typing
 
 ---
 
 ## `Flux` v. `Prusti` : Types Simplify Invariants & Inference
-
 
 `kmp_search` in [prusti](prusti-kmp.rs) vs. [flux](flux-kmp.rs)
 
@@ -299,18 +305,16 @@ t: RVec<{v:v < pat_len}>
 <br>
 
 ### Types _decompose_ quantified assertions to _quantifier-free_ refinements
+
 `flux` infers quantifier-free refinements via Horn-clauses/Liquid Typing
 
 ---
 
 ### Types _decompose_ quantified assertions to _quantifier-free_ refinements
 
-
 `kmp_search` in [prusti](prusti-kmp.rs) vs. [flux](flux-kmp.rs)
 
-
 ![width:1000px](img/flux-v-prusti-kmp.png)
-
 
 ---
 
@@ -332,9 +336,9 @@ _`Flux` v. `Prusti` for Memory Safety_
 
 **Refinements + Rust's Ownership = Ergonomic Imperative Verification...**
 
-* Specify complex invariants by _composing_ type constructors & QF refinements
+- Specify complex invariants by _composing_ type constructors & QF refinements
 
-* Verify complex invariants by _decomposing_ validity checks via syntactic subtyping
+- Verify complex invariants by _decomposing_ validity checks via syntactic subtyping
 
 ---
 
@@ -342,16 +346,15 @@ _`Flux` v. `Prusti` for Memory Safety_
 
 **Refinements + Rust's Ownership = Ergonomic Imperative Verification...**
 
-* Specify complex invariants by _composing_ type constructors & QF refinements
+- Specify complex invariants by _composing_ type constructors & QF refinements
 
-* Verify complex invariants by _decomposing_ validity checks via syntactic subtyping
-
+- Verify complex invariants by _decomposing_ validity checks via syntactic subtyping
 
 **... But this is just the beginning**
 
-* `Flux` restricts specifications, `Prusti` allows _way_ more ...
+- `Flux` restricts specifications, `Prusti` allows _way_ more ...
 
-* ... how to stretch types to "full functional correctness"?
+- ... how to stretch types to "full functional correctness"?
 
 **What are interesting application domains to focus on?**
 

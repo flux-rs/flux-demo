@@ -1,6 +1,6 @@
 #![feature(register_tool)]
 #![register_tool(flux)]
-#![feature(custom_inner_attributes)]
+#![allow(dead_code)]
 
 pub mod basics;
 pub mod borrows;

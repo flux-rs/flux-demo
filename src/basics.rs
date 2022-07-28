@@ -3,23 +3,22 @@
 // --------------------------------------------------------------------
 
 // output type = post-condition, specifies function returns 'true'
-#[flux::sig(fn () -> bool[true])]
+#[flux::sig(fn() -> bool[true])]
 pub fn tt() -> bool {
-    return true;
+    true
 }
 
 // output type = post-condition, specifies function returns 'false'
-#[flux::sig(fn () -> bool[false])]
+#[flux::sig(fn() -> bool[false])]
 pub fn ff() -> bool {
-    return false;
+    false
 }
 
 // An `assert` function, whose precondition expects only `true`
-
 #[flux::sig(fn(bool[true]) -> ())]
-pub fn assert(_b: bool) {}
+pub fn assert(_: bool) {}
 
-fn _test_assert() {
+fn test_assert() {
     assert(1 < 2);
     // assert(10 < 2);
 }
@@ -34,30 +33,29 @@ pub fn five() -> i32 {
     5
 }
 
-#[flux::sig(fn (n: i32) -> i32[n + 1])]
+#[flux::sig(fn(n: i32) -> i32[n + 1])]
 pub fn inc(n: i32) -> i32 {
     n + 1
 }
 
-fn _test_inc() {
+fn test_inc() {
     assert(inc(10) == 11);
 }
 
-pub fn grigory(n: i32) {
-    if 0 <= n {
-        let mut x = 0;
-        while x < n {
-            x += 1;
-        }
-        assert(x == n);
-    }
-}
-
-#[flux::sig(fn(i32) -> i32{v:10 < v})]
-pub fn test(n: i32) -> i32 {
+#[flux::sig(fn(i32) -> i32{v: 10 < v})]
+fn test(n: i32) -> i32 {
     if 1 < n {
         11
     } else {
-        2
+        12
     }
+}
+
+#[flux::sig(fn(i32{v : v >= 0}) -> ())]
+pub fn grigory(n: i32) {
+    let mut x = 0;
+    while x < n {
+        x += 1;
+    }
+    assert(x == n);
 }

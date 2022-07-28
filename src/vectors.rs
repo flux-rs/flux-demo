@@ -2,7 +2,7 @@ use crate::basics::*;
 use crate::rvec::RVec;
 
 #[flux::sig(fn() -> usize{v: 10 <= v})]
-fn _test_rvec() -> usize {
+fn test_rvec() -> usize {
     let mut v = RVec::new();
     v.push(10);
     v.push(20);
@@ -36,7 +36,7 @@ pub fn range(lo: i32, hi: i32) -> RVec<i32> {
     res
 }
 
-fn _test_range(lo: i32, hi: i32) {
+fn test_range(lo: i32, hi: i32) {
     if lo <= hi {
         let mut rng = range(lo, hi);
         while !rng.is_empty() {
