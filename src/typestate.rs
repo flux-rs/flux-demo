@@ -1,4 +1,4 @@
-struct Foo {}
+/// Encoding Typestate Contracts from https://docs.rust-embedded.org/book/static-guarantees/design-contracts.html
 
 /// GPIO interface
 /// enabled     : true = ENABLED, false = DISABLED
