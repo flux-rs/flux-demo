@@ -30,7 +30,8 @@ fn test_assert() {
 // output type says the function returns 5
 #[flux::sig(fn() -> i32[5])]
 pub fn five() -> i32 {
-    5
+    let res = 5;
+    res
 }
 
 #[flux::sig(fn(n: i32) -> i32[n + 1])]
@@ -42,12 +43,12 @@ fn test_inc() {
     assert(inc(10) == 11);
 }
 
-#[flux::sig(fn(i32) -> i32{v: 10 < v})]
+#[flux::sig(fn(i32) -> i32{v: 1 < v})]
 fn test(n: i32) -> i32 {
     if 1 < n {
         11
     } else {
-        12
+        2
     }
 }
 
@@ -58,4 +59,28 @@ pub fn grigory(n: i32) {
         x += 1;
     }
     assert(x == n);
+}
+
+// fn foo() {
+//     let mut x = 100;
+//     let mut y = 105;
+//     while x > 0 {
+//         x -= 1;
+//         y -= 1;
+//     }
+//     assert(x == 0);
+//     assert(y == 5);
+// }
+
+// ----------------------------------------------------------------------------------------------------------
+
+#[flux::sig(fn(i32{v : v > 0}, i32{v : v > 0}) -> i32{v : v > 0})]
+pub fn gcd(mut a: i32, mut b: i32) -> i32 {
+    while a % b > 0 {
+        let t = a % b;
+        a = b;
+        b = t;
+    }
+
+    b
 }

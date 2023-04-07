@@ -16,25 +16,25 @@ fn two_pi() -> f32 {
     2.0 * pi()
 }
 
-#[flux::assume]
+#[flux::trusted]
 #[flux::sig(fn(n:usize) -> f32)]
 fn float_of_int(n: usize) -> f32 {
     n as f32
 }
 
-#[flux::assume]
+#[flux::trusted]
 #[flux::sig(fn(x:f32) -> f32)]
 pub fn fabs(x: f32) -> f32 {
     f32::abs(x)
 }
 
-#[flux::assume]
+#[flux::trusted]
 #[flux::sig(fn(x:f32) -> f32)]
 fn cos(x: f32) -> f32 {
     f32::cos(x)
 }
 
-#[flux::assume]
+#[flux::trusted]
 #[flux::sig(fn(x:f32) -> f32)]
 fn sin(x: f32) -> f32 {
     f32::sin(x)

@@ -10,6 +10,7 @@ fn test_rvec() -> usize {
     *r
 }
 
+// FLUX-TODO: pretty silly that the following doesn't work due to missing qualifier `v < a + b` AUTO-SCRAPE!
 #[flux::sig(fn(start: i32, n:i32{0 <= n}) -> RVec<i32{v: start <= v && v < start + n}>[n])]
 pub fn fill(start: i32, n: i32) -> RVec<i32> {
     let mut res = RVec::new();
@@ -17,6 +18,7 @@ pub fn fill(start: i32, n: i32) -> RVec<i32> {
     assert(0 <= n);
     let mut i = 0;
     while i < n {
+        // INV: "size" = i
         res.push(val);
         val += 1;
         i += 1;
@@ -25,11 +27,12 @@ pub fn fill(start: i32, n: i32) -> RVec<i32> {
     res
 }
 
-#[flux::sig(fn(lo: i32, hi:i32{lo <= hi}) -> RVec<i32{v:lo<=v && v<hi}>[hi - lo])]
+#[flux::sig(fn(lo: i32, hi:i32{lo <= hi}) -> RVec<i32{v:lo<=v && v<hi}>)]
 pub fn range(lo: i32, hi: i32) -> RVec<i32> {
     let mut i = lo;
     let mut res = RVec::new();
     while i < hi {
+        // INV: size = i - lo
         res.push(i);
         i += 1;
     }

@@ -8,13 +8,13 @@ use rvec::RVec;
 
 /////////////////////////////////////////////////////////////
 
-#[flux::assume]
+#[flux::trusted]
 #[flux::sig(fn() -> f32)]
 fn f32_max() -> f32 {
     f32::MAX
 }
 
-#[flux::assume]
+#[flux::trusted]
 #[flux::sig(fn(n:f32, d:usize) -> f32)]
 fn f32_div(n: f32, d: usize) -> f32 {
     n / (d as f32)
