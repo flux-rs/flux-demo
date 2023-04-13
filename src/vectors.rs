@@ -1,13 +1,18 @@
 use crate::basics::*;
-use crate::rvec::RVec;
+use crate::rvec::{rvec, RVec};
+
+#[flux::sig(fn() -> usize{v: 10 <= v})]
+fn test_rvec0() -> usize {
+    let x = rvec![10, 20, 30];
+    x[0]
+}
 
 #[flux::sig(fn() -> usize{v: 10 <= v})]
 fn test_rvec() -> usize {
     let mut v = RVec::new();
     v.push(10);
     v.push(20);
-    let r = v.get(1);
-    *r
+    v[1]
 }
 
 // FLUX-TODO: pretty silly that the following doesn't work due to missing qualifier `v < a + b` AUTO-SCRAPE!

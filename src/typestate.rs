@@ -37,19 +37,19 @@ impl GpioConfig {
     }
 
     #[flux::trusted]
-    #[flux::sig(fn(me: &strg {GpioConfig[@old] : old.enabled}, is_output: bool) ensures me: GpioConfig[old.enabled, is_output, old.mode] )]
+    #[flux::sig(fn(me: &strg {GpioConfig[@old] | old.enabled}, is_output: bool) ensures me: GpioConfig[old.enabled, is_output, old.mode] )]
     pub fn set_direction(&mut self, _is_output: bool) {
         // self.periph.modify(|_r, w| w.direction().set_bit(is_output));
     }
 
     #[flux::trusted]
-    #[flux::sig(fn(me: &strg {GpioConfig[@old] : old.enabled && !old.direction }, variant: InputMode) ensures me: GpioConfig[old.enabled, old.direction, variant] )]
+    #[flux::sig(fn(me: &strg {GpioConfig[@old] | old.enabled && !old.direction }, variant: InputMode) ensures me: GpioConfig[old.enabled, old.direction, variant] )]
     pub fn set_input_mode(&mut self, _variant: InputMode) {
         // self.periph.modify(|_r, w| w.input_mode().variant(variant));
     }
 
     #[flux::trusted]
-    #[flux::sig(fn(me: &strg {GpioConfig[@old] : old.enabled && old.direction }, is_high: bool) ensures me: GpioConfig[old.enabled, old.direction, if is_high { 1 } else { 0 }] )]
+    #[flux::sig(fn(me: &strg {GpioConfig[@old] | old.enabled && old.direction }, is_high: bool) ensures me: GpioConfig[old.enabled, old.direction, if is_high { 1 } else { 0 }] )]
     pub fn set_output_status(&mut self, _is_high: bool) {
         // self.periph.modify(|_r, w| w.output_mode.set_bit(is_high));
     }
@@ -65,7 +65,7 @@ impl GpioConfig {
 impl GpioConfig {
     // Derived methods
 
-    #[flux::sig(fn (me: &strg { GpioConfig[@old] : old.enabled} ) ensures me: GpioConfig[old.enabled, false, 2])]
+    #[flux::sig(fn (me: &strg { GpioConfig[@old] | old.enabled} ) ensures me: GpioConfig[old.enabled, false, 2])]
     pub fn into_input_high_z(&mut self) {
         self.set_direction(false);
         self.set_input_mode(InputMode::HighZ);
