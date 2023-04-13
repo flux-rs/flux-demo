@@ -65,7 +65,7 @@ fn normal(x: &RVec<f32>, w: usize) -> RVec<f32> {
 }
 
 #[flux::sig(fn (n: usize, centers: {RVec<RVec<f32>[n]>[@k] | 0 < k}, points: RVec<RVec<f32>[n]>))]
-fn kmeans(n: usize, mut centers: RVec<RVec<f32>>, points: RVec<RVec<f32>>) {
+pub fn kmeans(n: usize, mut centers: RVec<RVec<f32>>, points: RVec<RVec<f32>>) {
     for _ in 0..100 {
         let point_centers = points.smap(&centers, |c, x| nearest(c, x));
         let center_clusters = group(point_centers);
