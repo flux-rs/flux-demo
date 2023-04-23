@@ -72,7 +72,7 @@ mod kmeans {
     #[flux::sig(fn (n: usize, centers: {RVec<Point[n]>[@k] | 0 < k}, points: RVec<Point[n]>))]
     pub fn kmeans(_n: usize, mut centers: RVec<Point>, points: RVec<Point>) {
         for _ in 0..100 {
-            let point_centers = mr::smap(&points, &centers, |c, x| nearest(c, x));
+            let point_centers = mr::map(&points, |x| nearest(&centers, x));
             let center_clusters = mr::group(point_centers);
             let weighted_centers = mr::reduce(center_clusters, |p1, p2| centroid(p1, p2));
             for (i, (x, w)) in weighted_centers {
