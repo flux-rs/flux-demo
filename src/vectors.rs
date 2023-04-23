@@ -32,19 +32,37 @@ pub fn fill(start: i32, n: i32) -> RVec<i32> {
     res
 }
 
-#[flux::sig(fn(lo: i32, hi:i32{lo <= hi}) -> RVec<i32{v:lo<=v && v<hi}>)]
-pub fn range(lo: i32, hi: i32) -> RVec<i32> {
+#[flux::sig(fn(lo: usize, hi:usize{lo<=hi}) -> RVec<usize{v:lo<=v && v<hi}>[hi-lo] )]
+pub fn range(lo: usize, hi: usize) -> RVec<usize> {
     let mut i = lo;
     let mut res = RVec::new();
     while i < hi {
-        // INV: size = i - lo
         res.push(i);
         i += 1;
     }
     res
 }
 
-fn test_range(lo: i32, hi: i32) {
+#[flux::sig(fn(lo: usize, hi:usize{lo<=hi}) -> RVec<usize{v:lo<=v && v<hi}>[hi-lo] )]
+pub fn range_r(lo: usize, hi: usize) -> RVec<usize> {
+    if lo >= hi {
+        RVec::new()
+    } else {
+        let mut r = range_r(lo + 1, hi);
+        r.push(lo);
+        r
+    }
+}
+
+fn test_range_for(lo: usize, hi: usize) {
+    if lo <= hi {
+        for val in range(lo, hi) {
+            assert(lo <= val);
+        }
+    }
+}
+
+fn test_range_while(lo: usize, hi: usize) {
     if lo <= hi {
         let mut rng = range(lo, hi);
         while !rng.is_empty() {
@@ -52,6 +70,31 @@ fn test_range(lo: i32, hi: i32) {
             assert(lo <= val);
         }
     }
+}
+
+#[flux::sig(fn(a: { &RVec<f32>[@k] | 0 < k}) -> usize{v: v < k})]
+fn min_index(a: &RVec<f32>) -> usize {
+    let mut min = 0;
+    for i in range(0, a.len()) {
+        if a[i] < a[min] {
+            min = i;
+        }
+    }
+    min
+}
+
+/// A type alias for n-dimensional points
+type Point = RVec<f32>;
+
+/// distance between two points
+#[flux::trusted]
+fn distance(x: &Point, y: &Point) -> f32 {
+    let mut res = 0.0;
+    for i in range(0, x.len()) {
+        let di = x[i] - y[i];
+        res += di * di;
+    }
+    res
 }
 
 // #[flux::sig(fn(vec<i32{v:0<=v}>) -> ())]

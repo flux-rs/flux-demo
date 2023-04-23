@@ -53,7 +53,7 @@ fn kmp_search(mut pat: RVec<u8>, target: &RVec<u8>) -> usize {
         body_invariant!(t.len() == pat.len());
         body_invariant!(forall(|x: usize| x < t.len() ==> t.lookup(x) < pat_len));
         body_invariant!(result_idx <= t_i);
-        if *target.get(t_i) == *pat.get(p_i) {
+        if target[t_i] == pat[p_i] {
             if result_idx == 0 {
                 result_idx = t_i;
             }
@@ -66,7 +66,7 @@ fn kmp_search(mut pat: RVec<u8>, target: &RVec<u8>) -> usize {
             if p_i == 0 {
                 p_i = 0;
             } else {
-                p_i = *t.get(p_i - 1);
+                p_i = t[p_i - 1];
             }
             t_i = t_i + 1;
             result_idx = 0;

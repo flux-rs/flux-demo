@@ -4,11 +4,13 @@
 #![allow(dead_code)]
 #![flux::defs {
     qualifier MyQ1(x: int, y: int, z: int) { x == y + z }
+    qualifier MyQ2(x: int, y: int, z: int) { x == y - z }
 }]
 
 pub mod basics;
 pub mod borrows;
 pub mod kmeans;
+pub mod lists;
 pub mod mapreduce;
 pub mod range;
 pub mod rvec;

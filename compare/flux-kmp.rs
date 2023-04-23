@@ -5,7 +5,7 @@
 mod rvec;
 use rvec::RVec;
 
-#[flux::sig(fn(p: &len@RVec<u8>{0 < len}) -> RVec<usize{v: 0 <= v &&v < len}>[len])]
+#[flux::sig(fn(p: &len@RVec<u8>{0 < len}) -> RVec<usize{v: v < len}>[len])]
 fn kmp_table(p: &RVec<u8>) -> RVec<usize> {
     let m = p.len();
     let mut t = RVec::from_elem_n(0, m);
@@ -14,23 +14,23 @@ fn kmp_table(p: &RVec<u8>) -> RVec<usize> {
     let mut j = 0;
     while i < m {
         // INV: j < len
-        let a = *p.get(i);
-        let b = *p.get(j);
+        let a = p[i];
+        let b = p[j];
         if a == b {
-            *t.get_mut(i) = j + 1;
+            t[i] = j + 1;
             i = i + 1;
             j = j + 1;
         } else if j == 0 {
-            *t.get_mut(i) = 0;
+            t[i] = 0;
             i = i + 1;
         } else {
-            j = *t.get(j - 1);
+            j = t[j - 1];
         }
     }
     t
 }
 
-#[flux::sig(fn(pat: RVec<u8>{0 < pat && pat <= n}, target: &n@RVec<u8>{0 < n}) -> usize)]
+#[flux::sig(fn(pat:RVec<u8>{0<pat&&pat<=n}, target:&{RVec<u8>[@n]|0<n}) -> usize)]
 fn kmp_search(mut pat: RVec<u8>, target: &RVec<u8>) -> usize {
     let mut t_i = 0;
     let mut p_i = 0;
@@ -41,7 +41,7 @@ fn kmp_search(mut pat: RVec<u8>, target: &RVec<u8>) -> usize {
     let t = kmp_table(&mut pat);
 
     while t_i < target_len && p_i < pat_len {
-        if *target.get(t_i) == *pat.get(p_i) {
+        if target[t_i] == pat[p_i] {
             if result_idx == 0 {
                 result_idx = t_i;
             }
@@ -54,7 +54,7 @@ fn kmp_search(mut pat: RVec<u8>, target: &RVec<u8>) -> usize {
             if p_i == 0 {
                 p_i = 0;
             } else {
-                p_i = *t.get(p_i - 1);
+                p_i = t[p_i - 1];
             }
             t_i = t_i + 1;
             result_idx = 0;

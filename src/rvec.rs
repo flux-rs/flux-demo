@@ -122,15 +122,13 @@ impl<T> RVec<T> {
     }
 
     #[flux::trusted]
-    pub fn map<U, F>(self, f: F) -> RVec<U>
+    pub fn map<U, F>(&self, f: F) -> RVec<U>
     where
-        F: Fn(T) -> U,
+        F: Fn(&T) -> U,
     {
-        let mut res = RVec::new();
-        for x in self.into_iter() {
-            res.push(f(x));
+        RVec {
+            inner: self.inner.iter().map(f).collect(),
         }
-        res
     }
 
     #[flux::trusted]
