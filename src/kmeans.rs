@@ -76,7 +76,7 @@ mod kmeans {
             let center_clusters = mr::group(point_centers);
             let weighted_centers = mr::reduce(center_clusters, |p1, p2| centroid(p1, p2));
             for (i, (x, w)) in weighted_centers {
-                centers.set(i, x.smap(&w, |w, xi| fdiv(*xi, *w)))
+                centers.set(i, x.map(|xi| fdiv(*xi, w)))
             }
         }
     }

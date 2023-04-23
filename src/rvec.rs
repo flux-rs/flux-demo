@@ -122,6 +122,7 @@ impl<T> RVec<T> {
     }
 
     #[flux::trusted]
+    #[flux::sig(fn (&RVec<T>[@n], F) -> RVec<U>[n])]
     pub fn map<U, F>(&self, f: F) -> RVec<U>
     where
         F: Fn(&T) -> U,
