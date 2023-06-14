@@ -67,9 +67,8 @@ impl<T> RVec<T> {
     }
 
     #[flux::trusted]
-    #[flux::sig(fn(self: &strg RVec<T>[@n]) -> T
-    		requires n > 0
-                ensures self: RVec<T>[n-1])]
+    #[flux::sig(fn(self: &strg {RVec<T>[@n] | 0 < n}) -> T
+            ensures self: RVec<T>[n-1])]
     pub fn pop(&mut self) -> T {
         self.inner.pop().unwrap()
     }
@@ -131,6 +130,17 @@ impl<T> RVec<T> {
             inner: self.inner.iter().map(f).collect(),
         }
     }
+
+    #[flux::trusted]
+    pub fn fold<B, F>(&self, init: B, f: F) -> B
+    where
+        F: FnMut(B, &T) -> B,
+    {
+        self.inner.iter().fold(init, f)
+    }
+    // fn fold<B, F>(self, init: B, f: F) -> Bwhere
+    // Self: Sized,
+    // F: FnMut(B, Self::Item) -> B,
 
     #[flux::trusted]
     #[flux::sig(fn (&RVec<T>[@n], &S, F) -> RVec<U>[n])]

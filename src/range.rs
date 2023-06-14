@@ -60,6 +60,19 @@ impl IntoIterator for Rng {
     }
 }
 
+impl RngIter {
+    pub fn ffold<B, F>(&mut self, init: B, mut f: F) -> B
+    where
+        F: FnMut(B, usize) -> B,
+    {
+        let mut res = init;
+        while let Some(i) = self.next() {
+            res = f(res, i);
+        }
+        res
+    }
+}
+
 #[flux::sig(fn(lo:usize, hi:usize{lo <= hi}) -> Rng[lo, hi])]
 pub fn range(lo: usize, hi: usize) -> Rng {
     Rng::new(lo, hi)

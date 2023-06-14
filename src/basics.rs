@@ -18,6 +18,11 @@ pub fn ff() -> bool {
 #[flux::sig(fn (bool[true]) -> ())]
 pub fn assert(_: bool) {}
 
+#[flux::sig(fn(i32{v: false}) -> T)]
+pub fn never<T>(_: i32) -> T {
+    loop {}
+}
+
 fn test_assert() {
     assert(1 < 2);
     // assert(10 < 2);
@@ -113,3 +118,10 @@ fn test_ownership() {
     x += 10;
     assert(x == 10);
 }
+
+// #[flux::sig(fn (n:i32{0 < n && n < 400}))]
+// fn floo(n: i32) {}
+
+// fn test_floo() {
+//     floo(1000);
+// }

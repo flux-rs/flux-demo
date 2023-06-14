@@ -33,7 +33,7 @@ mod kmeans {
 
     /// compute the (Euclidean) distance between two points `x` and `y`
     #[flux::sig(fn(x: &Point[@n], y: &Point[n]) -> f32)]
-    fn dist(x: &Point, y: &Point) -> f32 {
+    fn distance(x: &Point, y: &Point) -> f32 {
         let mut res = 0.0;
         for i in range(0, x.len()) {
             let di = x[i] - y[i];
@@ -47,7 +47,7 @@ mod kmeans {
     /// - the point-with-weight-1
     #[flux::sig(fn (centers: &{RVec<Point[n]>[@k] | 0 < k}, x: &Point[@n] ) -> (usize{v:v < k}, (Point[n], Weight)))]
     fn nearest(centers: &RVec<Point>, x: &Point) -> (usize, (Point, Weight)) {
-        let distances = centers.smap(x, |x, c| dist(x, &c));
+        let distances = centers.map(|c| distance(x, &c));
         (min_index(&distances), (x.clone(), 1))
     }
 

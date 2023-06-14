@@ -1,5 +1,11 @@
-use crate::basics::*;
 use crate::rvec::{rvec, RVec};
+
+// mod rvec;
+// use rvec::RVec;
+
+// An `assert` function, whose precondition expects only `true`
+#[flux::sig(fn (bool[true]) -> ())]
+pub fn assert(_: bool) {}
 
 #[flux::sig(fn() -> usize{v: 10 <= v})]
 fn test_rvec0() -> usize {
@@ -15,121 +21,121 @@ fn test_rvec() -> usize {
     v[1]
 }
 
-// FLUX-TODO: pretty silly that the following doesn't work due to missing qualifier `v < a + b` AUTO-SCRAPE!
-#[flux::sig(fn(start: i32, n:i32{0 <= n}) -> RVec<i32{v: start <= v && v < start + n}>[n])]
-pub fn fill(start: i32, n: i32) -> RVec<i32> {
-    let mut res = RVec::new();
-    let mut val = start;
-    assert(0 <= n);
+fn test_macro_pop() {
+    let mut v = rvec![10, 20];
+    v.pop();
+    v.pop();
+    // v.pop();
+}
+
+fn test_push_pop() {
+    let mut v = RVec::new();
+    v.push(10);
+    v.push(20);
+    v.pop();
+    v.pop();
+    // v.pop();
+}
+
+fn test_push_pop_len() {
+    let mut v = rvec![10, 20, 30];
+    v.push(40);
+    v.push(50);
+    assert(v.len() == 5);
+    v.pop();
+    assert(v.len() == 4);
+}
+
+pub fn vec_sum(vec: &RVec<i32>) -> i32 {
     let mut i = 0;
-    while i < n {
-        // INV: "size" = i
-        res.push(val);
-        val += 1;
+    let mut res = 0;
+    while i < vec.len() {
+        res += vec[i];
         i += 1;
     }
-    assert(i == n);
     res
 }
 
-#[flux::sig(fn(lo: usize, hi:usize{lo<=hi}) -> RVec<usize{v:lo<=v && v<hi}>[hi-lo] )]
+#[flux::trusted] // blog
+pub fn fib(n: usize) -> i32 {
+    let mut r = RVec::new();
+    let mut i = 0;
+    while i < n {
+        if i == 0 {
+            r.push(0);
+        } else if i == 1 {
+            r.push(1);
+        } else {
+            let a = r[i - 1];
+            let b = r[i - 2];
+            r.push(a + b);
+        }
+        i += 1;
+    }
+    r.pop()
+}
+
+#[flux::trusted] // blog example
+pub fn binary_search(vec: &RVec<i32>, x: i32) -> Result<usize, usize> {
+    let mut size = vec.len();
+    let mut left = 0;
+    let mut right = size;
+    while left <= right {
+        let mid = left + size / 2;
+        let val = vec[mid];
+        if val < x {
+            left = mid + 1;
+        } else if x < val {
+            right = mid;
+        } else {
+            return Ok(mid);
+        }
+        size = right - left;
+    }
+    Err(left)
+}
+
+#[flux::sig(fn(lo: usize, hi:usize{lo <= hi}) -> RVec<usize{v:lo<=v && v<=hi}>[hi - lo + 1])]
 pub fn range(lo: usize, hi: usize) -> RVec<usize> {
     let mut i = lo;
     let mut res = RVec::new();
-    while i < hi {
+    while i <= hi {
+        assert(res.len() == i - lo);
         res.push(i);
         i += 1;
     }
     res
 }
 
-#[flux::sig(fn(lo: usize, hi:usize{lo<=hi}) -> RVec<usize{v:lo<=v && v<hi}>[hi-lo] )]
-pub fn range_r(lo: usize, hi: usize) -> RVec<usize> {
-    if lo >= hi {
-        RVec::new()
-    } else {
-        let mut r = range_r(lo + 1, hi);
-        r.push(lo);
-        r
+#[flux::sig(fn () -> usize[103])]
+fn bob() -> usize {
+    let mut x = 0;
+    let mut y = 3;
+    while x < 100 {
+        assert(x <= 100);
+        assert(y == x + 3);
+        x += 1;
+        y += 1;
     }
+    y
 }
 
-fn test_range_for(lo: usize, hi: usize) {
-    if lo <= hi {
-        for val in range(lo, hi) {
-            assert(lo <= val);
-        }
-    }
+#[flux::sig(fn (x: &RVec<f32>[@n], y: &RVec<f32>[n]) -> f32 requires 0 < n)]
+pub fn dot_product(x: &RVec<f32>, y: &RVec<f32>) -> f32 {
+    range(0, x.len() - 1)
+        .map(|i| x[*i] * y[*i])
+        .into_iter()
+        .sum()
 }
 
-fn test_range_while(lo: usize, hi: usize) {
-    if lo <= hi {
-        let mut rng = range(lo, hi);
-        while !rng.is_empty() {
-            let val = rng.pop();
-            assert(lo <= val);
-        }
-    }
-}
-
-#[flux::sig(fn(a: { &RVec<f32>[@k] | 0 < k}) -> usize{v: v < k})]
-fn min_index(a: &RVec<f32>) -> usize {
-    let mut min = 0;
-    for i in range(0, a.len()) {
-        if a[i] < a[min] {
-            min = i;
-        }
-    }
-    min
-}
-
-/// A type alias for n-dimensional points
-type Point = RVec<f32>;
-
-/// distance between two points
-#[flux::trusted]
-fn distance(x: &Point, y: &Point) -> f32 {
-    let mut res = 0.0;
-    for i in range(0, x.len()) {
-        let di = x[i] - y[i];
-        res += di * di;
-    }
-    res
-}
-
-// #[flux::sig(fn(vec<i32{v:0<=v}>) -> ())]
-// pub fn test_loop(vec: Vec<i32>) {
-//     for val in vec.iter() {
-//         assert(true);
-//         assert(0 <= *val)
-//     }
+// pub fn dot_product2(x: &RVec<f32>[@n], y: &RVec<f32>[n]) -> f32 {
+//     range(0, x.len()).map(|i| x[*i] * y[*i]).into_iter().sum()
 // }
 
-/* Horn Constraints for `range`
-
-// Horn Constraint
-
-∀ lo: int.
-  true ⇒
-    ∀ hi: int.
-      lo ≤ hi ⇒
-        $k_i(lo)
-        $k_size(0)
-        ∀ v: int{false}. $k_val(v)
-        ∀ n: int{$k_size(n)}, i: int{$k_i(i)}.
-          ¬(i < hi) ⇒
-            ∀ v: int{$k_val(v)}. (lo ≤ v ∧ v < hi)
-            (n = hi - lo)
-          i < hi ⇒
-            $k_val(i)
-            $k_size(n + 1)
-            $k_i(i + 1)
-
-// Solution
-
-$k_i(i)    := lo <= i && i <= hi
-$k_val(i)  := lo <= i && i < hi
-$k_size(n) := n = i - lo
-
-
- */
+// fn sum_squares(x: &RVec<f32>) -> f32 {
+//     let mut res = 0.0;
+//     for i in range(0, x.len()) {
+//         res += x[i] * x[i];
+//     }
+//     res
+// }
