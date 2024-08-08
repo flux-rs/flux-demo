@@ -8,7 +8,6 @@
     qualifier MyQ2(x: int, y: int, z: int) { x == y - z }
 }]
 
-// pub mod mpu;
 pub mod basics;
 pub mod borrows;
 pub mod kmeans;
