@@ -1,12 +1,14 @@
-#![feature(register_tool)]
-#![feature(custom_inner_attributes)]
-#![register_tool(flux)]
+// #![feature(register_tool)]
+// #![register_tool(flux)]
+// #![feature(custom_inner_attributes)]
+
 #![allow(dead_code)]
 #![flux::defs {
     qualifier MyQ1(x: int, y: int, z: int) { x == y + z }
     qualifier MyQ2(x: int, y: int, z: int) { x == y - z }
 }]
 
+// pub mod mpu;
 pub mod basics;
 pub mod borrows;
 pub mod kmeans;

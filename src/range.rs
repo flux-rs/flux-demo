@@ -1,8 +1,8 @@
 #[flux::refined_by(lo: int, hi: int)]
 pub struct RngIter {
-    #[flux::field(usize[@lo])]
+    #[flux::field(usize[lo])]
     _lo: usize,
-    #[flux::field(usize[@hi])]
+    #[flux::field(usize[hi])]
     hi: usize,
     #[flux::field(usize{v:lo <= v && v <= hi})]
     cur: usize,
@@ -21,9 +21,9 @@ impl RngIter {
 
 #[flux::refined_by(lo: int, hi: int)]
 pub struct Rng {
-    #[flux::field(usize[@lo])]
+    #[flux::field(usize[lo])]
     lo: usize,
-    #[flux::field({usize[@hi] | lo <= hi})]
+    #[flux::field({usize[hi] | lo <= hi})]
     hi: usize,
 }
 
