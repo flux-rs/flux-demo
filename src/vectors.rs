@@ -84,10 +84,11 @@ fn min_index(a: &RVec<f32>) -> usize {
 }
 
 /// A type alias for n-dimensional points
+#[flux::alias(type Point[n: int] = RVec<f32>[n])]
 type Point = RVec<f32>;
 
 /// distance between two points
-#[flux::trusted]
+#[flux::sig(fn(x: &Point[@n], y: &Point[n]) -> f32)]
 fn distance(x: &Point, y: &Point) -> f32 {
     let mut res = 0.0;
     for i in range(0, x.len()) {

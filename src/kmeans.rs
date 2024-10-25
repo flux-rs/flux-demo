@@ -1,26 +1,36 @@
-// #![flux::ignore] // comment this out to see a bunch of errors
+#![flux::ignore] // comment this out to see a bunch of errors
 mod kmeans {
 
-    use crate::basics::assert;
     use crate::mapreduce::mr;
-    use crate::range::range;
     use crate::rvec::RVec;
+
+    // An `assert` function, whose precondition expects only `true`
+    fn assert(_: bool) {}
+
+    fn test_assert() {
+        assert(1 < 2);
+        assert(10 < 2);
+    }
+
+    /// A `Weight` represents the non-negative number of points in a cluster
+    type Weight = usize;
 
     fn fdiv(x: f32, y: Weight) -> f32 {
         assert(y > 0);
         x / (y as f32)
     }
 
-    /// A `Point` is a vector of f32
-    #[flux::alias(type Point[n: int] = RVec<f32>[n])]
-    type Point = RVec<f32>;
-
-    /// A `Weight` represents the non-negative number of points in a cluster
-    #[flux::alias(type Weight = usize{v: v > 0})]
-    type Weight = usize;
+    pub fn range(lo: usize, hi: usize) -> RVec<usize> {
+        let mut i = lo;
+        let mut res = RVec::new();
+        while i < hi {
+            res.push(i);
+            i += 1;
+        }
+        res
+    }
 
     /// Compute the index of an Vector whose value is the smallest
-    #[flux::sig(fn(a: { &RVec<f32>[@k] | 0 < k}) -> usize{v: v < k})]
     fn min_index(a: &RVec<f32>) -> usize {
         let mut min = 0;
         for i in range(0, a.len()) {
@@ -31,9 +41,12 @@ mod kmeans {
         min
     }
 
+    /// A `Point` is a vector of f32
+    #[flux::alias(type Point[n: int] = RVec<f32>[n])]
+    type Point = RVec<f32>;
+
     /// compute the (Euclidean) distance between two points `x` and `y`
-    #[flux::sig(fn(x: &Point[@n], y: &Point[n]) -> f32)]
-    fn dist(x: &Point, y: &Point) -> f32 {
+    fn distance(x: &Point, y: &Point) -> f32 {
         let mut res = 0.0;
         for i in range(0, x.len()) {
             let di = x[i] - y[i];
@@ -45,14 +58,12 @@ mod kmeans {
     /// given a set of `centers` and a point `x` return a tuple of
     /// - (index of) the "nearest" center and
     /// - the point-with-weight-1
-    #[flux::sig(fn (centers: &{RVec<Point[n]>[@k] | 0 < k}, x: &Point[@n] ) -> (usize{v:v < k}, (Point[n], Weight)))]
     fn nearest(centers: &RVec<Point>, x: &Point) -> (usize, (Point, Weight)) {
-        let distances = centers.smap(x, |x, c| dist(x, &c));
+        let distances = centers.smap(x, |x, c| distance(x, &c));
         (min_index(&distances), (x.clone(), 1))
     }
 
     /// `add` two points `x` and `y`, updating `x` in place
-    #[flux::sig(fn (x: &mut Point[@n], y: &Point[n]))]
     fn plus(x: &mut Point, y: &Point) {
         for i in range(0, x.len()) {
             x[i] = x[i] + y[i];
@@ -60,7 +71,6 @@ mod kmeans {
     }
 
     /// compute the centroid of two weighted points
-    #[flux::sig(fn (p1: (Point[@n], Weight), p2: (Point[n], Weight)) -> (Point[n], Weight))]
     fn centroid(p1: (Point, Weight), p2: (Point, Weight)) -> (Point, Weight) {
         let (mut x1, size1) = p1;
         let (x2, size2) = p2;
@@ -69,7 +79,6 @@ mod kmeans {
     }
 
     /// k-means clustering using map/reduce
-    #[flux::sig(fn (n: usize, centers: {RVec<Point[n]>[@k] | 0 < k}, points: RVec<Point[n]>))]
     pub fn kmeans(_n: usize, mut centers: RVec<Point>, points: RVec<Point>) {
         for _ in 0..100 {
             let point_centers = mr::map(&points, |x| nearest(&centers, x));

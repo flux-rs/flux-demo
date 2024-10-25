@@ -33,6 +33,7 @@ fn five() -> i32 {
     5
 }
 
+#[flux::sig(fn () -> i32[6])]
 fn six() -> i32 {
     let res = 6;
     res
@@ -44,7 +45,7 @@ fn twelve() -> i32 {
 }
 
 fn test_plus() {
-    assert(five() + 6 < 12);
+    assert(five() + six() < 12);
 }
 
 /*
@@ -112,4 +113,18 @@ fn test_ownership() {
     assert(x == 0);
     x += 10;
     assert(x == 10);
+}
+
+// --------------------------------------------------------------------
+// Qualifiers
+// --------------------------------------------------------------------
+#[flux::sig(fn(start: usize) -> usize[start])]
+fn count(mut start: usize) -> usize {
+    let mut output = 0;
+    while 0 < start {
+        // output = start0 - start
+        start -= 1;
+        output += 1;
+    }
+    output
 }

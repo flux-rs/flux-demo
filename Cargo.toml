@@ -5,11 +5,11 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-# flux-attrs-proc-macros = { path = "../flux/crates/flux-macros" }
-
 [profile.dev]
-incremental = false
+incremental = true
 
 [package.metadata.flux]
 enabled = true
+
+[dependencies]
+flux-rs = { git = "https://github.com/flux-rs/flux" }
