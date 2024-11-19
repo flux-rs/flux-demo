@@ -2,8 +2,8 @@ pub mod mr {
     use crate::rvec::RVec;
     use std::collections::HashMap;
 
-    #[flux::trusted]
-    #[flux::sig(fn (&RVec<T>[@n], &S, F) -> RVec<U>[n])]
+    #[flux_rs::trusted]
+    #[flux_rs::sig(fn (&RVec<T>[@n], &S, F) -> RVec<U>[n])]
     pub fn smap<S, T, U, F>(vec: &RVec<T>, s: &S, f: F) -> RVec<U>
     where
         F: Fn(&S, &T) -> U,
@@ -11,8 +11,8 @@ pub mod mr {
         vec.smap(s, f)
     }
 
-    #[flux::trusted]
-    #[flux::sig(fn (&RVec<T>[@n], F) -> RVec<U>[n])]
+    #[flux_rs::trusted]
+    #[flux_rs::sig(fn (&RVec<T>[@n], F) -> RVec<U>[n])]
     pub fn map<T, U, F>(vec: &RVec<T>, f: F) -> RVec<U>
     where
         F: Fn(&T) -> U,
@@ -20,7 +20,7 @@ pub mod mr {
         vec.map(f)
     }
 
-    #[flux::trusted]
+    #[flux_rs::trusted]
     pub fn group<K, V>(xs: RVec<(K, V)>) -> HashMap<K, RVec<V>>
     where
         K: std::cmp::Eq + std::hash::Hash,
@@ -33,7 +33,7 @@ pub mod mr {
         res
     }
 
-    #[flux::trusted]
+    #[flux_rs::trusted]
     pub fn reduce<F, K, V>(t: HashMap<K, RVec<V>>, f: F) -> HashMap<K, V>
     where
         F: Fn(V, V) -> V,

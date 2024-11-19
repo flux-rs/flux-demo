@@ -1,4 +1,4 @@
-#[flux::sig(fn(lo: usize, hi:usize{lo<=hi})
+#[flux_rs::sig(fn(lo: usize, hi:usize{lo<=hi})
             -> RVec<usize{v:lo<=v && v<hi}>)]
 pub fn range(lo: usize, hi: usize) -> RVec<usize> {
     let mut i = lo;

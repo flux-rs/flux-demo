@@ -1,18 +1,27 @@
-#![flux::ignore] // comment this out to see a bunch of errors
 mod kmeans {
 
     use crate::mapreduce::mr;
     use crate::rvec::RVec;
 
     // An `assert` function, whose precondition expects only `true`
+    #[flux_rs::sig(fn(bool[true]))]
     fn assert(_: bool) {}
 
     fn test_assert() {
         assert(1 < 2);
-        assert(10 < 2);
+        assert(10 < 20);
+
+        let mut nine = 9;
+        inc(&mut nine);
+        assert(nine == 10);
+    }
+    #[flux_rs::sig(fn(x: &strg i32[@n]) ensures x: i32[n+1] )]
+    fn inc(x: &mut i32) {
+        *x = *x + 1
     }
 
     /// A `Weight` represents the non-negative number of points in a cluster
+    #[flux_rs::alias(type Weight = usize{this: this > 0})]
     type Weight = usize;
 
     fn fdiv(x: f32, y: Weight) -> f32 {
@@ -20,6 +29,7 @@ mod kmeans {
         x / (y as f32)
     }
 
+    #[flux_rs::sig(fn (lo:usize, hi:usize{lo <= hi}) -> RVec<usize{v: lo <= v && v < hi}>[hi-lo])]
     pub fn range(lo: usize, hi: usize) -> RVec<usize> {
         let mut i = lo;
         let mut res = RVec::new();
@@ -31,6 +41,7 @@ mod kmeans {
     }
 
     /// Compute the index of an Vector whose value is the smallest
+    #[flux_rs::sig(fn(&{RVec<f32>[@n] | 0 < n}) -> usize{v: v < n})]
     fn min_index(a: &RVec<f32>) -> usize {
         let mut min = 0;
         for i in range(0, a.len()) {
@@ -42,10 +53,10 @@ mod kmeans {
     }
 
     /// A `Point` is a vector of f32
-    #[flux::alias(type Point[n: int] = RVec<f32>[n])]
     type Point = RVec<f32>;
 
     /// compute the (Euclidean) distance between two points `x` and `y`
+    #[flux_rs::sig(fn(&Point[@n], &Point[n]) -> f32)]
     fn distance(x: &Point, y: &Point) -> f32 {
         let mut res = 0.0;
         for i in range(0, x.len()) {
@@ -58,6 +69,8 @@ mod kmeans {
     /// given a set of `centers` and a point `x` return a tuple of
     /// - (index of) the "nearest" center and
     /// - the point-with-weight-1
+
+    #[flux_rs::sig(fn (centers: &RVec<Point[n]>, x: &Point[@n]) -> (usize, (Point, Weight)))]
     fn nearest(centers: &RVec<Point>, x: &Point) -> (usize, (Point, Weight)) {
         let distances = centers.smap(x, |x, c| distance(x, &c));
         (min_index(&distances), (x.clone(), 1))

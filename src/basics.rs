@@ -3,19 +3,19 @@
 // --------------------------------------------------------------------
 
 // output type = post-condition, specifies function returns 'true'
-#[flux::sig(fn () -> bool[true])]
+#[flux_rs::sig(fn () -> bool[true])]
 pub fn tt() -> bool {
     true
 }
 
 // output type = post-condition, specifies function returns 'false'
-#[flux::sig(fn () -> bool[false])]
+#[flux_rs::sig(fn () -> bool[false])]
 pub fn ff() -> bool {
     false
 }
 
 // An `assert` function, whose precondition expects only `true`
-#[flux::sig(fn (bool[true]) -> ())]
+#[flux_rs::sig(fn (bool[true]) -> ())]
 pub fn assert(_: bool) {}
 
 fn test_assert() {
@@ -28,12 +28,12 @@ fn test_assert() {
 // --------------------------------------------------------------------
 
 // output type says the function returns 5
-#[flux::sig(fn () -> i32[5])]
+#[flux_rs::sig(fn () -> i32[5])]
 fn five() -> i32 {
     5
 }
 
-#[flux::sig(fn () -> i32[6])]
+#[flux_rs::sig(fn () -> i32[6])]
 fn six() -> i32 {
     let res = 6;
     res
@@ -77,7 +77,7 @@ G |- five() + six() == twelve() : i32[true]
 // Refinement Parameters
 // --------------------------------------------------------------------
 
-#[flux::sig(fn(n: i32) -> i32[n + 1])]
+#[flux_rs::sig(fn(n: i32) -> i32[n + 1])]
 pub fn inc(n: i32) -> i32 {
     n + 1
 }
@@ -86,7 +86,7 @@ fn test_inc() {
     assert(inc(10) == 11);
 }
 
-#[flux::sig(fn (i32[@n]) -> bool[n > 0])]
+#[flux_rs::sig(fn (i32[@n]) -> bool[n > 0])]
 fn is_pos(n: i32) -> bool {
     n > 0
 }
@@ -95,7 +95,7 @@ fn is_pos(n: i32) -> bool {
 // Existential Types
 // --------------------------------------------------------------------
 
-#[flux::sig(fn(n:i32) -> i32{v: 0 <= v && n <= v})]
+#[flux_rs::sig(fn(n:i32) -> i32{v: 0 <= v && n <= v})]
 fn abs(n: i32) -> i32 {
     if n < 0 {
         -n
@@ -118,7 +118,7 @@ fn test_ownership() {
 // --------------------------------------------------------------------
 // Qualifiers
 // --------------------------------------------------------------------
-#[flux::sig(fn(start: usize) -> usize[start])]
+#[flux_rs::sig(fn(start: usize) -> usize[start])]
 fn count(mut start: usize) -> usize {
     let mut output = 0;
     while 0 < start {
