@@ -53,3 +53,9 @@ impl<T, A: Allocator> Vec<T, A> {
     #[flux_rs::sig(fn(&Vec<T, A>[@n]) -> usize[n])]
     fn len(v: &Vec<T, A>) -> usize;
 }
+
+// #[extern_spec]
+// impl<T: Clone> From<[T]> for Vec<T> {
+//     #[flux_rs::sig(fn (s: &[T][@n]) -> Vec<T>[n])]
+//     fn from(s: &[T]) -> Vec<T>;
+// }

@@ -1,15 +1,12 @@
 // https://ucsd-progsys.github.io/liquidhaskell-blog/2013/10/10/csv-tables.lhs/
 
-// use crate::basics::assert;
 use crate::rvec::RVec;
 
-// use flux_rs::extern_spec;
-
-#[flux_rs::refined_by(columns: int)]
+#[flux_rs::refined_by(cols: int)]
 pub struct CSV {
-    #[flux_rs::field(RVec<String>[columns])]
+    #[flux_rs::field(RVec<String>[cols])]
     pub header: RVec<String>,
-    #[flux_rs::field(RVec<RVec<String>[columns]>)]
+    #[flux_rs::field(RVec<RVec<String>[cols]>)]
     pub row_vals: RVec<RVec<String>>,
 }
 
@@ -33,18 +30,9 @@ impl CSV {
     }
 
     #[flux_rs::sig(fn (&Self[@n]) -> usize[n])]
-    pub fn columns(&self) -> usize {
+    pub fn cols(&self) -> usize {
         self.header.len()
     }
-}
-
-#[macro_export]
-macro_rules! mk_csv {
-    ($header:expr $(,$row:expr)* $(,)?) => {{
-        let mut csv = CSV::new($header);
-        $( csv.push($row); )*
-        csv
-    }}
 }
 
 #[flux_rs::trusted]
@@ -56,7 +44,7 @@ fn slice_len<T>(slice: &[T]) -> usize {
 #[flux_rs::sig(fn(head: &[&str][@N], rows: &[&[&str]]) -> Option<CSV[N]>)]
 fn csv_opt(head: &[&str], rows: &[&[&str]]) -> Option<CSV> {
     let mut csv = CSV::new(head);
-    let n = csv.columns();
+    let n = csv.cols();
     for row in rows {
         if slice_len(row) == n {
             csv.push(row);
@@ -65,10 +53,6 @@ fn csv_opt(head: &[&str], rows: &[&[&str]]) -> Option<CSV> {
         }
     }
     Some(csv)
-}
-
-fn from_array<const N: usize>(arr: [&str; N]) -> RVec<String> {
-    RVec::from_array(arr).map(|s| s.to_string())
 }
 
 #[flux_rs::sig(fn() -> Option<CSV[2]>)]
@@ -95,6 +79,28 @@ fn csv<const N: usize>(head: [&str; N], rows: &[[&str; N]]) -> CSV {
 }
 
 #[flux_rs::sig(fn() -> CSV[2])]
+fn test2() -> CSV {
+    csv(
+        ["Item", "Price"],
+        &[
+            ["Espresso", "2.25"],
+            ["Macchiato", "2.75"],
+            ["Cappucino", "3.35"],
+            ["Americano", "2.25"],
+        ],
+    )
+}
+
+#[macro_export]
+macro_rules! mk_csv {
+    ($header:expr $(,$row:expr)* $(,)?) => {{
+        let mut csv = CSV::new($header);
+        $( csv.push($row); )*
+        csv
+    }}
+}
+
+#[flux_rs::sig(fn() -> CSV[2])]
 fn test3() -> CSV {
     mk_csv!(
         &["Item", "Price"],
@@ -103,17 +109,4 @@ fn test3() -> CSV {
         &["Cappucino", "3.35"],
         &["Americano", "2.25"],
     )
-}
-
-#[flux_rs::sig(fn (a: &[&[i32][3]]))]
-fn check_slice(_: &[&[i32]]) {}
-
-fn test_slice1() {
-    let x = &[1, 2, 3];
-    check_slice(&[x]);
-}
-
-#[flux_rs::trusted]
-fn test_slice2() {
-    check_slice(&[&[1, 2, 3]]); // NEEDS const promotion?
 }
