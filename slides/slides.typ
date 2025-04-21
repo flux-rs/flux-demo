@@ -1,0 +1,412 @@
+#import "@preview/polylux:0.4.0": *
+#set page(paper: "presentation-16-9")
+#set text(size: 30pt, font: "Iowan Old Style")
+#set align(center+horizon)
+
+#let darkgreen = rgb(0, 125, 38)
+#let darkblue = rgb(7, 90, 184)
+#let mypurple = rgb("#d454bd")
+#let lavender = rgb(187, 102, 234)
+
+#let codefont = "Fira Code"
+#show raw: set text(font: codefont, ligatures: true)
+
+
+#let ttcol(body, color) = {
+  set text(color)
+  [#body]
+}
+
+#let ttblue(body) = ttcol(body,  darkblue)
+#let ttgreen(body) = ttcol(body,  darkgreen)
+#let ttpurple(body) = ttcol(body,  lavender)
+
+#let ty(size: 1em, base) = {
+   text(size, font: codefont, ligatures: true)[#ttgreen[#base]]
+}
+
+#let reft(size: 1em, expr) = {
+   text(size, font: codefont, ligatures: true)[#ttpurple[#expr]]
+}
+
+#let bty(size: 3em, base,expr) = {
+   text(size, font: codefont, ligatures: true)[#ty[#base]\[#reft[#expr]\] ]
+}
+
+
+#let alert(body, fill: red) = {
+  set text(white)
+  set align(center)
+  rect(
+    fill: fill,
+    inset: 12pt,
+    radius: 4pt,
+    [*Warning:\ #body*],
+  )
+}
+
+#let codebox(body) = {
+  box(
+    fill: white,
+    stroke: black,
+    inset: 1em,
+    radius: 10pt,
+  )[#body]
+}
+
+
+#slide[
+
+  #codebox[
+  ```rust
+  fn inc(x:i32) -> i32 {
+    x + 1
+  }
+  ```
+  ]
+
+  #codebox[
+  ```haskell
+  inc :: Int -> Int
+  inc x = x + 1
+  ```
+  ]
+]
+
+
+#let hide(body, outset: 0.35em, alpha: 80%) = {
+  layout(layout-size => {
+    {
+      let body-size = measure(body)
+      let bounding-width = calc.min(body-size.width, layout-size.width)
+      let wrapped-body-size = measure(box(body, width: bounding-width))
+      stack(
+        spacing: -wrapped-body-size.height,
+        box(body),
+        rect(
+          fill: rgb(100%, 100%, 100%, alpha),
+          width: wrapped-body-size.width,
+          height: wrapped-body-size.height,
+          outset: outset,
+        )
+      )
+    }
+  })
+}
+
+#let center-block(body) = {
+  grid(
+    columns: (0.15fr, 1fr, 0.15fr),
+    [],
+    align(left)[#body],
+    []
+  )
+}
+
+
+// -----------------------------------------------------------------------------------
+
+#slide[
+  = Liquid Types for Rust
+
+  #v(1em)
+
+  #figure(
+    image("figures/flux.png", width: 50%),
+  )
+
+Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
+
+]
+
+// #slide[
+//   == Motivation
+//   Types vs. Floyd-Hoare Logic
+
+//   #show: later
+//   == Demonstration
+//   `flux` in action
+
+//   #show: later
+//   == Evaluation
+//   Flux v. Prusti for Memory Safety
+
+// ]
+
+// #slide[
+//   = Types vs. Floyd-Hoare Logic
+// ]
+
+
+
+#slide[
+  #figure(
+    image("figures/flux.png", width: 50%),
+  )
+
+  (/flʌks/)
+
+  #v(0.81em)
+
+  #text(size: 0.75em)[_n. 1 a flowing or flow. 2 a substance used to refine metals. v. 3 to melt; make fluid._]
+]
+
+#slide[
+  = #ttblue[Programmer-Aided] #text(fill:darkgreen)[Analysis]
+  // #show: later
+
+  == Programs
+  #ttblue[_Refinements_ for Rust]
+  // #show: later
+
+  == Analysis
+  #ttgreen[_Type-directed_ Abstract-Interpretation]
+  // #show: later
+
+]
+
+#slide[
+  #hide[
+  = #ttblue[Programmer-Aided] #ttgreen[Analysis]
+  ]
+
+  == Programs
+  #ttblue[_Refinements_ for Rust]
+
+  #hide[
+  == Analysis
+  #ttgreen[_Type-directed_ Abstract-Interpretation]
+  ]
+]
+
+#slide[
+
+  = _Refinements_ for Rust
+
+  #v(1em)
+
+  Refine using #ttgreen[_Ownership_]
+
+]
+
+#slide[ = Refine using _Ownership_
+
+#v(1em)
+
+#center-block[
+  #one-by-one[
+
+    *1. Index* types with #ttpurple[_pure values_]
+
+  ][
+
+    *2. Update* refinements for #ttpurple[_owned locations_]
+
+  ][
+
+    *3. Pack* invariants in #ttgreen[_borrowed references_]
+
+  ][
+
+    *4. Strong* updates using #ttgreen[_strong references_]
+  ]
+]
+]
+
+#slide[ = Refine using _Ownership_
+
+#v(1em)
+
+#center-block[
+
+    *1. Index* types with #ttpurple[_pure values_]
+
+    #hide[
+    *2. Update* refinements for #ttpurple[_owned locations_]
+
+
+    *3. Pack* invariants in #ttgreen[_borrowed references_]
+
+
+    *4. Strong* updates using #ttgreen[_strong references_]
+    ]
+  ]
+]
+
+#slide[
+
+  = *1. Index* types with #ttpurple[_pure values_]
+
+  #v(2em)
+
+  #bty[B][v]
+
+  #v(-1.5em)
+
+  #text(size: 1.5em)[
+    #ttgreen[Base Type] #ttpurple[Refine Index]
+  ]
+
+]
+
+#slide[
+
+  = *1. Index* types with #ttpurple[_pure values_]
+
+  #v(2em)
+
+  #bty[i32][5]
+
+  #v(-1.5em)
+
+  The _singleton_ #ty[i32] that is equal to #reft[5]
+
+]
+
+#slide[
+
+  = *1. Index* types with #ttpurple[_pure values_]
+
+  #v(2em)
+
+  #bty[bool][true]
+
+  #v(-1.5em)
+
+  The _singleton_ #ty[bool] that is equal to #reft[true]
+
+]
+
+#slide[
+
+  = *1. Index* types with #ttpurple[_pure values_]
+
+  #v(2em)
+
+  #bty[bool][true]
+
+  #v(-1.5em)
+
+  The _singleton_ #ty[bool] that is equal to #reft[true]
+
+]
+
+
+#slide[
+
+  == *1. Index* types with #ttpurple[_pure values_]
+
+  #v(1em)
+
+  #reveal-code()[
+  ```rust
+    fn main() {
+      let x = vec![3, 4, 1];
+      let y = &x;
+      if let Some(a) = x.first() {
+        dbg!(a);
+      } else {
+        println!("x is empty.");
+      }
+    }
+  ```
+  ]
+]
+
+
+#slide[ = Refine using _Ownership_
+
+#v(1em)
+
+#center-block[
+
+    #hide[
+    *1. Index* types with #ttpurple[_pure values_]
+    ]
+
+    *2. Update* refinements for #ttpurple[_owned locations_]
+
+    #hide[
+    *3. Pack* invariants in #ttgreen[_borrowed references_]
+
+
+    *4. Strong* updates using #ttgreen[_strong references_]
+    ]
+  ]
+]
+
+#slide[ = Refine using _Ownership_
+
+#v(1em)
+
+#center-block[
+
+    #hide[
+    *1. Index* types with #ttpurple[_pure values_]
+
+    *2. Update* refinements for #ttpurple[_owned locations_]
+    ]
+
+    *3. Pack* invariants in #ttgreen[_borrowed references_]
+
+    #hide[
+    *4. Strong* updates using #ttgreen[_strong references_]
+    ]
+  ]
+]
+
+#slide[ = Refine using _Ownership_
+
+#v(1em)
+
+#center-block[
+
+    #hide[
+    *1. Index* types with #ttpurple[_pure values_]
+
+    *2. Update* refinements for #ttpurple[_owned locations_]
+
+    *3. Pack* invariants in #ttgreen[_borrowed references_]
+    ]
+    *4. Strong* updates using #ttgreen[_strong references_]
+  ]
+]
+
+
+#slide[
+  #hide[
+  = #ttblue[Programmer-Aided] #ttgreen[Analysis]
+  ]
+
+  #hide[
+  == Programs
+  #ttblue[_Refinements_ for Rust]
+  ]
+
+  == Analysis
+  #ttgreen[_Type-directed_ Abstract-Interpretation]
+]
+
+#slide[
+
+  = _Type-directed_ Abstract Interpretation
+
+]
+
+/*
+
+#slide[
+
+#reveal-code(lines: (1, 3, 6, 7))[```rust
+  pub fn main() {
+    let x = vec![3, 4, 1];
+    let y = &x;
+    if let Some(a) = x.first() {
+      dbg!(a);
+    } else {
+      println!("x is empty.");
+    }
+  }
+```]
+]
+*/
