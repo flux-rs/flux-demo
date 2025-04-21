@@ -1,4 +1,20 @@
 #import "@preview/polylux:0.4.0": *
+#import "@preview/codly:1.3.0": *
+#import "@preview/codly-languages:0.1.1": *
+#show: codly-init.with()
+#codly(
+  zebra-fill: none,
+  inset: 0.3em,
+  // highlight-inset: (x: 0pt, y: 0.12em),
+  // highlight-inset: 0.0em,
+  number-format: none,
+  languages: (
+    rust: (
+      color: white,
+    )
+  )
+)
+
 #set page(paper: "presentation-16-9")
 #set text(size: 30pt, font: "Iowan Old Style")
 #set align(center+horizon)
@@ -9,7 +25,7 @@
 #let lavender = rgb(187, 102, 234)
 
 #let codefont = "Fira Code"
-#show raw: set text(font: codefont, ligatures: true)
+#show raw: set text(font: codefont, ligatures: true, size: 1.0em)
 
 
 #let ttcol(body, color) = {
@@ -25,6 +41,10 @@
    text(size, font: codefont, ligatures: true)[#ttgreen[#base]]
 }
 
+#let val(size: 1em, expr) = {
+   text(size, font: codefont, ligatures: true)[#ttgreen[#expr]]
+}
+
 #let reft(size: 1em, expr) = {
    text(size, font: codefont, ligatures: true)[#ttpurple[#expr]]
 }
@@ -32,7 +52,6 @@
 #let bty(size: 3em, base,expr) = {
    text(size, font: codefont, ligatures: true)[#ty[#base]\[#reft[#expr]\] ]
 }
-
 
 #let alert(body, fill: red) = {
   set text(white)
@@ -45,7 +64,7 @@
   )
 }
 
-#let codebox(body) = {
+#let codebox_orig(body) = {
   box(
     fill: white,
     stroke: black,
@@ -54,24 +73,17 @@
   )[#body]
 }
 
+#let codebox(pad:0.15fr, size: 1em, body) = {
+  set text(size)
+  grid(
+    columns: (pad, 1fr, pad),
+    [],
+    [#body],
+    []
+  )
+}
 
-#slide[
 
-  #codebox[
-  ```rust
-  fn inc(x:i32) -> i32 {
-    x + 1
-  }
-  ```
-  ]
-
-  #codebox[
-  ```haskell
-  inc :: Int -> Int
-  inc x = x + 1
-  ```
-  ]
-]
 
 
 #let hide(body, outset: 0.35em, alpha: 80%) = {
@@ -104,7 +116,26 @@
 }
 
 
-// -----------------------------------------------------------------------------------
+
+
+#slide[
+  = Dummy
+
+  #v(1em)
+
+#codly(
+  highlights: ((line: 2, start: 15, end: 19, fill: red), )
+)
+```rust
+fn test(x) {
+  let apple = x + 1;
+  let cat = [apple, buck];
+  let buck = a + 1;
+  return c
+}
+```
+]
+// ---------------------------------------------------------------------------------
 
 #slide[
   = Liquid Types for Rust
@@ -298,20 +329,73 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #reveal-code()[
+  #codebox(pad: 0.35fr)[
   ```rust
-    fn main() {
-      let x = vec![3, 4, 1];
-      let y = &x;
-      if let Some(a) = x.first() {
-        dbg!(a);
-      } else {
-        println!("x is empty.");
-      }
-    }
+  fn tt() -> bool[true] {
+    1 < 2
+  }
   ```
   ]
+
+  A function that always returns #val[true]
 ]
+
+#slide[
+
+  == *1. Index* types with #ttpurple[_pure values_]
+
+  #v(1em)
+
+  #codebox(pad:0.35fr)[
+  ```rust
+  fn ff() -> bool[false] {
+    2 < 1
+  }
+  ```
+  ]
+
+  A function that always returns #val[false]
+]
+
+#slide[
+
+  == *1. Index* types with #ttpurple[_pure values_]
+
+  #v(1em)
+
+  #codebox(pad:0.55fr)[
+  ```rust
+  fn ff() -> i32[12] {
+    4 + 8
+  }
+  ```
+  ]
+
+  A function that always returns #val[12]
+]
+
+#slide[
+  === *1. Index* types with #ttpurple[_pure values_]
+
+  #v(1em)
+
+  #codly(
+  highlights: ((line: 5, start: 8, end: 13, fill: red), )
+  )
+  #codebox(pad: .35fr, size:0.8em)[
+  ```rust
+  fn assert(b:bool[true]){}
+
+  assert(1 < 2);  // Ok
+
+  assert(10 < 2); // Reject
+  ```
+  ]
+
+  A function that _requires_ the input be #val[true]
+]
+
+
 
 
 #slide[ = Refine using _Ownership_
