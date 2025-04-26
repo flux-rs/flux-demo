@@ -99,7 +99,7 @@ codly(
   zebra-fill: none,
   highlight-inset: (x: 0.32em, y: 0pt),
   highlight-outset: (x: 0pt, y: 0.32em),
-  inset: 0.2em,
+  inset: 0.3em,
   number-format: none,
   languages: (
     rust: (
