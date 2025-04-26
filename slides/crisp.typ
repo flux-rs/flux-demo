@@ -1,7 +1,6 @@
 #import "@preview/codly:1.2.0": *
 #import "@preview/codly-languages:0.1.1": *
 
-
 #let darkgreen = rgb(0, 125, 38)
 #let darkblue = rgb(7, 90, 184)
 #let mypurple = rgb("#d454bd")

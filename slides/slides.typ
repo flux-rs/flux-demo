@@ -1,27 +1,6 @@
 #import "@preview/polylux:0.4.0": *
-// #import "@preview/codly:1.2.0": *
-// #import "@preview/codly-languages:0.1.1": *
 #import "crisp.typ": *
 #show: crisp
-
-// #show raw: set text(font: codefont, ligatures: true, size: 1.0em)
-// #show: codly-init.with()
-// #codly(
-//   zebra-fill: none,
-//   highlight-inset: (x: 0.32em, y: 0pt),
-//   highlight-outset: (x: 0pt, y: 0.32em),
-//   inset: 0.2em,
-//   number-format: none,
-//   languages: (
-//     rust: (
-//       color: white,
-//     )
-//   )
-// )
-// #set page(paper: "presentation-16-9")
-// #set text(size: 30pt, font: "Iowan Old Style")
-// #set align(center+horizon)
-
 
 // #slide[
 //   = Dummy
