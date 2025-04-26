@@ -216,8 +216,6 @@
 
 #v(.4em)
 
-#show: later
-
 #text(size:0.9em)[
 
 === Refinement parameters
