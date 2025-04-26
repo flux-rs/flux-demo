@@ -1,5 +1,5 @@
 #import "@preview/polylux:0.4.0": *
-#import "crisp.typ": *
+#import "iowa_crisp.typ": *
 
 
 #slide[
