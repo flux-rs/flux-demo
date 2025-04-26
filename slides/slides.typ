@@ -1,12 +1,12 @@
 #import "@preview/polylux:0.4.0": *
-#import "@preview/codly:1.3.0": *
+#import "@preview/codly:1.2.0": *
 #import "@preview/codly-languages:0.1.1": *
 #show: codly-init.with()
 #codly(
   zebra-fill: none,
-  inset: 0.3em,
-  // highlight-inset: (x: 0pt, y: 0.12em),
-  // highlight-inset: 0.0em,
+  highlight-inset: (x: 0.32em, y: 0pt),
+  highlight-outset: (x: 0pt, y: 0.32em),
+  inset: 0.2em,
   number-format: none,
   languages: (
     rust: (
@@ -64,27 +64,6 @@
   )
 }
 
-#let codebox_orig(body) = {
-  box(
-    fill: white,
-    stroke: black,
-    inset: 1em,
-    radius: 10pt,
-  )[#body]
-}
-
-#let codebox(pad:0.15fr, size: 1em, body) = {
-  set text(size)
-  grid(
-    columns: (pad, 1fr, pad),
-    [],
-    [#body],
-    []
-  )
-}
-
-
-
 
 #let hide(body, outset: 0.35em, alpha: 80%) = {
   layout(layout-size => {
@@ -115,6 +94,24 @@
   )
 }
 
+#let codebox_orig(body) = {
+  box(
+    fill: white,
+    stroke: black,
+    inset: 1em,
+    radius: 10pt,
+  )[#body]
+}
+
+#let codebox(pad:0.15fr, size: 1em, body) = {
+   [#set text(size)
+    #grid(
+      columns: (pad, 1fr, pad),
+      [],
+      [#body],
+      []
+    )]
+}
 
 
 
@@ -124,17 +121,40 @@
   #v(1em)
 
 #codly(
-  highlights: ((line: 2, start: 15, end: 19, fill: red), )
+  inset: (x: 0.5em, y: 0.3em),
+  highlights: ((line: 2, start: 15, end: 19, fill: red),),
 )
 ```rust
 fn test(x) {
-  let apple = x + 1;
+  let apple = x + 2;
   let cat = [apple, buck];
   let buck = a + 1;
   return c
 }
 ```
 ]
+
+#slide[
+  = Dummy2
+
+  #v(1em)
+
+#codebox(pad: .4fr, size: 0.8em)[
+#codly(
+  inset: (x: 0.5em, y: 0.3em),
+  highlights: ((line: 2, start: 15, end: 19, fill: red),),
+)
+```rust
+fn test(x) {
+  let apple = x + 2;
+  let cat = [apple, buck];
+  let buck = a + 1;
+  return c
+}
+```
+]
+]
+
 // ---------------------------------------------------------------------------------
 
 #slide[
@@ -329,7 +349,7 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #codebox(pad: 0.35fr)[
+  #codebox(pad: 0.35fr, size: 1em)[
   ```rust
   fn tt() -> bool[true] {
     1 < 2
@@ -346,7 +366,7 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #codebox(pad:0.35fr)[
+  #codebox(pad:0.33fr)[
   ```rust
   fn ff() -> bool[false] {
     2 < 1
@@ -363,7 +383,7 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #codebox(pad:0.55fr)[
+  #codebox(pad:0.45fr)[
   ```rust
   fn ff() -> i32[12] {
     4 + 8
@@ -374,21 +394,39 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
   A function that always returns #val[12]
 ]
 
+
+
 #slide[
-  === *1. Index* types with #ttpurple[_pure values_]
+  = *1. Index* types with #ttpurple[_pure values_]
+
+  #v(1em)
+
+  #codebox(pad: .40fr, size:0.9em)[
+  ```rust
+  fn assert(b:bool[true]){}
+
+
+
+  ```
+  ]
+
+  A function that _requires_ the input be #val[true]
+]
+
+#slide[
+  = *1. Index* types with #ttpurple[_pure values_]
 
   #v(1em)
 
   #codly(
-  highlights: ((line: 5, start: 8, end: 13, fill: red), )
+  highlights: ((line: 4, start: 8, end: 13, fill: red), )
   )
-  #codebox(pad: .35fr, size:0.8em)[
+  #codebox(pad: .40fr, size:0.9em)[
   ```rust
   fn assert(b:bool[true]){}
-
-  assert(1 < 2);  // Ok
-
-  assert(10 < 2); // Reject
+  // ...
+  assert(1 < 2);
+  assert(10 < 2);
   ```
   ]
 
