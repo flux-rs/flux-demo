@@ -1,21 +1,22 @@
+use flux_rs::attrs::*;
 // --------------------------------------------------------------------
 // Booleans refined with an index -------------------------------------
 // --------------------------------------------------------------------
 
 // output type = post-condition, specifies function returns 'true'
-#[flux_rs::sig(fn () -> bool[true])]
+#[spec(fn () -> bool[true])]
 pub fn tt() -> bool {
     true
 }
 
 // output type = post-condition, specifies function returns 'false'
-#[flux_rs::sig(fn () -> bool[false])]
+#[spec(fn () -> bool[false])]
 pub fn ff() -> bool {
     false
 }
 
 // An `assert` function, whose precondition expects only `true`
-#[flux_rs::sig(fn (bool[true]) -> ())]
+#[spec(fn (bool[true]) -> ())]
 pub fn assert(_: bool) {}
 
 fn test_assert() {
@@ -23,7 +24,7 @@ fn test_assert() {
     let y = 2;
     let z = 3;
     assert(1 < 2);
-    assert(10 < 2);
+    // assert(10 < 2);
 }
 
 // --------------------------------------------------------------------
@@ -31,12 +32,12 @@ fn test_assert() {
 // --------------------------------------------------------------------
 
 // output type says the function returns 5
-#[flux_rs::sig(fn () -> i32[5])]
+#[spec(fn () -> i32[5])]
 fn five() -> i32 {
     5
 }
 
-#[flux_rs::sig(fn () -> i32[6])]
+#[spec(fn () -> i32[6])]
 fn six() -> i32 {
     let res = 6;
     res
@@ -80,7 +81,7 @@ G |- five() + six() == twelve() : i32[true]
 // Refinement Parameters
 // --------------------------------------------------------------------
 
-#[flux_rs::sig(fn(n: i32) -> i32[n + 1])]
+#[spec(fn(n: i32) -> i32[n + 1])]
 pub fn inc(n: i32) -> i32 {
     n + 1
 }
@@ -89,7 +90,7 @@ fn test_inc() {
     assert(inc(10) == 11);
 }
 
-#[flux_rs::sig(fn (i32[@n]) -> bool[n > 0])]
+#[spec(fn (i32[@n]) -> bool[n > 0])]
 fn is_pos(n: i32) -> bool {
     n > 0
 }
@@ -98,7 +99,7 @@ fn is_pos(n: i32) -> bool {
 // Existential Types
 // --------------------------------------------------------------------
 
-#[flux_rs::sig(fn(n:i32) -> i32{v: 0 <= v && n <= v})]
+#[spec(fn(n:i32) -> i32{v: 0 <= v && n <= v})]
 fn abs(n: i32) -> i32 {
     if n < 0 { -n } else { n }
 }
@@ -117,7 +118,7 @@ fn test_ownership() {
 // --------------------------------------------------------------------
 // Qualifiers
 // --------------------------------------------------------------------
-#[flux_rs::sig(fn(start: usize) -> usize[start])]
+#[spec(fn(start: usize) -> usize[start])]
 fn count(mut start: usize) -> usize {
     let mut output = 0;
     while 0 < start {

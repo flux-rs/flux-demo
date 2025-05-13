@@ -2,7 +2,6 @@ pub mod mr {
     use crate::rvec::RVec;
     use std::collections::HashMap;
 
-    #[flux_rs::trusted]
     #[flux_rs::sig(fn (&RVec<T>[@n], &S, F) -> RVec<U>[n])]
     pub fn smap<S, T, U, F>(vec: &RVec<T>, s: &S, f: F) -> RVec<U>
     where
@@ -11,7 +10,6 @@ pub mod mr {
         vec.smap(s, f)
     }
 
-    #[flux_rs::trusted]
     #[flux_rs::sig(fn (&RVec<T>[@n], F) -> RVec<U>[n])]
     pub fn map<T, U, F>(vec: &RVec<T>, f: F) -> RVec<U>
     where
@@ -20,7 +18,6 @@ pub mod mr {
         vec.map(f)
     }
 
-    #[flux_rs::trusted]
     pub fn group<K, V>(xs: RVec<(K, V)>) -> HashMap<K, RVec<V>>
     where
         K: std::cmp::Eq + std::hash::Hash,
