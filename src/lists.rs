@@ -1,18 +1,20 @@
-#[flux_rs::sig(fn(i32{v: false}) -> T)]
+use flux_rs::attrs::*;
+
+#[spec(fn(i32{v: false}) -> T)]
 pub fn never<T>(_: i32) -> T {
     loop {}
 }
 
-#[flux_rs::refined_by(n:int)]
-#[flux_rs::invariant(n >= 0)]
+#[refined_by(n:int)]
+#[invariant(n >= 0)]
 pub enum List {
-    #[flux_rs::variant(List[0])]
+    #[variant(List[0])]
     Nil,
-    #[flux_rs::variant((i32, Box<List[@n]>) -> List[n+1])]
+    #[variant((i32, Box<List[@n]>) -> List[n+1])]
     Cons(i32, Box<List>),
 }
 
-#[flux_rs::sig(fn(&List[@n]) -> bool[n == 0])]
+#[spec(fn(&List[@n]) -> bool[n == 0])]
 pub fn empty(l: &List) -> bool {
     match l {
         List::Nil => true,
@@ -20,7 +22,7 @@ pub fn empty(l: &List) -> bool {
     }
 }
 
-#[flux_rs::sig(fn(&List[@n]) -> i32[n])]
+#[spec(fn(&List[@n]) -> i32[n])]
 pub fn len(l: &List) -> i32 {
     match l {
         List::Nil => 0,
@@ -28,7 +30,7 @@ pub fn len(l: &List) -> i32 {
     }
 }
 
-#[flux_rs::sig(fn({&List[@n] | 0 < n}) -> i32)]
+#[spec(fn({&List[@n] | 0 < n}) -> i32)]
 pub fn head(l: &List) -> i32 {
     match l {
         List::Nil => never(0),
@@ -36,7 +38,7 @@ pub fn head(l: &List) -> i32 {
     }
 }
 
-#[flux_rs::sig(fn({&List[@n] | 0 < n}) -> &List)]
+#[spec(fn({&List[@n] | 0 < n}) -> &List)]
 pub fn tail(l: &List) -> &List {
     match l {
         List::Nil => never(0),
@@ -44,7 +46,7 @@ pub fn tail(l: &List) -> &List {
     }
 }
 
-#[flux_rs::sig(fn(i32, n: usize) -> List[n])]
+#[spec(fn(i32, n: usize) -> List[n])]
 pub fn clone(val: i32, n: usize) -> List {
     if n == 0 {
         List::Nil
@@ -53,7 +55,7 @@ pub fn clone(val: i32, n: usize) -> List {
     }
 }
 
-#[flux_rs::sig(fn(List[@n1], List[@n2]) -> List[n1+n2])]
+#[spec(fn(List[@n1], List[@n2]) -> List[n1+n2])]
 pub fn append(l1: List, l2: List) -> List {
     match l1 {
         List::Nil => l2,
@@ -61,7 +63,7 @@ pub fn append(l1: List, l2: List) -> List {
     }
 }
 
-#[flux_rs::sig(fn(l1: &strg List[@n1], List[@n2]) ensures l1: List[n1+n2])]
+#[spec(fn(l1: &mut List[@n1], List[@n2]) ensures l1: List[n1+n2])]
 pub fn mappend(l1: &mut List, l2: List) {
     match l1 {
         List::Nil => *l1 = l2,
@@ -69,7 +71,7 @@ pub fn mappend(l1: &mut List, l2: List) {
     }
 }
 
-#[flux_rs::sig(fn(&List[@n], k:usize{k < n} ) -> i32)]
+#[spec(fn(&List[@n], k:usize{k < n} ) -> i32)]
 pub fn get_nth(l: &List, k: usize) -> i32 {
     match l {
         List::Cons(h, tl) => {

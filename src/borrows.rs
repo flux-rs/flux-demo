@@ -17,8 +17,8 @@ fn simple() {
 // Mutable borrows ----------------------------------------------------
 // --------------------------------------------------------------------
 
-// #[sig(fn(x: &mut i32{v:0 <= v}))]
-#[sig(fn(x: &mut i32[@n]) ensures x: i32[n+1])]
+// #[spec(fn(x: &mut i32{v:0 <= v}))]
+#[spec(fn(x: &mut i32[@n]) ensures x: i32[n+1])]
 fn incr(x: &mut i32) {
     *x += 1;
 }
@@ -48,12 +48,12 @@ fn aliasing(b: bool) {
     // check_val(*r, 11, 21);
 }
 
-#[sig(fn (n:i32{n == a || n == b}, a:i32, b:i32))]
+#[spec(fn (n:i32{n == a || n == b}, a:i32, b:i32))]
 fn check_val(n: i32, a: i32, b: i32) {
     assert(n == a || n == b);
 }
 
-#[sig(fn(x: &mut i32{v:0 <= v}))]
+#[spec(fn(x: &mut i32{v:0 <= v}))]
 fn decr(x: &mut i32) {
     let n = *x;
     if n > 0 {
@@ -61,9 +61,9 @@ fn decr(x: &mut i32) {
     }
 }
 
-// (weak   update) #[sig(fn(x: &mut i32{v:1<=v}))]
+// (weak   update) #[spec(fn(x: &mut i32{v:1<=v}))]
 // (strong update)
-#[sig(fn(x: &mut i32[@n]) ensures x: i32[n+1])]
+#[spec(fn(x: &mut i32[@n]) ensures x: i32[n+1])]
 pub fn inc_mut(x: &mut i32) {
     *x += 1;
 }

@@ -1,4 +1,4 @@
-use crate::mapreduce::mr;
+use crate::mapreduce as mr;
 use crate::rvec::RVec;
 use flux_rs::attrs::*;
 

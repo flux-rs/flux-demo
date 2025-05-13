@@ -26,49 +26,49 @@ pub struct RVec<T> {
 #[trusted]
 impl<T> RVec<T> {
     #[trusted]
-    #[sig(fn() -> RVec<T>[0])]
+    #[spec(fn() -> RVec<T>[0])]
     pub fn new() -> Self {
         Self { inner: Vec::new() }
     }
 
     #[trusted]
-    #[sig(fn(self: &strg RVec<T>[@n], T) ensures self: RVec<T>[n+1])]
+    #[spec(fn(self: &mut RVec<T>[@n], T) ensures self: RVec<T>[n+1])]
     pub fn push(&mut self, item: T) {
         self.inner.push(item);
     }
 
     #[trusted]
-    #[sig(fn(&RVec<T>[@n]) -> usize[n])]
+    #[spec(fn(&RVec<T>[@n]) -> usize[n])]
     pub fn len(&self) -> usize {
         self.inner.len()
     }
 
     #[trusted]
-    #[sig(fn(&RVec<T>[@n]) -> bool[n == 0])]
+    #[spec(fn(&RVec<T>[@n]) -> bool[n == 0])]
     pub fn is_empty(&self) -> bool {
         self.inner.is_empty()
     }
 
     #[trusted]
-    #[sig(fn(&RVec<T>[@n], i: usize{i < n}) -> &T)]
+    #[spec(fn(&RVec<T>[@n], i: usize{i < n}) -> &T)]
     pub fn get(&self, i: usize) -> &T {
         &self.inner[i]
     }
 
     #[trusted]
-    #[sig(fn(&mut RVec<T>[@n], i: usize{i < n}, v:T))]
+    #[spec(fn(&mut RVec<T>[@n], i: usize{i < n}, v:T))]
     pub fn set(&mut self, i: usize, v: T) {
         self.inner[i] = v;
     }
 
     #[trusted]
-    #[sig(fn(&mut RVec<T>[@n], i: usize{i < n}) -> &mut T)]
+    #[spec(fn(&mut RVec<T>[@n], i: usize{i < n}) -> &mut T)]
     pub fn get_mut(&mut self, i: usize) -> &mut T {
         &mut self.inner[i]
     }
 
     #[trusted]
-    #[sig(fn(self: &strg RVec<T>[@n]) -> T
+    #[spec(fn(self: &mut RVec<T>[@n]) -> T
     		requires n > 0
             ensures self: RVec<T>[n-1])]
     pub fn pop(&mut self) -> T {
@@ -76,19 +76,19 @@ impl<T> RVec<T> {
     }
 
     #[trusted]
-    #[sig(fn(&mut RVec<T>[@n], a: usize{a < n}, b: usize{b < n}))]
+    #[spec(fn(&mut RVec<T>[@n], a: usize{a < n}, b: usize{b < n}))]
     pub fn swap(&mut self, a: usize, b: usize) {
         self.inner.swap(a, b);
     }
 
     #[trusted]
-    #[sig(fn(&mut RVec<T>[@n]) -> &mut [T][n])]
+    #[spec(fn(&mut RVec<T>[@n]) -> &mut [T][n])]
     pub fn as_mut_slice(&mut self) -> &mut [T] {
         self.inner.as_mut_slice()
     }
 
     #[trusted]
-    #[sig(fn(T, n: usize) -> RVec<T>[n])]
+    #[spec(fn(T, n: usize) -> RVec<T>[n])]
     pub fn from_elem_n(elem: T, n: usize) -> Self
     where
         T: Copy,
@@ -103,7 +103,7 @@ impl<T> RVec<T> {
     }
 
     #[trusted]
-    #[sig(fn(&RVec<T>[@n]) -> RVec<T>[n])]
+    #[spec(fn(&RVec<T>[@n]) -> RVec<T>[n])]
     pub fn clone(&self) -> Self
     where
         T: Clone,
@@ -114,7 +114,7 @@ impl<T> RVec<T> {
     }
 
     #[trusted]
-    #[sig(fn(arr:_) -> RVec<T>[N])]
+    #[spec(fn(arr:_) -> RVec<T>[N])]
     pub fn from_array<const N: usize>(arr: [T; N]) -> Self {
         Self {
             inner: Vec::from(arr),
@@ -122,7 +122,7 @@ impl<T> RVec<T> {
     }
 
     #[trusted]
-    #[sig(fn(xs:&[T][@n]) -> RVec<T>[n])]
+    #[spec(fn(xs:&[T][@n]) -> RVec<T>[n])]
     pub fn from_slice(xs: &[T]) -> Self
     where
         T: Clone,
@@ -133,7 +133,7 @@ impl<T> RVec<T> {
     }
 
     #[trusted]
-    #[sig(fn(self: &strg RVec<T>[@n], other: &[T][@m]) ensures self: RVec<T>[n + m])]
+    #[spec(fn(self: &mut RVec<T>[@n], other: &[T][@m]) ensures self: RVec<T>[n + m])]
     pub fn extend_from_slice(&mut self, other: &[T])
     where
         T: Clone,
@@ -142,7 +142,7 @@ impl<T> RVec<T> {
     }
 
     #[trusted]
-    #[sig(fn (&RVec<T>[@n], F) -> RVec<U>[n])]
+    #[spec(fn (&RVec<T>[@n], F) -> RVec<U>[n])]
     pub fn map<U, F>(&self, f: F) -> RVec<U>
     where
         F: Fn(&T) -> U,
@@ -153,7 +153,7 @@ impl<T> RVec<T> {
     }
 
     #[trusted]
-    #[sig(fn (&RVec<T>[@n], &S, F) -> RVec<U>[n])]
+    #[spec(fn (&RVec<T>[@n], &S, F) -> RVec<U>[n])]
     pub fn smap<S, U, F>(&self, s: &S, f: F) -> RVec<U>
     where
         F: Fn(&S, &T) -> U,
@@ -179,7 +179,7 @@ impl<T> IntoIterator for RVec<T> {
 
     // TODO: cannot get variant of opaque struct
     #[trusted]
-    #[sig(fn(RVec<T>[@n]) -> RVecIter<T>[0, n])]
+    #[spec(fn(RVec<T>[@n]) -> RVecIter<T>[0, n])]
     fn into_iter(self) -> RVecIter<T> {
         RVecIter { vec: self, curr: 0 }
     }
@@ -194,7 +194,7 @@ impl<T> Iterator for RVecIter<T> {
 
     // TODO: cannot get variant of opaque struct
     #[trusted_impl]
-    #[sig(fn(me: &strg RVecIter<T>) -> Option<T> ensures me: RVecIter<T>)]
+    #[spec(fn(me: &mut RVecIter<T>) -> Option<T> ensures me: RVecIter<T>)]
     fn next(&mut self) -> Option<T> {
         self.vec.inner.pop()
     }
@@ -204,7 +204,7 @@ impl<T> std::ops::Index<usize> for RVec<T> {
     type Output = T;
 
     #[trusted_impl]
-    #[sig(fn(&RVec<T>[@n], usize{v : v < n}) -> &T)]
+    #[spec(fn(&RVec<T>[@n], usize{v : v < n}) -> &T)]
     fn index(&self, index: usize) -> &T {
         self.get(index)
     }
@@ -213,7 +213,7 @@ impl<T> std::ops::Index<usize> for RVec<T> {
 #[trusted]
 impl<T> std::ops::IndexMut<usize> for RVec<T> {
     #[trusted_impl]
-    #[sig(fn(&mut RVec<T>[@n], usize{v : v < n}) -> &mut T)]
+    #[spec(fn(&mut RVec<T>[@n], usize{v : v < n}) -> &mut T)]
     fn index_mut(&mut self, index: usize) -> &mut T {
         self.get_mut(index)
     }
@@ -224,6 +224,6 @@ impl<T> std::ops::IndexMut<usize> for RVec<T> {
 // // Spec for slice
 // #[extern_spec(core::slice)]
 // impl<T> [T] {
-//     #[sig(fn(&[T][@n]) -> usize[n])]
+//     #[spec(fn(&[T][@n]) -> usize[n])]
 //     fn len(v: &[T]) -> usize;
 // }

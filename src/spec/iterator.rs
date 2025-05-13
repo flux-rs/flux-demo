@@ -18,8 +18,8 @@ struct Zip<A, B>;
 #[assoc(fn done(self: Range<A>) -> bool { <A as Step>::size(self.start, self.end) <= 0})]
 #[assoc(fn step(self: Range<A>, other: Range<A>) -> bool { <A as Step>::can_step_forward(self.start, 1) => other.start == <A as Step>::step_forward(self.start, 1) } )]
 impl<A: Step> Iterator for Range<A> {
-    #[sig(
-        fn(self: &strg Range<A>[@old_range]) -> Option<A[old_range.start]>[old_range.start < old_range.end]
+    #[spec(
+        fn(self: &mut Range<A>[@old_range]) -> Option<A[old_range.start]>[old_range.start < old_range.end]
             ensures self: Range<A>{r: (<A as Step>::can_step_forward(old_range.start, 1) && old_range.start < old_range.end)=> (r.start == <A as Step>::step_forward(old_range.start, 1) && r.end == old_range.end) }
     )]
     fn next(&mut self) -> Option<A>;
@@ -30,7 +30,7 @@ impl<A: Step> Iterator for Range<A> {
 #[assoc(fn done(r: Skip<I>) -> bool { <I as Iterator>::done(r.inner) } )]
 #[assoc(fn step(self: Skip<I>, other: Skip<I>) -> bool { <I as Iterator>::step(self.inner, other.inner) } )]
 impl<I: Iterator> Iterator for Skip<I> {
-    #[sig(fn(&mut Skip<I>[@n, @inner]) -> Option<I::Item>[<I as Iterator>::done(inner)])]
+    #[spec(fn(&mut Skip<I>[@n, @inner]) -> Option<I::Item>[<I as Iterator>::done(inner)])]
     fn next(&mut self) -> Option<I::Item>;
 }
 
@@ -39,6 +39,6 @@ impl<I: Iterator> Iterator for Skip<I> {
 #[assoc(fn done(r: Zip<A, B>) -> bool { r.idx >= r.len && r.idx >= r.a_len })]
 #[assoc(fn step(self: Zip<A, B>, other: Zip<A, B>) -> bool { self.idx + 1 == other.idx } )]
 impl<A: Iterator, B: Iterator> Iterator for Zip<A, B> {
-    #[sig(fn(&mut Zip<A, B>[@a, @b, @idx, @len, @a_len]) -> Option<_>[idx >= len || idx >= a_len])]
+    #[spec(fn(&mut Zip<A, B>[@a, @b, @idx, @len, @a_len]) -> Option<_>[idx >= len || idx >= a_len])]
     fn next(&mut self) -> Option<<Zip<A, B> as Iterator>::Item>;
 }

@@ -9,7 +9,7 @@ fn red(p: Pixel) -> u8 {
     p[2]
 }
 
-#[sig(fn (pixels: &[Pixel][@n], i:usize{i<3}) -> u64 requires n > 0)]
+#[spec(fn (pixels: &[Pixel][@n], i:usize{i<3}) -> u64 requires n > 0)]
 fn average_color(pixels: &[Pixel], i: usize) -> u64 {
     let mut sum = 0;
     for p in pixels {
