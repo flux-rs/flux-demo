@@ -1,11 +1,11 @@
-use flux_rs::extern_spec;
+use flux_rs::attrs::*;
 
 #[extern_spec]
-#[flux_rs::refined_by(b:bool)]
+#[refined_by(b:bool)]
 enum Option<T> {
-    #[flux_rs::variant(Option<T>[false])]
+    #[variant(Option<T>[false])]
     None,
-    #[flux_rs::variant({T} -> Option<T>[true])]
+    #[variant({T} -> Option<T>[true])]
     Some(T),
 }
 

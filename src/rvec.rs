@@ -23,6 +23,7 @@ pub struct RVec<T> {
     inner: Vec<T>,
 }
 
+#[flux_rs::trusted]
 impl<T> RVec<T> {
     #[flux_rs::trusted]
     #[flux_rs::sig(fn() -> RVec<T>[0])]
@@ -184,14 +185,16 @@ impl<T> IntoIterator for RVec<T> {
     }
 }
 
+#[flux_rs::trusted]
+#[flux_rs::assoc(fn size(self: RVecIter) -> int {  self.len - self.curr })]
 #[flux_rs::assoc(fn done(self: RVecIter) -> bool {  self.len <= self.curr })]
 #[flux_rs::assoc(fn step(self: RVecIter, other: RVecIter) -> bool {  self.len == other.len && self.curr + 1 == other.curr })]
 impl<T> Iterator for RVecIter<T> {
     type Item = T;
 
     // TODO: cannot get variant of opaque struct
-    #[flux_rs::trusted]
-    #[flux_rs::sig(fn(&mut RVecIter<T>) -> Option<T>)]
+    #[flux_rs::trusted_impl]
+    #[flux_rs::sig(fn(me: &strg RVecIter<T>) -> Option<T> ensures me: RVecIter<T>)]
     fn next(&mut self) -> Option<T> {
         self.vec.inner.pop()
     }
@@ -200,15 +203,16 @@ impl<T> Iterator for RVecIter<T> {
 impl<T> std::ops::Index<usize> for RVec<T> {
     type Output = T;
 
-    #[flux_rs::trusted]
+    #[flux_rs::trusted_impl]
     #[flux_rs::sig(fn(&RVec<T>[@n], usize{v : v < n}) -> &T)]
     fn index(&self, index: usize) -> &T {
         self.get(index)
     }
 }
 
+#[flux_rs::trusted]
 impl<T> std::ops::IndexMut<usize> for RVec<T> {
-    #[flux_rs::trusted]
+    #[flux_rs::trusted_impl]
     #[flux_rs::sig(fn(&mut RVec<T>[@n], usize{v : v < n}) -> &mut T)]
     fn index_mut(&mut self, index: usize) -> &mut T {
         self.get_mut(index)

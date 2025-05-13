@@ -4,6 +4,7 @@
 // #![flux_rs::cfg(scrape_quals = true)]
 #![cfg_attr(flux, feature(step_trait, allocator_api))]
 #![allow(dead_code)]
+#![allow(unused)]
 
 #[cfg(flux)]
 flux_rs::defs! {

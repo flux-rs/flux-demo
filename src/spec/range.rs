@@ -2,10 +2,10 @@
 
 use core::ops::Range;
 
-use flux_rs::extern_spec;
+use flux_rs::attrs::*;
 
-#[flux_rs::extern_spec(core::ops)]
-#[flux_rs::refined_by(start: Idx, end: Idx)]
+#[extern_spec(core::ops)]
+#[refined_by(start: Idx, end: Idx)]
 struct Range<Idx> {
     #[field(Idx[start])]
     start: Idx,
