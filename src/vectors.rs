@@ -1,13 +1,14 @@
 use crate::basics::*;
-use crate::rvec::{rvec, RVec};
+use crate::rvec::{RVec, rvec};
+use flux_rs::attrs::*;
 
-#[flux_rs::sig(fn() -> usize{v: 10 <= v})]
+#[spec(fn() -> usize{v: 10 <= v})]
 fn test_rvec0() -> usize {
     let x = rvec![10, 20, 30];
     x[0]
 }
 
-#[flux_rs::sig(fn() -> usize{v: 10 <= v})]
+#[spec(fn() -> usize{v: 10 <= v})]
 fn test_rvec() -> usize {
     let mut v = RVec::new();
     v.push(10);
@@ -16,7 +17,7 @@ fn test_rvec() -> usize {
 }
 
 // FLUX-TODO: pretty silly that the following doesn't work due to missing qualifier `v < a + b` AUTO-SCRAPE!
-#[flux_rs::sig(fn(start: i32, n:i32{0 <= n}) -> RVec<i32{v: start <= v && v < start + n}>[n])]
+#[spec(fn(start: i32, n:i32{0 <= n}) -> RVec<i32{v: start <= v && v < start + n}>[n])]
 pub fn fill(start: i32, n: i32) -> RVec<i32> {
     let mut res = RVec::new();
     let mut val = start;
@@ -32,7 +33,7 @@ pub fn fill(start: i32, n: i32) -> RVec<i32> {
     res
 }
 
-#[flux_rs::sig(fn(lo: usize, hi:usize{lo<=hi}) -> RVec<usize{v:lo<=v && v<hi}>[hi-lo] )]
+#[spec(fn(lo: usize, hi:usize{lo<=hi}) -> RVec<usize{v:lo<=v && v<hi}>[hi-lo] )]
 pub fn range(lo: usize, hi: usize) -> RVec<usize> {
     let mut i = lo;
     let mut res = RVec::new();
@@ -43,7 +44,7 @@ pub fn range(lo: usize, hi: usize) -> RVec<usize> {
     res
 }
 
-#[flux_rs::sig(fn(lo: usize, hi:usize{lo<=hi}) -> RVec<usize{v:lo<=v && v<hi}>[hi-lo] )]
+#[spec(fn(lo: usize, hi:usize{lo<=hi}) -> RVec<usize{v:lo<=v && v<hi}>[hi-lo] )]
 pub fn range_r(lo: usize, hi: usize) -> RVec<usize> {
     if lo >= hi {
         RVec::new()
@@ -72,7 +73,7 @@ fn test_range_while(lo: usize, hi: usize) {
     }
 }
 
-#[flux_rs::sig(fn(a: { &RVec<f32>[@k] | 0 < k}) -> usize{v: v < k})]
+#[spec(fn(a: { &RVec<f32>[@k] | 0 < k}) -> usize{v: v < k})]
 fn min_index(a: &RVec<f32>) -> usize {
     let mut min = 0;
     for i in 0..a.len() {
@@ -84,11 +85,11 @@ fn min_index(a: &RVec<f32>) -> usize {
 }
 
 /// A type alias for n-dimensional points
-#[flux_rs::alias(type Point[n: int] = RVec<f32>[n])]
+#[alias(type Point[n: int] = RVec<f32>[n])]
 type Point = RVec<f32>;
 
 /// distance between two points
-#[flux_rs::sig(fn(x: &Point[@n], y: &Point[n]) -> f32)]
+#[spec(fn(x: &Point[@n], y: &Point[n]) -> f32)]
 fn distance(x: &Point, y: &Point) -> f32 {
     let mut res = 0.0;
     let n = x.len();
@@ -98,14 +99,6 @@ fn distance(x: &Point, y: &Point) -> f32 {
     }
     res
 }
-
-// #[flux_rs::sig(fn(vec<i32{v:0<=v}>) -> ())]
-// pub fn test_loop(vec: Vec<i32>) {
-//     for val in vec.iter() {
-//         assert(true);
-//         assert(0 <= *val)
-//     }
-// }
 
 /* Horn Constraints for `range`
 

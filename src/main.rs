@@ -3,7 +3,6 @@
 #![allow(dead_code)]
 #![allow(unused)]
 
-#[cfg(flux)]
 flux_rs::defs! {
     qualifier MyQ1(x: int, y: int, z: int) { x == y + z }
     qualifier MyQ2(x: int, y: int, z: int) { x == y - z }
