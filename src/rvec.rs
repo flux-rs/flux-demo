@@ -186,7 +186,7 @@ impl<T> IntoIterator for RVec<T> {
 }
 
 #[trusted]
-#[assoc(fn size(self: RVecIter) -> int {  self.len - self.curr })]
+#[assoc(fn size(self: RVecIter) -> int { self.len })]
 #[assoc(fn done(self: RVecIter) -> bool {  self.len <= self.curr })]
 #[assoc(fn step(self: RVecIter, other: RVecIter) -> bool {  self.len == other.len && self.curr + 1 == other.curr })]
 impl<T> Iterator for RVecIter<T> {
@@ -219,11 +219,26 @@ impl<T> std::ops::IndexMut<usize> for RVec<T> {
     }
 }
 
-// use extern_spec;
+#[assoc(fn with_size(self: Self, n:int) -> bool { self.len == n })]
+impl<T> FromIterator<T> for RVec<T> {
+    #[trusted]
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> RVec<T> {
+        RVec {
+            inner: iter.into_iter().collect(),
+        }
+    }
+}
 
-// // Spec for slice
-// #[extern_spec(core::slice)]
-// impl<T> [T] {
-//     #[spec(fn(&[T][@n]) -> usize[n])]
-//     fn len(v: &[T]) -> usize;
-// }
+pub trait AsRVec<T> {
+    fn collect_rvec(self) -> RVec<T>;
+}
+
+impl<T, I> AsRVec<T> for I
+where
+    I: Iterator<Item = T>,
+{
+    #[spec(fn(Self[@s]) -> RVec<T>[<Self as Iterator>::size(s)])]
+    fn collect_rvec(self) -> RVec<T> {
+        self.collect()
+    }
+}

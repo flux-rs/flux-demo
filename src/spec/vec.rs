@@ -24,6 +24,7 @@ impl<T> SliceIndex<[T]> for usize {}
 
 #[extern_spec]
 impl<T, I: SliceIndex<[T]>, A: Allocator> Index<I> for Vec<T, A> {
+    // #[spec(fn[hrn p: T -> bool](&Vec<T{v:p(v)}, A>[@len], {I[@idx] | <I as SliceIndex<[T]>>::in_bounds(idx, len)}) -> &<I as SliceIndex<[T]>>::Output{v:p(v)})]
     #[spec(fn(&Vec<T, A>[@len], {I[@idx] | <I as SliceIndex<[T]>>::in_bounds(idx, len)}) -> _)]
     fn index(z: &Vec<T, A>, index: I) -> &<I as SliceIndex<[T]>>::Output;
 }
