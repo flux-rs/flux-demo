@@ -35,11 +35,11 @@ enum Exp {
 }
 
 // subset of Exp that are in ANF
-#[alias(type Anf[e:Exp] = {Exp[e] | e.anf})]
+#[alias(type Anf = Exp{e: e.anf})]
 type Anf = Exp;
 
 // subset of Exp that are IMM
-#[alias(type Imm[e:Exp] = {Exp[e] | e.imm && e.anf})]
+#[alias(type Imm = Exp{e: e.imm && e.anf})]
 type Imm = Exp;
 
 //---------------------------------------------------------------------------------------
