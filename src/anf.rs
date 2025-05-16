@@ -100,11 +100,23 @@ fn stitch(mut binds: RVec<(Id, Anf)>, e: Anf) -> Anf {
     let mut res = e;
     if binds.len() > 0 {
         let (x, e) = binds.pop();
+        assert(e.is_anf()); // OK!
         stitch(binds, lett(&x, e, res))
     } else {
         res
     }
 }
+
+#[trusted]
+fn stitch_loop(mut binds: RVec<(Id, Anf)>, e: Anf) -> Anf {
+    let mut res = e;
+    while binds.len() > 0 {
+        let (x, e) = binds.pop();
+        assert(e.is_anf()); // ERROR: assertion fails!
+        res = lett(&x, e, res);
+    }
+    res
+} // ERROR: postcondition cannot be proved!
 
 impl Exp {
     #[spec(fn(&Exp[@e]) -> bool[e.imm])]
