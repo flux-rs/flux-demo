@@ -14,6 +14,7 @@ enabled = true
 [dependencies]
 flux-rs = { git = "https://github.com/flux-rs/flux" }
 rand = "0.8"
+# im = "15.1.0"
 
 [lints.rust]
 unexpected_cfgs = {level="warn", check-cfg=['cfg(flux)']}

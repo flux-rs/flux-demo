@@ -1,4 +1,3 @@
-// #![flux_rs::cfg(scrape_quals = true)]
 #![cfg_attr(flux, feature(step_trait, allocator_api))]
 #![allow(dead_code)]
 #![allow(unused)]
@@ -8,6 +7,7 @@ flux_rs::defs! {
     qualifier MyQ2(x: int, y: int, z: int) { x == y - z }
 }
 
+pub mod anf;
 pub mod arrays;
 pub mod basics;
 pub mod borrows;

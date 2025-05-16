@@ -2,9 +2,11 @@ use flux_rs::attrs::*;
 use rand::{Rng, rngs::ThreadRng};
 
 use crate::rvec::{self, AsRVec as _, RVec, rvec};
+use flux_rs::assert;
 
-#[spec(fn(bool[true]))]
-fn assert(_b: bool) {}
+fn test() {
+    assert(10 < 20)
+}
 
 fn sigmoid(x: f64) -> f64 {
     1.0 / (1.0 + (-x).exp())

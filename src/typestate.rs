@@ -13,14 +13,17 @@ struct GpioConfig {
     // periph: GPIO_CONFIG,
 }
 
+// #[opaque]
+// #[refined_by(val:int)]
+
 #[opaque]
 #[refined_by(val:int)]
 enum InputMode {
-    #[variant(InputMode[0])]
+    #[flux_rs::variant(InputMode[0])]
     PulledLow,
-    #[variant(InputMode[1])]
+    #[flux_rs::variant(InputMode[1])]
     PulledHigh,
-    #[variant(InputMode[2])]
+    #[flux_rs::variant(InputMode[2])]
     HighZ,
 }
 
