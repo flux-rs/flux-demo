@@ -53,7 +53,7 @@ fn num(n: i32) -> Imm {
 }
 
 #[spec(fn(_, e1: Exp, e2: Exp) -> Exp[{imm: false, anf: e1.anf && e2.anf}])]
-fn lett(id: &str, e1: Exp, e2: Exp) -> Exp {
+fn let_(id: &str, e1: Exp, e2: Exp) -> Exp {
     Exp::Let(id.to_string(), Box::new(e1), Box::new(e2))
 }
 
@@ -81,7 +81,7 @@ fn exp0() -> Exp {
 // let x = 2 + 3 in (x + 4)
 #[spec(fn() -> Exp[{imm: false, anf: true}])]
 fn exp1() -> Exp {
-    lett(
+    let_(
         "x",
         bin(Op::Add, num(2), num(3)),
         bin(Op::Add, var("x"), num(4)),
@@ -95,28 +95,6 @@ fn fresh_id(count: &mut usize) -> Id {
     *count += 1;
     name.to_string()
 }
-
-fn stitch(mut binds: RVec<(Id, Anf)>, e: Anf) -> Anf {
-    let mut res = e;
-    if binds.len() > 0 {
-        let (x, e) = binds.pop();
-        assert(e.is_anf()); // OK!
-        stitch(binds, lett(&x, e, res))
-    } else {
-        res
-    }
-}
-
-#[trusted]
-fn stitch_loop(mut binds: RVec<(Id, Anf)>, e: Anf) -> Anf {
-    let mut res = e;
-    while binds.len() > 0 {
-        let (x, e) = binds.pop();
-        assert(e.is_anf()); // ERROR: assertion fails!
-        res = lett(&x, e, res);
-    }
-    res
-} // ERROR: postcondition cannot be proved!
 
 impl Exp {
     #[spec(fn(&Exp[@e]) -> bool[e.imm])]
@@ -168,18 +146,16 @@ impl Exp {
                 let mut binds = rvec![];
                 let v1 = e1.to_imm(count, &mut binds);
                 let v2 = e2.to_imm(count, &mut binds);
-                stitch(binds, bin(*op, v1, v2))
-                // ASK-NICO
-                // while 0 < binds.len() {
-                //    let (x, a) = binds.pop();
-                //    assert(a.is_anf());
-                //    assert(res.is_anf());
-                // res = lett(&x, e, res);
-                // }
+                let mut res = bin(*op, v1, v2);
+                while !binds.is_empty() {
+                    let (x, a) = binds.pop();
+                    res = let_(&x, a, res);
+                }
+                res
             }
             Exp::Let(x, e1, e2) => {
                 let a = self.to_anf(count);
-                lett(x, e1.to_anf(count), a)
+                let_(x, e1.to_anf(count), a)
             }
         }
     }
