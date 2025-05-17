@@ -17,6 +17,14 @@ fn simple() {
 // Mutable borrows ----------------------------------------------------
 // --------------------------------------------------------------------
 
+#[spec(fn(x: &mut i32{v:0 < v}))]
+fn decrement(x: &mut i32) {
+    let n = *x;
+    if n > 1 {
+        *x = n - 1;
+    };
+}
+
 // #[spec(fn(x: &mut i32{v:0 <= v}))]
 #[spec(fn(x: &mut i32[@n]) ensures x: i32[n+1])]
 fn incr(x: &mut i32) {

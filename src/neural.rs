@@ -1,8 +1,7 @@
-use flux_rs::attrs::*;
-use rand::{Rng, rngs::ThreadRng};
-
 use crate::rvec::{self, AsRVec as _, RVec, rvec};
 use flux_rs::assert;
+use flux_rs::attrs::*;
+use rand::{Rng, rngs::ThreadRng};
 
 fn test() {
     assert(10 < 20)
@@ -53,23 +52,24 @@ struct Layer {
 }
 
 #[spec(fn(n: usize, f:F) -> RVec<A>[n] where F: FnMut(usize{v:0<=v && v < n}) -> A)]
-fn fill_vec<F, A>(n: usize, mut f: F) -> RVec<A>
+fn make_vec<F, A>(n: usize, mut f: F) -> RVec<A>
 where
     F: FnMut(usize) -> A,
 {
-    // let mut res = RVec::new();
-    // for i in 0..n {
-    //     res.push(f(i));
-    // }
-    // res
-    (0..n).map(|i| f(i)).collect()
+    let mut res = RVec::new();
+    for i in 0..n {
+        res.push(f(i));
+    }
+    res
+    // fancy version:
+    // (0..n).map(|i| f(i)).collect()
 }
 
 #[spec(fn(input_size: usize, output_size: usize) -> RVec<RVec<f64>[input_size]>[output_size])]
 fn mk_weights(input_size: usize, output_size: usize) -> RVec<RVec<f64>> {
     let mut rng = rand::thread_rng();
-    let weights = fill_vec(output_size, |_| {
-        fill_vec(input_size, |_| rng.gen_range(-1.0..1.0))
+    let weights = make_vec(output_size, |_| {
+        make_vec(input_size, |_| rng.gen_range(-1.0..1.0))
     });
     weights
 }
@@ -79,13 +79,13 @@ impl Layer {
     fn new(input_size: usize, output_size: usize) -> Layer {
         let mut rng = rand::thread_rng();
 
-        let weights = fill_vec(output_size, |_| {
-            fill_vec(input_size, |_| rng.gen_range(-1.0..1.0))
+        let weights = make_vec(output_size, |_| {
+            make_vec(input_size, |_| rng.gen_range(-1.0..1.0))
         });
 
-        let biases = fill_vec(output_size, |_| rng.gen_range(-1.0..1.0));
+        let biases = make_vec(output_size, |_| rng.gen_range(-1.0..1.0));
 
-        let outputs = fill_vec(output_size, |_| 0.0);
+        let outputs = make_vec(output_size, |_| 0.0);
 
         Layer {
             input_size,
