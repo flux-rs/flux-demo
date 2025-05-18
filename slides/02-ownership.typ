@@ -275,16 +275,6 @@
 
 ]
 
-#slide[
-  = #text(fill: red, size: 3em)[HEREHERE]
-
-  Demo:
-  `RVec`,
-  `dot_product`,
-  `push`,
-  `make_vec`,
-  `make_weights`
-]
 
 #slide[
   = _2. Ownership_

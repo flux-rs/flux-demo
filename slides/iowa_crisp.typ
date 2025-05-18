@@ -76,6 +76,14 @@
   )
 }
 
+#let center-block2(pad: 0.15fr, col1, col2) = {
+  grid(
+    columns: (pad, 0.5fr, pad, 0.5fr, pad),
+    [], [#col1], [], [#col2], [],
+  )
+}
+
+
 #let codebox_orig(body) = {
   box(
     fill: white,
