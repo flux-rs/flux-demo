@@ -51,8 +51,24 @@ struct Layer {
     outputs: RVec<f64>,
 }
 
-#[spec(fn(n: usize, f:F) -> RVec<A>[n] where F: FnMut(usize{v:0<=v && v < n}) -> A)]
-fn make_vec<F, A>(n: usize, mut f: F) -> RVec<A>
+#[spec(fn(n: usize, f:F) -> RVec<A>[n]
+       where F: FnMut(usize{v:0<=v && v < n}) -> A)]
+fn init0<F, A>(n: usize, mut f: F) -> RVec<A>
+where
+    F: FnMut(usize) -> A,
+{
+    let mut i = 0;
+    let mut res = RVec::new();
+    while i < n {
+        res.push(f(i));
+        i += 1;
+    }
+    res
+}
+
+#[spec(fn(n: usize, f:F) -> RVec<A>[n]
+       where F: FnMut(usize{v:0<=v && v < n}) -> A)]
+fn init<F, A>(n: usize, mut f: F) -> RVec<A>
 where
     F: FnMut(usize) -> A,
 {
@@ -61,15 +77,21 @@ where
         res.push(f(i));
     }
     res
-    // fancy version:
-    // (0..n).map(|i| f(i)).collect()
+}
+
+#[spec(fn(n: usize, f:F) -> RVec<A>[n] where F: FnMut(usize{v:0<=v && v < n}) -> A)]
+fn init2<F, A>(n: usize, mut f: F) -> RVec<A>
+where
+    F: FnMut(usize) -> A,
+{
+    (0..n).map(|i| f(i)).collect()
 }
 
 #[spec(fn(input_size: usize, output_size: usize) -> RVec<RVec<f64>[input_size]>[output_size])]
 fn mk_weights(input_size: usize, output_size: usize) -> RVec<RVec<f64>> {
     let mut rng = rand::thread_rng();
-    let weights = make_vec(output_size, |_| {
-        make_vec(input_size, |_| rng.gen_range(-1.0..1.0))
+    let weights = init(output_size, |_| {
+        init(input_size, |_| rng.gen_range(-1.0..1.0))
     });
     weights
 }
@@ -79,13 +101,13 @@ impl Layer {
     fn new(input_size: usize, output_size: usize) -> Layer {
         let mut rng = rand::thread_rng();
 
-        let weights = make_vec(output_size, |_| {
-            make_vec(input_size, |_| rng.gen_range(-1.0..1.0))
+        let weights = init(output_size, |_| {
+            init(input_size, |_| rng.gen_range(-1.0..1.0))
         });
 
-        let biases = make_vec(output_size, |_| rng.gen_range(-1.0..1.0));
+        let biases = init(output_size, |_| rng.gen_range(-1.0..1.0));
 
-        let outputs = make_vec(output_size, |_| 0.0);
+        let outputs = init(output_size, |_| 0.0);
 
         Layer {
             input_size,

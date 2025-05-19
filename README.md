@@ -361,3 +361,40 @@ _`Flux` v. `Prusti` for Memory Safety_
 ---
 
 # `flux` https://github.com/liquid-rust/flux/
+
+```rust
+fn init<F, A>(n: usize, mut f: F) -> RVec<A>
+where
+    F: FnMut(usize) -> A,
+{
+    (0..n).map(|i| f(i)).collect()
+}
+
+fn mk_weights(input_size: usize, output_size: usize) -> RVec<RVec<u64>> {
+    let mut rng = rand::thread_rng();
+    let weights = init(output_size, |_| {
+        init(input_size, |_| 0)
+    });
+    weights
+}
+
+fn max(a: u64, b: u64) -> u64 {
+    if a > b {
+        a
+    } else {
+        b
+    }
+}
+
+fn main() {
+    let input_size = 10;
+    let output_size = 5;
+    let weights = mk_weights(input_size, output_size);
+    let mut res = 0;
+    for i in 0..output_size {
+        for j in 0..input_size {
+            res = max(res, weights[i][j]);
+        }
+    }
+}
+```
