@@ -410,8 +410,186 @@
 
   #v(1em)
 
+  *Example:* _Lists_
+]
+
+#slide[
+  == Lists: _Specification_
+
+  #v(1em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.05fr, size: 1em)[
+    ```rust
+
+    enum List<T> {
+      Nil,
+      Cons(T, Box<List<T>>),
+    }
+    ```
+  ]
+
+  *Unrefined* #text(1.2em)[`List`] specification
+]
+
+#slide[
+  == Lists: _Specification_
+
+  #v(1em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.05fr, size: 1em)[
+    ```rust
+    #[refined_by(size : int)]
+    enum List<T> {
+      Nil -> List[0],
+      Cons(T, Box<List<T>[@n]>) -> List[n+1],
+    }
+    ```
+  ]
+
+  *Refined* #text(1.2em)[`List`] indexed by _size_ (or _set_ or _seq_ of values)
+]
+
+#slide[
+  == Lists: _Verification_
+
+  #v(0.5em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.08fr, size: 0.70em)[
+    ```rust
+    fn append<T>(l1: &mut List<T>[@n1], l2: List<T>[@n2])
+       ensures l1: List<T>[n1+n2]
+    {
+      match l1 {
+        List::Nil => *l1 = l2,
+        List::Cons(_, t1) => append(&mut *t1, l2),
+      }
+    }
+    ```
+  ]
+
+  #v(-0.5em)
+
+  #text(size: 1.2em)[`l2`] is _consumed_ when _spliced into_ #text(size: 1.2em)[`l1`]
+]
+
+#slide[
+  == Lists: _Specification_
+
+  #v(1em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.15fr, size: 1em)[
+    ```rust
+    fn never<T>() requires false -> T
+    {
+        loop {}
+    }
+    ```
+  ]
+
+  A function that can _never_ be called at run-time...
+
+]
+
+#slide[
+  == Lists: _Verification_
+
+  #v(0.5em)
+
+  #codly(highlights: ((line: 5, start: 18, end: 24, fill: red),))
+  #codebox(pad: 0.22fr, size: 0.70em)[
+    ```rust
+    fn get_nth<T>(l: &List<T>, k: usize) -> &T {
+      match l {
+        List::Cons(h, tl) if k == 0 => h,
+        List::Cons(h, tl) => get_nth(tl, k - 1),
+        List::Nil => never(),
+      }
+    }
+    ```
+  ]
+
+  #v(-0.5em)
+
+  *Exercise:* _Fix_ the specification for #text(size: 1.2em)[`get_nth`]?
+]
+
+#slide[
+  = #text(1.5em)[`enum`]
+
+  #v(1em)
+
   *Example:* _Neural Network_
 ]
+
+#slide[
+  == *Neural Network has _Many_ Layers*
+
+  #v(0.5em)
+
+  #figure(image("figures/neural-network-1.png", height: 65%))
+
+  #v(-0.75em)
+
+  #ttwhite[How to ensure _layers compose_ correctly?]
+]
+
+
+#slide[
+  == *Neural Network has _Many_ Layers*
+
+  #v(0.5em)
+
+  #figure(image("figures/neural-network-2.png", height: 65%))
+
+  #v(-0.75em)
+
+  #ttwhite[How to ensure _layers compose_ correctly?]
+]
+
+
+#slide[
+  == *Neural Network has _Many_ Layers*
+
+  #v(0.5em)
+
+  #figure(image("figures/neural-network-3.png", height: 65%))
+
+  #v(-0.75em)
+
+  #ttwhite[How to ensure _layers compose_ correctly?]
+]
+
+#slide[
+  == *Neural Network has _Many_ Layers*
+
+  #v(0.5em)
+
+  #figure(image("figures/neural-network-4.png", height: 65%))
+
+  #v(-0.75em)
+
+  #ttwhite[How to ensure _layers compose_ correctly?]
+]
+
+
+
+#slide[
+  == *Neural Network has _Many_ Layers*
+
+  #v(0.5em)
+
+  #figure(image("figures/neural-network-4.png", height: 65%))
+
+  #v(-0.75em)
+
+  How to ensure layers _compose_ correctly?
+]
+
+
 
 #slide[
   = #text(1.5em)[`enum`]

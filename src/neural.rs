@@ -37,10 +37,10 @@ struct Layer {
     num_outputs: usize,
 
     #[field(RVec<RVec<f64>[i]>[o])]
-    weights: RVec<RVec<f64>>,
+    weight: RVec<RVec<f64>>,
 
     #[field(RVec<f64>[o])]
-    biases: RVec<f64>,
+    bias: RVec<f64>,
 
     #[field(RVec<f64>[o])]
     outputs: RVec<f64>,
@@ -98,8 +98,8 @@ impl Layer {
         Layer {
             num_inputs: i,
             num_outputs: o,
-            weights: init(o, |_| init(i, |_| rng.gen_range(-1.0..1.0))),
-            biases: init(o, |_| rng.gen_range(-1.0..1.0)),
+            weight: init(o, |_| init(i, |_| rng.gen_range(-1.0..1.0))),
+            bias: init(o, |_| rng.gen_range(-1.0..1.0)),
             outputs: init(o, |_| 0.0),
         }
     }
@@ -107,8 +107,8 @@ impl Layer {
     #[spec(fn(&mut Layer[@l], &RVec<f64>[l.i]) )]
     fn forward(&mut self, input: &RVec<f64>) {
         (0..self.num_outputs).for_each(|i| {
-            let weighted_input = dot_product(&self.weights[i], input);
-            self.outputs[i] = sigmoid(weighted_input + self.biases[i])
+            let weighted_input = dot_product(&self.weight[i], input);
+            self.outputs[i] = sigmoid(weighted_input + self.bias[i])
         })
     }
 
@@ -117,10 +117,10 @@ impl Layer {
         let mut input_error = rvec![0.0; inputs.len()];
         for i in 0..self.num_outputs {
             for j in 0..self.num_inputs {
-                input_error[j] += self.weights[i][j] * error[i];
-                self.weights[i][j] -= learning_rate * error[i] * inputs[j];
+                input_error[j] += self.weight[i][j] * error[i];
+                self.weight[i][j] -= learning_rate * error[i] * inputs[j];
             }
-            self.biases[i] -= learning_rate * error[i];
+            self.bias[i] -= learning_rate * error[i];
         }
         input_error
     }

@@ -15,6 +15,8 @@
 #let ttblue(body) = ttcol(body, darkblue)
 #let ttgreen(body) = ttcol(body, darkgreen)
 #let ttpurple(body) = ttcol(body, lavender)
+#let ttwhite(body) = ttcol(body, white)
+
 
 #let ty(size: 1em, base) = {
   text(size, font: codefont, ligatures: true)[#ttgreen[#base]]

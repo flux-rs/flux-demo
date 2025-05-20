@@ -1,53 +1,53 @@
 use flux_rs::attrs::*;
 
-#[spec(fn(i32{v: false}) -> T)]
-pub fn never<T>(_: i32) -> T {
+#[spec(fn() -> T requires false)]
+pub fn never<T>() -> T {
     loop {}
 }
 
 #[refined_by(n:int)]
 #[invariant(n >= 0)]
-pub enum List {
-    #[variant(List[0])]
+pub enum List<T> {
+    #[variant(List<T>[0])]
     Nil,
-    #[variant((i32, Box<List[@n]>) -> List[n+1])]
-    Cons(i32, Box<List>),
+    #[variant((T, Box<List<T>[@n]>) -> List<T>[n+1])]
+    Cons(T, Box<List<T>>),
 }
 
-#[spec(fn(&List[@n]) -> bool[n == 0])]
-pub fn empty(l: &List) -> bool {
+#[spec(fn(&List<T>[@n]) -> bool[n == 0])]
+pub fn empty<T>(l: &List<T>) -> bool {
     match l {
         List::Nil => true,
-        List::Cons(_, _) => false,
+        List::Cons::<T>(_, _) => false,
     }
 }
 
-#[spec(fn(&List[@n]) -> i32[n])]
-pub fn len(l: &List) -> i32 {
+#[spec(fn(&List<T>[@n]) -> usize[n])]
+pub fn len<T>(l: &List<T>) -> usize {
     match l {
         List::Nil => 0,
-        List::Cons(_, tl) => 1 + len(tl),
+        List::Cons::<T>(_, tl) => 1 + len(tl),
     }
 }
 
-#[spec(fn({&List[@n] | 0 < n}) -> i32)]
-pub fn head(l: &List) -> i32 {
+#[spec(fn({&List<T>[@n] | 0 < n}) -> &T)]
+pub fn head<T>(l: &List<T>) -> &T {
     match l {
-        List::Nil => never(0),
-        List::Cons(h, _) => *h,
+        List::Nil => never(),
+        List::Cons::<T>(h, _) => h,
     }
 }
 
-#[spec(fn({&List[@n] | 0 < n}) -> &List)]
-pub fn tail(l: &List) -> &List {
+#[spec(fn({&List<T>[@n] | 0 < n}) -> &List<T>)]
+pub fn tail<T>(l: &List<T>) -> &List<T> {
     match l {
-        List::Nil => never(0),
-        List::Cons(_, t) => t,
+        List::Nil => never(),
+        List::Cons::<T>(_, t) => t,
     }
 }
 
-#[spec(fn(i32, n: usize) -> List[n])]
-pub fn clone(val: i32, n: usize) -> List {
+#[spec(fn(T, n: usize) -> List<T>[n])]
+pub fn clone<T: Copy>(val: T, n: usize) -> List<T> {
     if n == 0 {
         List::Nil
     } else {
@@ -55,32 +55,27 @@ pub fn clone(val: i32, n: usize) -> List {
     }
 }
 
-#[spec(fn(List[@n1], List[@n2]) -> List[n1+n2])]
-pub fn append(l1: List, l2: List) -> List {
+#[spec(fn(List<T>[@n1], List<T>[@n2]) -> List<T>[n1+n2])]
+pub fn append<T>(l1: List<T>, l2: List<T>) -> List<T> {
     match l1 {
         List::Nil => l2,
         List::Cons(h1, t1) => List::Cons(h1, Box::new(append(*t1, l2))),
     }
 }
 
-#[spec(fn(l1: &mut List[@n1], List[@n2]) ensures l1: List[n1+n2])]
-pub fn mappend(l1: &mut List, l2: List) {
+#[spec(fn(l1: &mut List<T>[@n1], List<T>[@n2]) ensures l1: List<T>[n1+n2])]
+pub fn mappend<T>(l1: &mut List<T>, l2: List<T>) {
     match l1 {
         List::Nil => *l1 = l2,
         List::Cons(_, t1) => mappend(&mut *t1, l2),
     }
 }
 
-#[spec(fn(&List[@n], k:usize{k < n} ) -> i32)]
-pub fn get_nth(l: &List, k: usize) -> i32 {
+#[spec(fn(&List<T>[@n], k:usize{k < n} ) -> &T)]
+pub fn get_nth<T>(l: &List<T>, k: usize) -> &T {
     match l {
-        List::Cons(h, tl) => {
-            if k == 0 {
-                *h
-            } else {
-                get_nth(tl, k - 1)
-            }
-        }
-        List::Nil => never(0),
+        List::Cons(h, tl) if k == 0 => h,
+        List::Cons(h, tl) => get_nth(tl, k - 1),
+        List::Nil => never(),
     }
 }
