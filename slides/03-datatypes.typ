@@ -290,8 +290,101 @@
   *Example:* _Neuron Layer_
 ]
 
+#slide[
+  = *Example:* _Neuron Layer_
 
+  #v(1em)
 
+  #figure(image("figures/neural-layer-1.png", height: 70%))
+
+]
+
+#slide[
+  = *Example:* _Neuron Layer_
+
+  #v(1em)
+
+  #figure(image("figures/neural-layer-2.png", height: 70%))
+
+]
+
+#slide[
+  = Neuron Layer: _Specification_
+
+  #v(1em)
+
+  #center-block2(pad: 0.00fr)[
+    #figure(image("figures/neural-layer-2.png", height: 70%))
+  ][
+    #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+    #codebox(pad: 0.0fr, size: 0.7em)[
+      ```rust
+      #[refined_by(i: int, o: int)]
+      struct Layer {
+        num_inputs: usize[i],
+        num_outputs: usize[o],
+        weight: RVec<RVec<f64>[i]>[o],
+        bias: RVec<f64>[o],
+        outputs: RVec<f64>[o],
+      }
+      ```
+    ]
+  ]
+]
+
+#slide[
+  = Neuron Layer: _Verification_
+
+  #v(0.5em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.2fr, size: 0.66em)[
+    ```rust
+    fn new(i: usize, o: usize) -> Layer[i, o] {
+      let mut rng = rand::thread_rng();
+      Layer {
+        num_inputs: i,
+        num_outputs: o,
+        weight: init(o, |_| init(i, |_| rng.gen_range(-1.0..1.0))),
+        bias: init(o, |_| rng.gen_range(-1.0..1.0)),
+        outputs: init(o, |_| 0.0),
+      }
+    }
+    ```
+  ]
+]
+
+#slide[
+  = Neuron Layer: _Forward Propagation_
+
+  #v(0.5em)
+
+  #figure(image("figures/neural-layer-3.png", height: 77%))
+
+]
+
+#slide[
+  = Neuron Layer: _Forward Propagation_
+
+  #v(1em)
+
+  #center-block2(pad: 0.00fr, size1: 0.45fr, size2: 0.7fr)[
+    #figure(image("figures/neural-layer-3.png", height: 65%))
+  ][
+    #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+    #codebox(pad: 0.0fr, size: 0.66em)[
+      ```rust
+      fn forward(&mut self, input: &RVec<f64>) {
+        (0..self.num_outputs).for_each(|i| {
+          let in_wt = dot(&self.weight[i], input);
+          let sum = in_wt + self.bias[i];
+          self.outputs[i] = sigmoid(sum);
+        })
+      }
+      ```
+    ]
+  ]
+]
 
 
 #slide[

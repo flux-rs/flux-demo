@@ -76,9 +76,9 @@
   )
 }
 
-#let center-block2(pad: 0.15fr, col1, col2) = {
+#let center-block2(pad: 0.15fr, size1: 0.5fr, size2: 0.5fr, col1, col2) = {
   grid(
-    columns: (pad, 0.5fr, pad, 0.5fr, pad),
+    columns: (pad, size1, pad, size2, pad),
     [], [#col1], [], [#col2], [],
   )
 }

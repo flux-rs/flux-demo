@@ -28,26 +28,21 @@ fn dot_product2(a: &RVec<f64>, b: &RVec<f64>) -> f64 {
 // HT: https://byteblog.medium.com/building-a-simple-neural-network-from-scratch-in-rust-3a7b12ed30a9
 
 // Define the structure of a single layer in the network
-#[refined_by(input_size: int, output_size: int)]
+#[refined_by(i: int, o: int)]
 struct Layer {
-    /// number of input values
-    #[field(usize[input_size])]
-    input_size: usize,
+    #[field(usize[i])]
+    num_inputs: usize,
 
-    /// number of output neurons
-    #[field(usize[output_size])]
-    output_size: usize,
+    #[field(usize[o])]
+    num_outputs: usize,
 
-    /// vector of weights for each output neuron
-    #[field(RVec<RVec<f64>[input_size]>[output_size])]
+    #[field(RVec<RVec<f64>[i]>[o])]
     weights: RVec<RVec<f64>>,
 
-    /// biases for each output neuron
-    #[field(RVec<f64>[output_size])]
+    #[field(RVec<f64>[o])]
     biases: RVec<f64>,
 
-    /// values computed as output of the layer
-    #[field(RVec<f64>[output_size])]
+    #[field(RVec<f64>[o])]
     outputs: RVec<f64>,
 }
 
@@ -97,40 +92,31 @@ fn mk_weights(input_size: usize, output_size: usize) -> RVec<RVec<f64>> {
 }
 
 impl Layer {
-    #[spec(fn(input_size: usize, output_size: usize) -> Layer[input_size, output_size])]
-    fn new(input_size: usize, output_size: usize) -> Layer {
+    #[spec(fn(i: usize, o: usize) -> Layer[i, o])]
+    fn new(i: usize, o: usize) -> Layer {
         let mut rng = rand::thread_rng();
-
-        let weights = init(output_size, |_| {
-            init(input_size, |_| rng.gen_range(-1.0..1.0))
-        });
-
-        let biases = init(output_size, |_| rng.gen_range(-1.0..1.0));
-
-        let outputs = init(output_size, |_| 0.0);
-
         Layer {
-            input_size,
-            output_size,
-            weights,
-            biases,
-            outputs,
+            num_inputs: i,
+            num_outputs: o,
+            weights: init(o, |_| init(i, |_| rng.gen_range(-1.0..1.0))),
+            biases: init(o, |_| rng.gen_range(-1.0..1.0)),
+            outputs: init(o, |_| 0.0),
         }
     }
 
-    #[spec(fn(&mut Layer[@l], &RVec<f64>[l.input_size]) )]
+    #[spec(fn(&mut Layer[@l], &RVec<f64>[l.i]) )]
     fn forward(&mut self, input: &RVec<f64>) {
-        (0..self.output_size).for_each(|i| {
+        (0..self.num_outputs).for_each(|i| {
             let weighted_input = dot_product(&self.weights[i], input);
             self.outputs[i] = sigmoid(weighted_input + self.biases[i])
         })
     }
 
-    #[spec(fn(&mut Layer[@l], &RVec<f64>[l.input_size], &RVec<f64>[l.output_size], _) -> RVec<f64>[l.input_size])]
+    #[spec(fn(&mut Layer[@l], &RVec<f64>[l.i], &RVec<f64>[l.o], _) -> RVec<f64>[l.i])]
     fn backward(&mut self, inputs: &RVec<f64>, error: &RVec<f64>, learning_rate: f64) -> RVec<f64> {
         let mut input_error = rvec![0.0; inputs.len()];
-        for i in 0..self.output_size {
-            for j in 0..self.input_size {
+        for i in 0..self.num_outputs {
+            for j in 0..self.num_inputs {
                 input_error[j] += self.weights[i][j] * error[i];
                 self.weights[i][j] -= learning_rate * error[i] * inputs[j];
             }
@@ -150,12 +136,12 @@ fn mean_squared_error(predicted: &RVec<f64>, actual: &RVec<f64>) -> f64 {
 
 // -------------------------------------------------------------------------------------
 
-#[refined_by(input_size: int, output_size: int)]
+#[refined_by(i: int, o: int)]
 enum NeuralNetwork {
-    #[variant((Layer[@l]) -> NeuralNetwork[l.input_size, l.output_size])]
+    #[variant((Layer[@l]) -> NeuralNetwork[{i: l.i, o: l.o}])]
     Last(Layer),
 
-    #[variant((Layer[@input_size, @n], Box<NeuralNetwork[n, @output_size]>) -> NeuralNetwork[input_size, output_size])]
+    #[variant((Layer[@i, @n], Box<NeuralNetwork[n, @o]>) -> NeuralNetwork[i, o])]
     Next(Layer, Box<NeuralNetwork>),
 }
 
@@ -198,7 +184,7 @@ impl NeuralNetwork {
     ) -> RVec<f64> {
         match self {
             NeuralNetwork::Last(layer) => {
-                let error = (0..layer.output_size)
+                let error = (0..layer.num_outputs)
                     .map(|i| layer.outputs[i] - target[i])
                     .collect();
                 layer.backward(inputs, &error, learning_rate)
