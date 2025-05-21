@@ -138,10 +138,10 @@ fn mean_squared_error(predicted: &RVec<f64>, actual: &RVec<f64>) -> f64 {
 
 #[refined_by(i: int, o: int)]
 enum NeuralNetwork {
-    #[variant((Layer[@l]) -> NeuralNetwork[{i: l.i, o: l.o}])]
+    #[variant((Layer[@i, @o]) -> NeuralNetwork[i, o])]
     Last(Layer),
 
-    #[variant((Layer[@i, @n], Box<NeuralNetwork[n, @o]>) -> NeuralNetwork[i, o])]
+    #[variant((Layer[@i, @h], Box<NeuralNetwork[h, @o]>) -> NeuralNetwork[i, o])]
     Next(Layer, Box<NeuralNetwork>),
 }
 

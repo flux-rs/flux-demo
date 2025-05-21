@@ -590,6 +590,153 @@
 ]
 
 
+#slide[
+  = *Neural Network:* _Specification_
+
+  #v(1em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.00fr, size: 0.8em)[
+    ```rust
+
+    enum Network {
+      Last(Layer),
+      Next(Layer, Box<Network>),
+    }
+    ```
+  ]
+
+  How to ensure layers _compose_ correctly?
+]
+
+#slide[
+  == Lists: _Specification_
+
+  #v(1em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.00fr, size: 0.8em)[
+    ```rust
+    #[refined_by(i: int, o: int)]
+    enum Network {
+      Last(Layer[@i, @o]) -> Network[i, o],
+      Next(Layer[@i, @n], Box<Network[n, @o]>) -> Network[i, o],
+    }
+    ```
+  ]
+
+  How to ensure layers _compose_ correctly?
+]
+
+#slide[
+  === *Refinements Ensure Correct _Composition_*
+
+  #v(0.5em)
+
+  #figure(image("figures/neural-network-1.png", height: 65%))
+
+  #v(-0.15em)
+
+  `Last(Layer[3,4]) ---> Network[3, 4]`
+
+]
+
+
+#slide[
+  === *Refinements Ensure Correct _Composition_*
+
+  #v(0.5em)
+
+  #figure(image("figures/neural-network-2.png", height: 65%))
+
+  #v(-0.15em)
+
+  `Next(Layer[2,3], Network[3,4]) ---> Network[2, 4]`
+]
+
+
+#slide[
+  == *Neural Network has _Many_ Layers*
+
+  #v(0.5em)
+
+  #figure(image("figures/neural-network-3.png", height: 65%))
+
+  #v(-0.15em)
+
+  `Next(Layer[4,2], Network[2,4]) ---> Network[4, 4]`
+]
+
+#slide[
+  == *Neural Network has _Many_ Layers*
+
+  #v(0.5em)
+
+  #figure(image("figures/neural-network-4.png", height: 65%))
+
+  #v(-0.15em)
+
+  `Next(Layer[3,4], Network[4,4]) ---> Network[4, 4]`
+]
+
+
+#slide[
+  == Neural Network: _Verification_
+
+  #v(0.5em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.22fr, size: 0.6em)[
+    ```rust
+    fn new(input: usize, hidden: &[usize], output: usize)
+       -> Network[input, output]
+    {
+      if hidden_sizes.len() == 0 {
+        Network::Last(Layer::new(input, output))
+      } else {
+        let n = hidden[0];
+        let layer = Layer::new(input, n);
+        let rest = Network::new(n, &hidden[1..], output);
+        Network::Next(layer, Box::new(rest))
+      }
+    }
+    ```
+  ]
+]
+
+#slide[
+  == Neural Network: _Verification_
+
+  #v(0.2em)
+
+  #codly(
+    highlights: (
+      (line: 4, start: 7, end: 26, fill: red),
+      (line: 8, start: 7, end: 26, fill: red),
+    ),
+  )
+  #codebox(pad: 0.23fr, size: 0.53em)[
+    ```rust
+    fn forward(&mut Network, input: &RVec<f64>) -> RVec<f64> {
+      match self {
+        NeuralNetwork::Last(layer) => {
+          layer.forward(input);
+          layer.outputs.clone()
+        }
+        NeuralNetwork::Next(layer, next) => {
+          layer.forward(input);
+          next.forward(&layer.outputs)
+        }
+      }
+    }
+    ```
+  ]
+
+  #v(-0.58em)
+
+  *Exercise:* _Fix_ the specification for #text(size: 1.2em)[`forward`]?
+
+]
 
 #slide[
   = #text(1.5em)[`enum`]
@@ -598,4 +745,276 @@
 
   *Example:* _Administrative Normal Form_
 
+]
+
+#slide[
+  == Administrative Normal Form
+
+  #text(0.7em)[Sabry & Felleisen, 1992]
+
+  #v(0.5em)
+
+  #show: later
+
+  #center-block2(size1: 0.48fr)[
+    *Expression*
+  ][
+    #show: later
+    *ANF*
+  ]
+
+  #center-block2(size1: 0.475fr)[
+    #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+    #text(0.8em)[
+      ```rust
+      (1 + 2) * (4 - 3)
+      ```
+    ]
+  ][
+    #show: later
+    #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+    #text(0.8em)[
+      ```rust
+      let t1 = 1 + 2;
+      let t2 = 4 - 3;
+      t1 * t2
+      ```
+    ]
+  ]
+
+  #show: later
+  #text(0.8em)[Calls/operations have _immediate_ operands (i.e. vars or constants)]
+]
+
+#slide[
+  == Administrative Normal Form: _Specification_
+
+  #text(0.8em)[Calls/operations have _immediate_ operands (i.e. vars or
+    constants)]
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.0fr, size: 0.53em)[
+    ```rust
+
+    enum Exp {
+
+      Var(String),
+
+      Num(i32),
+
+      Bin(Op, Box<Exp[@e1]>, Box<Exp[@e2]>),
+
+      Let(Id, Box<Exp[@e1]>, Box<Exp[@e2]>),
+    }
+    ```
+  ]
+]
+
+
+#slide[
+  == Administrative Normal Form: _Specification_
+
+  #text(0.8em)[Calls/operations have _immediate_ operands (i.e. vars or
+    constants)]
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.0fr, size: 0.53em)[
+    ```rust
+    #[refined_by(imm: bool)]
+    enum Exp {
+
+      Var(String) -> Exp[{imm: true}],
+
+      Num(i32) -> Exp[{imm: true}],
+
+      Bin(Op, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false}],
+
+      Let(Id, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false}])],
+    }
+    ```
+  ]
+]
+
+
+#slide[
+  == Administrative Normal Form: _Specification_
+
+  #text(0.8em)[Calls/operations have _immediate_ operands (i.e. vars or
+    constants)]
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.0fr, size: 0.53em)[
+    ```rust
+    #[refined_by(imm: bool, anf: bool)]
+    enum Exp {
+
+      Var(String) -> Exp[{imm: true, anf: true}],
+
+      Num(i32) -> Exp[{imm: true, anf: true}],
+
+      Bin(Op, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false, anf: e1.imm && e2.imm}],
+
+      Let(Id, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false, anf: e1.anf && e2.anf}])],
+    }
+    ```
+  ]
+]
+
+
+#slide[
+  == Administrative Normal Form: _Verification_
+
+  #v(0.5em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.3fr, size: 0.73em)[
+    ```rust
+    fn is_imm(&Exp[@e]) -> bool[e.imm] {
+      match self {
+        Exp::Var(_) => true,
+        Exp::Num(_) => true,
+        Exp::Bin(_, e1, e2) => false,
+        Exp::Let(_, e1, e2) => false,
+      }
+    }
+    ```
+  ]
+
+  #v(-0.5em)
+
+  #text(1em)[Function to check if expression is *_immediate_*]
+
+]
+
+
+#slide[
+  == Administrative Normal Form: _Verification_
+
+  #v(0.5em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.1fr, size: 0.73em)[
+    ```rust
+    fn is_anf(&Exp[@e]) -> bool[e.anf] {
+      match self {
+        Exp::Var(_) => true,
+        Exp::Num(_) => true,
+        Exp::Bin(_, e1, e2) => e1.is_imm() && e2.is_imm(),
+        Exp::Let(_, e1, e2) => e1.is_anf() && e2.is_anf(),
+      }
+    }
+    ```
+  ]
+
+  #v(-0.5em)
+
+  #text(1em)[Function to check if expression is *_ANF_*]
+
+]
+
+#slide[
+
+  == Administrative Normal Form: _Conversion_
+
+  #v(1em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.33fr, size: 1em)[
+    #reveal-code(lines: (2, 5), full: true)[
+      ```rust
+      // Immediate subset of Exp
+      type Imm = Exp{e: e.imm};
+
+      // ANF subset of Exp
+      type Anf = Exp{e: e.anf};
+      ```
+    ]
+  ]
+
+  Two helpful *Type Aliases*
+
+]
+
+
+#slide[
+
+  == Administrative Normal Form: _Conversion_
+
+  #v(1em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.00fr, size: 0.82em)[
+    ```rust
+    fn to_imm(&Exp, &mut usize, &mut RVec<(Id, Anf)>) -> Imm
+    ```
+  ]
+
+  Convert #text(1.2em)[`Exp ---> temp-Anf`] bindings + `Imm`
+
+  #v(0.8em)
+
+  #show: later
+
+  #grid(
+    columns: (0.05fr, 0.3fr, 0.1fr, 0.7fr, 0.05fr),
+    [],
+    [
+      #text(0.8em)[`(1 + 2) * 4`]
+    ],
+    [`--->`],
+    [
+      #text(0.8em)[`[(t1, 1 + 2), (t2, t1 * 4)], t2`]
+    ],
+    [],
+  )
+]
+#slide[
+
+  == Administrative Normal Form: _Conversion_
+
+  #v(1em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.28fr, size: 0.84em)[
+    ```rust
+    fn to_anf(&Exp, &mut usize) -> Anf
+    ```
+  ]
+  // #v(-0.5em)
+
+  #show: later
+
+  *Exercise:* _Implement_ #text(1.2em)[`to_anf`] so the following checks
+
+  #v(0.5em)
+
+  #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+  #codebox(pad: 0.3fr, size: 0.84em)[
+    ```rust
+    fn prop_anf(e: &Exp) {
+      assert(e.to_anf(&mut 0).is_anf())
+    }
+    ```
+  ]
+]
+
+#slide[
+  = _3. Datatypes_
+
+  #v(0.5em)
+
+  #ttgreen[*_Compositional_*] specification & verification
+
+  #v(0.5em)
+
+  #center-block2()[
+    #text(1.5em)[#ttgreen[`struct`]]
+  ][
+    #text(1.5em)[#ttgreen[`enum`]]
+  ]
+
+  #v(0.5em)
+
+  #show: later
+  *_"Make illegal states unrepresentable"_*
 ]

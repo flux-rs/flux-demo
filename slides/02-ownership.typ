@@ -126,7 +126,13 @@
     ```
   ]
 
-  *Shared borrow* #ttgreen[`&i32`]: #ttgreen[_read-only_] access
+  #v(-0.08em)
+
+  *`&` reference = aliasing but _no mutation_*
+
+  #v(-0.5em)
+
+  Value _read_ through `&` reference satisfies refinements
 ]
 
 #slide[
@@ -143,7 +149,14 @@
     ```
   ]
 
-  *Mutable borrow* #ttgreen[`&mut i32`]: #ttgreen[_refinement-preserving_] writes
+  #v(-0.08em)
+
+  *`&mut` reference = mutation but _no aliasing_*
+
+  #v(-0.5em)
+
+  Value _written_ through `&mut` _must preserve_ refinements
+
 ]
 
 #slide[
@@ -160,7 +173,11 @@
     ```
   ]
 
-  *Mutable borrow* #ttgreen[`&mut i32`]: #ttgreen[_refinement-preserving_] writes
+  Value _written_ through `&mut` _must preserve_ refinements
+
+  #v(-0.5em)
+
+  *Exercise:* How to _fix_ the error in `decr` ?
 ]
 
 

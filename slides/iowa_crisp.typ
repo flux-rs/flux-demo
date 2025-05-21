@@ -5,6 +5,7 @@
 #let darkblue = rgb(7, 90, 184)
 #let mypurple = rgb("#d454bd")
 #let lavender = rgb(187, 102, 234)
+#let myred = rgb("#b8303ebd")
 #let codefont = "Fira Code"
 
 #let ttcol(body, color) = {
@@ -12,6 +13,7 @@
   [#body]
 }
 
+#let ttred(body) = ttcol(body, myred)
 #let ttblue(body) = ttcol(body, darkblue)
 #let ttgreen(body) = ttcol(body, darkgreen)
 #let ttpurple(body) = ttcol(body, lavender)

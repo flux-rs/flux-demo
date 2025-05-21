@@ -113,6 +113,7 @@
 
   #v(1em)
 
+  #codly(highlights: ((line: 100, start: 8, end: 20, fill: red),))
   #codebox(pad: 0.35fr, size: 1em)[
     ```rust
     fn tt() -> bool[true] {
@@ -131,6 +132,7 @@
 
   #v(1em)
 
+  #codly(highlights: ((line: 100, start: 8, end: 20, fill: red),))
   #codebox(pad: 0.33fr)[
     ```rust
     fn ff() -> bool[false] {
@@ -149,6 +151,7 @@
 
   #v(1em)
 
+  #codly(highlights: ((line: 100, start: 8, end: 20, fill: red),))
   #codebox(pad: 0.35fr)[
     ```rust
     fn twelve() -> i32[12] {
@@ -169,6 +172,7 @@
 
   #v(1em)
 
+  #codly(highlights: ((line: 100, start: 8, end: 20, fill: red),))
   #codebox(pad: .30fr, size: 0.9em)[
     ```rust
     fn assert(b:bool[true]){}

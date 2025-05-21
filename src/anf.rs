@@ -17,6 +17,7 @@ enum Op {
 }
 
 #[refined_by(imm: bool, anf: bool)]
+#[invariant(imm => anf)]
 enum Exp {
     // variables: x, y, z, ...
     #[variant((String) -> Exp[{imm: true, anf: true}])]
@@ -39,7 +40,7 @@ enum Exp {
 type Anf = Exp;
 
 // subset of Exp that are IMM
-#[alias(type Imm = Exp{e: e.imm && e.anf})]
+#[alias(type Imm = Exp{e: e.imm})]
 type Imm = Exp;
 
 //---------------------------------------------------------------------------------------
@@ -65,7 +66,6 @@ fn bin(op: Op, e1: Exp, e2: Exp) -> Exp {
 //---------------------------------------------------------------------------------------
 
 // ((2 + 3) * (12 - 4)) * (7 + 8)
-#[spec(fn() -> Exp[{imm: false, anf: false}])]
 fn exp0() -> Exp {
     bin(
         Op::Mul,
@@ -79,8 +79,7 @@ fn exp0() -> Exp {
 }
 
 // let x = 2 + 3 in (x + 4)
-#[spec(fn() -> Exp[{imm: false, anf: true}])]
-fn exp1() -> Exp {
+fn exp1() -> Anf {
     let_(
         "x",
         bin(Op::Add, num(2), num(3)),
@@ -91,7 +90,7 @@ fn exp1() -> Exp {
 //---------------------------------------------------------------------------------------
 
 fn fresh_id(count: &mut usize) -> Id {
-    let name = format!("tmp{}", count);
+    let name = format!("?tmp{}", count);
     *count += 1;
     name.to_string()
 }
@@ -117,7 +116,6 @@ impl Exp {
         }
     }
 
-    #[spec(fn (_, count: &mut usize, binds: &mut RVec<(Id, Exp{v:v.anf})>) -> Imm)]
     fn to_imm(&self, count: &mut usize, binds: &mut RVec<(Id, Anf)>) -> Imm {
         match self {
             Exp::Var(x) => var(x),
@@ -142,6 +140,11 @@ impl Exp {
         match self {
             Exp::Var(x) => var(x),
             Exp::Num(n) => num(*n),
+            Exp::Let(x, e1, e2) => {
+                let e1 = e1.to_anf(count);
+                let e2 = e2.to_anf(count);
+                let_(x, e1, e2)
+            }
             Exp::Bin(op, e1, e2) => {
                 let mut binds = rvec![];
                 let v1 = e1.to_imm(count, &mut binds);
@@ -153,10 +156,6 @@ impl Exp {
                 }
                 res
             }
-            Exp::Let(x, e1, e2) => {
-                let a = self.to_anf(count);
-                let_(x, e1.to_anf(count), a)
-            }
         }
     }
 }
@@ -164,4 +163,36 @@ impl Exp {
 fn test_anf(e: &Exp) {
     let res = e.to_anf(&mut 0);
     assert(res.is_anf());
+}
+
+//---------------------------------------------------------------------------------------
+
+enum Instr {
+    // push value of `Id` to stack
+    LoadVar(Id),
+    // push number of `i32` to stack
+    LoadNum(i32),
+    // pop two values from stack, perform `Op` on them, and push result to stack
+    Op(Op),
+    // pop value from stack and store it in `Id`
+    StoreVar(Id),
+}
+
+impl Exp {
+    fn compile(&self, instrs: &mut RVec<Instr>) {
+        match self {
+            Exp::Var(x) => instrs.push(Instr::LoadVar(x.clone())),
+            Exp::Num(n) => instrs.push(Instr::LoadNum(*n)),
+            Exp::Bin(op, e1, e2) => {
+                e1.compile(instrs);
+                e2.compile(instrs);
+                instrs.push(Instr::Op(*op));
+            }
+            Exp::Let(x, e1, e2) => {
+                e1.compile(instrs);
+                instrs.push(Instr::StoreVar(x.clone()));
+                e1.compile(instrs);
+            }
+        }
+    }
 }
