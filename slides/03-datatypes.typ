@@ -44,14 +44,14 @@
 
   #v(2em)
 
-  #center-block2()[
+  #toolbox.side-by-side()[
     #text(1.5em)[#ttgreen[`struct`]]
 
-    _"Product" types_
+    _"Product"_ types
   ][
     #text(1.5em)[#ttgreen[`enum`]]
 
-    _"Sum" types_
+    _"Sum"_ types
   ]
 ]
 
@@ -61,15 +61,15 @@
 
   #v(2em)
 
-  #center-block2()[
+  #toolbox.side-by-side()[
     #text(1.5em)[#ttgreen[`struct`]]
 
-    _"Product" types_
+    _"Product"_ types
   ][
     #hide[
       #text(1.5em)[#ttgreen[`enum`]]
 
-      _"Sum" types_
+      _"Sum"_ types
     ]
   ]
 ]
@@ -392,16 +392,16 @@
 
   #v(2em)
 
-  #center-block2()[
+  #toolbox.side-by-side()[
     #hide[
       #text(1.5em)[#ttgreen[`struct`]]
 
-      _"Product" types_
+      _"Product"_ types
     ]
   ][
     #text(1.5em)[#ttgreen[`enum`]]
 
-    _"Sum" types_
+    _"Sum"_ types
   ]
 ]
 
@@ -754,42 +754,53 @@
 
   #v(0.5em)
 
-  #show: later
+  #v(-0.5em)
 
-  #center-block2(size1: 0.48fr)[
+  // #center-block2(size1: 0.48fr)[
+
+  #toolbox.side-by-side()[
     *Expression*
   ][
-    #show: later
-    *ANF*
+    #uncover("1-")[
+      *ANF*
+    ]
   ]
 
-  #center-block2(size1: 0.475fr)[
+
+  // #center-block2(size1: 0.475fr)[
+  #toolbox.side-by-side()[
     #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
-    #text(0.8em)[
-      ```rust
-      (1 + 2) * (4 - 3)
-      ```
+    #text(1em)[
+      #codebox(pad: 0.04fr, size: 1em)[
+        ```rust
+         (1 + 2) * (4 - 3)
+        ```
+      ]
     ]
   ][
-    #show: later
-    #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
-    #text(0.8em)[
-      ```rust
-      let t1 = 1 + 2;
-      let t2 = 4 - 3;
-      t1 * t2
-      ```
+    #uncover("1-")[
+      #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+      #text(0.95em)[
+        #codebox(pad: 0.17fr, size: 1em)[
+          ```rust
+          let t1 = 1 + 2;
+          let t2 = 4 - 3;
+          t1 * t2
+          ```
+        ]
+      ]
     ]
   ]
 
-  #show: later
-  #text(0.8em)[Calls/operations have _immediate_ operands (i.e. vars or constants)]
+  #uncover(2)[
+    #text(0.8em)[Calls/operations have *_immediate operands_* (i.e. vars or constants)]
+  ]
 ]
 
 #slide[
   == Administrative Normal Form: _Specification_
 
-  #text(0.8em)[Calls/operations have _immediate_ operands (i.e. vars or
+  #text(0.8em)[Calls/operations have _immediate operands_ (i.e. vars or
     constants)]
 
   #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
@@ -949,24 +960,25 @@
     ```
   ]
 
-  Convert #text(1.2em)[`Exp ---> temp-Anf`] bindings + `Imm`
+  Convert #ttpurple[#text(1.2em)[`Exp`]] into
+  Temp-#text(1.2em)[`Anf`] #ttblue[bindings] + #ttgreen[#text(1.2em)[`Imm`]]
 
-  #v(0.8em)
+  #v(0.5em)
 
   #show: later
 
-  #grid(
-    columns: (0.05fr, 0.3fr, 0.1fr, 0.7fr, 0.05fr),
-    [],
-    [
-      #text(0.8em)[`(1 + 2) * 4`]
-    ],
-    [`--->`],
-    [
-      #text(0.8em)[`[(t1, 1 + 2), (t2, t1 * 4)], t2`]
-    ],
-    [],
-  )
+  #toolbox.side-by-side(columns: (2fr, 0.8fr, 3fr))[
+    #uncover("2-")[#align(right)[#text(1em)[#ttpurple[`(1 + 2) * 4`]]]]
+  ][
+    #uncover("2-")[#text(1.2em)[`====>`]]
+  ][
+    #uncover("3-")[
+      #ttblue[`[(t1, 1+2), (t2, t1*4)]`]
+      #v(0.5em)
+      #ttgreen[`t2`]
+    ]
+  ]
+
 ]
 #slide[
 

@@ -66,10 +66,13 @@
 
   #v(-2em)
 
-  #grid(
-    columns: (0.1fr, 0.25fr, 0.25fr, 0.25fr, 0.1fr),
-    [], [#ttgreen[Base-type]], [#ttred[Value name]], [#ttpurple[Refinement]], [],
-  )
+  #toolbox.side-by-side(gutter: 0.01em, columns: (1fr, 2fr, 2fr, 2fr, 1fr))[][
+    #ttgreen[Base-type]
+  ][
+    #ttred[Value name]
+  ][
+    #ttpurple[Refinement]
+  ][]
 
 
   #show: later
@@ -92,10 +95,13 @@
 
   #v(-2em)
 
-  #grid(
-    columns: (0.1fr, 0.25fr, 0.25fr, 0.25fr, 0.1fr),
-    [], [#ttgreen[Base-type]], [#ttred[Value name]], [#ttpurple[Refinement]], [],
-  )
+  #toolbox.side-by-side(gutter: 0.01em, columns: (1fr, 2fr, 2fr, 2fr, 1fr))[][
+    #ttgreen[Base-type]
+  ][
+    #ttred[Value name]
+  ][
+    #ttpurple[Refinement]
+  ][]
 
   #text(1.2em)[“Set of _positive integers_"]
 ]
