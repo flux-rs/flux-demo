@@ -505,7 +505,7 @@ fn dot0(xs: &RVec<f64>[@n], ys: &RVec<f64>[n]) -> f64 {
     let mut res = 0.0;
     let mut i = 0;
     while (i < xs.len()) {
-        res += xs[i] + ys[i];
+        res += xs[i] * ys[i];
         i += 1;
     }
     res
@@ -516,7 +516,7 @@ fn dot1(xs: &Vec<f64>[@n], ys: &Vec<f64>[n]) -> f64 {
     let mut res = 0.0;
     let mut i = 0;
     while (i < xs.len()) {
-        res += xs[i] + ys[i];
+        res += xs[i] * ys[i];
         i += 1;
     }
     res
@@ -526,7 +526,7 @@ fn dot1(xs: &Vec<f64>[@n], ys: &Vec<f64>[n]) -> f64 {
 fn dot2(xs: &Vec<f64>[@n], ys: &Vec<f64>[n]) -> f64 {
     let mut res = 0.0;
     for i in 0..xs.len() {
-        res += xs[i] + ys[i];
+        res += xs[i] * ys[i];
     }
     res
 }
@@ -534,12 +534,12 @@ fn dot2(xs: &Vec<f64>[@n], ys: &Vec<f64>[n]) -> f64 {
 // ... use `for_each`
 fn dot3(xs: &Vec<f64>[@n], ys: &Vec<f64>[n]) -> f64 {
     let mut res = 0.0;
-    (0..xs.len()).for_each(|i| res += xs[i] + ys[i]);
+    (0..xs.len()).for_each(|i| res += xs[i] * ys[i]);
     res
 }
 
 // ... map + sum
 fn dot4(xs: &Vec<f64>[@n], ys: &Vec<f64>[n]) -> f64 {
-    (0..xs.len()).map(|i| xs[i] + ys[i]).sum()
+    (0..xs.len()).map(|i| xs[i] * ys[i]).sum()
 }
 ```

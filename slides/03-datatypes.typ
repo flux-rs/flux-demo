@@ -752,16 +752,12 @@
 
   #text(0.7em)[Sabry & Felleisen, 1992]
 
-  #v(0.5em)
-
-  #v(-0.5em)
-
-  // #center-block2(size1: 0.48fr)[
-
   #toolbox.side-by-side()[
-    *Expression*
+    #uncover("2-")[
+      *Expression*
+    ]
   ][
-    #uncover("1-")[
+    #uncover("3-")[
       *ANF*
     ]
   ]
@@ -769,16 +765,18 @@
 
   // #center-block2(size1: 0.475fr)[
   #toolbox.side-by-side()[
-    #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
-    #text(1em)[
-      #codebox(pad: 0.04fr, size: 1em)[
-        ```rust
-         (1 + 2) * (4 - 3)
-        ```
+    #uncover("2-")[
+      #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+      #text(1em)[
+        #codebox(pad: 0.04fr, size: 1em)[
+          ```rust
+           (1 + 2) * (4 - 3)
+          ```
+        ]
       ]
     ]
   ][
-    #uncover("1-")[
+    #uncover("3-")[
       #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
       #text(0.95em)[
         #codebox(pad: 0.17fr, size: 1em)[
@@ -792,7 +790,7 @@
     ]
   ]
 
-  #uncover(2)[
+  #uncover(4)[
     #text(0.8em)[Calls/operations have *_immediate operands_* (i.e. vars or constants)]
   ]
 ]
@@ -800,7 +798,7 @@
 #slide[
   == Administrative Normal Form: _Specification_
 
-  #text(0.8em)[Calls/operations have _immediate operands_ (i.e. vars or
+  #text(0.8em)[Calls/operations have *_immediate operands_* (i.e. vars or
     constants)]
 
   #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
@@ -825,7 +823,7 @@
 #slide[
   == Administrative Normal Form: _Specification_
 
-  #text(0.8em)[Calls/operations have _immediate_ operands (i.e. vars or
+  #text(0.8em)[Calls/operations have *_immediate operands_* (i.e. vars or
     constants)]
 
   #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
@@ -850,7 +848,7 @@
 #slide[
   == Administrative Normal Form: _Specification_
 
-  #text(0.8em)[Calls/operations have _immediate_ operands (i.e. vars or
+  #text(0.8em)[_*Calls/operations*_ have immediate operands (i.e. vars or
     constants)]
 
   #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
