@@ -656,11 +656,357 @@
 
   How to specify #ttpurple[_"index"_] or #ttpurple[_"iterator"_] or ...?
 
+
+]
+
+
+#slide[
+
+  #toolbox.side-by-side()[
+
+    #figure(image("figures/david-wheeler.jpg", height: 135%))
+
+  ][
+
+    #text(0.7em)[
+      _"All problems in computer science can be_
+
+      _solved by #ttpurple[another level of indirection]"_
+
+      --- David Wheeler
+    ]
+  ]
+]
+
+
+#slide[
+
+  = _Generic Interfaces_
+
+  #v(1em)
+
+  *Problem*
+
+  How to specify #ttpurple[_"index"_] or #ttpurple[_"iterator"_] or ...?
+
   #v(0.5em)
 
-  #only("2-")[
-    *Solution*
+  *Solution*
 
-    #ttpurple[_Associated Refinements_]
+  #ttpurple[_Associated Refinements_]
+]
+
+#slide[
+  = _Associated Refinements_
+
+  #v(1em)
+
+  _Split_ specification across `trait` and `impl`
+
+]
+
+
+#slide[
+
+  #v(-1.5em)
+
+  = _Associated Refinements_
+
+  #text(0.7em)[_Split_ specification across #ttblue[`trait`] and #ttgreen[`impl`]]
+
+  #grid(
+    columns: (0.5fr, 4fr),
+    align: (top + right, left),
+    row-gutter: 0.5em,
+    [#ttblue[*Trait*]],
+    [
+      #codly(highlights: ((line: 4, start: 21, end: 49, fill: blue),))
+      #codebox(size: 0.65em, pad: 0.04fr)[
+        #reveal-code(lines: (1, 2, 3, 6), full: false)[
+          ```rust
+          trait Index<Idx> {
+            type Out;
+            reft in_bounds(&self, idx: Idx) -> bool;
+            fn index(&self, i:Idx{Self::in_bounds(self, i)}) -> &Out;
+          }
+          ```
+        ]
+      ]
+    ],
+
+    [#ttgreen[*Impl*]],
+    [
+      #codly(highlights: ((line: 400, start: 21, end: 49, fill: blue),))
+      #codebox(size: 0.65em, pad: 0.04fr)[
+        #text(white)[
+          ```
+          impl<T> Index<usize> for Vec<T> {
+            type Out = T;
+            reft in_bounds(&self, idx: Idx) -> bool { idx < self.len };
+            fn index(&self, i:Idx{Self::in_bounds(self, i)}) -> &Out;
+          }
+          ```
+        ]
+      ]
+    ],
+  )
+]
+
+#slide[
+  #v(-1.5em)
+  = _Associated Refinements_
+  #text(0.7em)[_Split_ specification across #ttblue[`trait`] and #ttgreen[`impl`]]
+
+  #grid(
+    columns: (0.5fr, 5fr),
+    align: (top + right, left),
+    row-gutter: 0.7em,
+    hide[#ttblue[*Trait*]],
+    hide[
+      #codly(highlights: ((line: 400, start: 21, end: 49, fill: blue),))
+      #codebox(size: 0.65em, pad: 0.04fr)[
+        #text(gray)[
+          ```
+          trait Index<Idx> {
+            type Out;
+            reft in_bounds(&self, idx: Idx) -> bool;
+            fn index(&self, i:Idx{Self::in_bounds(self, i)}) -> &Out;
+          }
+          ```
+        ]
+      ]
+    ],
+
+    ttgreen[*Impl*],
+    [
+      #codly(highlights: ((line: 3, start: 43, end: 60, fill: green),))
+      #codebox(size: 0.65em, pad: 0.04fr)[
+        #reveal-code(lines: (2, 3, 6), full: false)[
+          ```rust
+          impl<T> Index<usize> for Vec<T> {
+            type Out = &T;
+            reft in_bounds(&self, idx: Idx) -> bool { idx < self.len };
+            fn index(&self, i:Idx{Self::in_bounds(self, i)}) -> &Out;
+          }
+          ```
+        ]
+      ]
+    ],
+  )
+]
+
+#slide[
+  #v(-1.5em)
+  = _Associated Refinements_
+  #text(0.7em)[_Split_ specification across #ttblue[`trait`] and #ttgreen[`impl`]]
+
+  #grid(
+    columns: (0.5fr, 5fr),
+    align: (top + right, left),
+    row-gutter: 0.7em,
+    ttblue[*Trait*],
+    [
+      #codly(highlights: ((line: 400, start: 21, end: 49, fill: blue),))
+      #codebox(size: 0.65em, pad: 0.04fr)[
+        ```rust
+        trait Index<Idx> {
+          type Output;
+          reft in_bounds(&self, idx: Idx) -> bool;
+          fn index(&self, i:Idx{Self::in_bounds(self, i)}) -> &T;
+        }
+        ```
+      ]
+    ],
+
+    ttgreen[*Impl*],
+    [
+      #codly(highlights: ((line: 300, start: 43, end: 60, fill: green),))
+      #codebox(size: 0.65em, pad: 0.04fr)[
+        ```rust
+        trait Index<Idx> {
+          type Output;
+          reft in_bounds(&self, idx: Idx) -> bool { idx < self.len };
+          fn index(&self, i:Idx{Self::in_bounds(self, i)}) -> &T;
+        }
+        ```
+      ]
+    ],
+  )
+]
+
+
+#slide[
+
+  #v(-0.45em)
+
+  = _Associated Refinements_
+  #text(0.9em)[Can now _verify_ #ttpurple[_"index bounds"_]]
+
+
+  #v(1em)
+
+
+  #grid(
+    columns: (2fr, 6fr),
+    align: (left, top + center),
+    row-gutter: 0.0em,
+    [
+      #codly(highlights: ((line: 3, start: 7, end: 14, fill: blue),))
+      #codebox(size: 0.5em, pad: 0.00fr)[
+        ```rust
+        fn head(v:&Vec<i32>)
+            -> i32
+        {
+           *v.index(0)
+        }
+        ```
+      ]
+    ],
+    [
+      #uncover("2-")[
+        #codly(highlights: ((line: 100, start: 5, end: 9, fill: blue),))
+        #codebox(size: 0.53em, pad: 0.04fr)[
+          ```rust
+          fn index(&self, i:Idx{Self::in_bounds(self, i)}) -> &Out
+          ```
+        ]
+      ]
+
+      #uncover("3-")[
+        #text(0.6em)[
+          $arrow.b.stroked$
+          *Instantiation:*
+          #ttblue[`Self`] $≐$ #ttgreen[`Vec<i32>`],
+          #ttblue[`Idx`] $≐$ #ttgreen[`usize`],
+          #ttblue[`Out`] $≐$ #ttgreen[`i32`]
+        ]
+
+        #codly(highlights: ((line: 100, start: 5, end: 9, fill: blue),))
+        #codebox(size: 0.53em, pad: 0.04fr)[
+          ```rust
+          fn index(&Vec<i32>[v], i:usize{Self::in_bounds(v,i)}) -> &i32
+          ```
+        ]
+      ]
+
+      #uncover("4-")[
+        #text(0.6em)[
+          $arrow.b.stroked$
+          *Projection:*
+          #ttblue[`Self::in_bounds(self, i)`] $≐$ #ttgreen[`i < self.len`]
+        ]
+
+        #codly(highlights: ((line: 100, start: 5, end: 9, fill: blue),))
+        #codebox(size: 0.53em, pad: 0.04fr)[
+          ```rust
+          fn index(&Vec<i32>[v], i:usize{i < v.len}) -> &i32
+          ```
+        ]
+      ]
+    ],
+  )
+]
+
+
+#slide[
+
+  #v(-1.1em)
+
+  = _Associated Refinements_
+  #text(0.9em)[Can now _verify_ #ttpurple[_"index bounds"_]]
+
+  #v(0.2em)
+
+  #codly(highlights: ((line: 2, start: 5, end: 14, fill: red),))
+  #codebox(size: 0.8em, pad: 0.4fr)[
+    ```rust
+     fn head(v:&Vec<i32>) -> i32 {
+       *v.index(0)
+     }
+    ```
   ]
+
+  #v(-0.5em)
+
+  *At call-site*
+
+  #text(0.8em)[```rust fn index(&Vec<i32>[v], i:usize{i < v.len}) -> &i32```]
+
+  #show: later
+  *Exercise:* Can you _fix_ the specification for `head`?
+
+]
+
+
+
+#slide[
+
+  #v(-1.1em)
+
+  = _Associated Refinements_
+
+  #text(0.9em)[Prevent _bypassing_ checks e.g. `hack`]
+
+  #v(0.2em)
+
+  #codly(highlights: ((line: 4, start: 3, end: 14, fill: red),))
+  #codebox(size: 0.55em, pad: 0.65fr)[
+    ```rust
+    fn hack(c:C, i:usize) -> &C::Output
+    where C: Index<usize>
+    {
+      c.index(i)
+    }
+    ```
+  ]
+
+
+  #show: later
+  #v(-0.65em)
+  *At call-site*
+
+  #text(0.8em)[```rust fn index(&C[c], i:usize{C::in_bounds(i, c)}) -> &i32```]
+
+  #show: later
+  #v(-0.3em)
+  *Exercise:* How to _fix_ the specification for `hack`?
+]
+
+
+#slide[
+
+  #v(-0.7em)
+
+  === *Problem:* Specifications for _Generic Interfaces_
+
+  Implemented by many types
+
+  #v(1em)
+
+  #toolbox.side-by-side(gutter: 0em)[
+    #codly(highlights: ((line: 3, start: 5, end: 8, fill: green),))
+    #codebox(size: 0.6em, pad: 0.03fr)[
+      ```rust
+      trait Iterator {
+       type Item;
+       fn next(&mut self) -> Option<Item>;
+      }
+      ```
+    ]
+  ][
+    #codly(highlights: ((line: 3, start: 5, end: 9, fill: blue),))
+    #codebox(size: 0.6em, pad: 0.04fr)[
+      ```rust
+      trait Index<Idx> {
+       type Output;
+       fn index(&self, i:Idx) -> &Output;
+      }
+      ```
+    ]
+  ]
+
+  === *Solution:* _Associated Refinements_
+
+  _Split_ specification across `trait` and `impl`
+
 ]

@@ -123,6 +123,6 @@
   set page(paper: "presentation-16-9")
   set text(size: 30pt, font: "Iowan Old Style")
   set align(center + horizon)
-
+  set raw(syntaxes: "figures/Rust.sublime-syntax")
   [#doc]
 }
