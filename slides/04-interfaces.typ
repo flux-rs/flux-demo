@@ -1096,3 +1096,22 @@
   #text(0.8em)[_Split_ specification across `trait` and `impl`]
 
 ]
+
+#slide[
+
+  = Refinements for Rust
+
+  #v(1em)
+
+  #center-block(pad: 0.4fr)[
+
+    *1. _Refinements_* `i32`, `bool`, ...
+
+    *2. _Ownership_* `mut`, `&`, `&mut`, ...
+
+    *3. _Datatypes_* `struct`, `enum`, ...
+
+    *4. _Interfaces_* `trait`, `impl`, ...
+  ]
+
+]

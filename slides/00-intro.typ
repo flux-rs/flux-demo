@@ -14,42 +14,186 @@
 ]
 
 #slide[
-  #figure(image("figures/flux.png", width: 50%))
-
-  (/flʌks/)
-
-  #v(0.81em)
-
-  #text(size: 0.75em)[_n. 1 a flowing or flow. 2 a substance used to refine metals. v. 3 to melt; make fluid._]
+  === *What _is_ Programming Languages Research?*
 ]
 
 #slide[
-  = #ttblue[Programmer-Aided] #text(fill: darkgreen)[Analysis]
-  // #show: later
 
-  == I. Programs
-  #ttblue[_Refinements_ for Rust]
-  // #show: later
+  #toolbox.side-by-side(gutter: 3em, columns: (1fr, 1.1fr))[
 
-  == II. Analysis
-  #ttgreen[_Type-directed_ Abstract-Interpretation]
-  // #show: later
+    #figure(image("figures/orwell.jpg", height: 135%))
 
+  ][
+
+    #text(1.0em)[
+      #align(left)[
+        _“We shall make_
+        #v(-0.5em)
+        _thoughtcrime_
+        #v(-0.5em)
+        _literally impossible:_
+        #v(-0.5em)
+        _there will be no words_
+        #v(-0.5em)
+        _to express it.”_
+
+        --- George Orwell (1984)
+      ]
+    ]
+  ]
 ]
 
 #slide[
-  #hide[
-    = #ttblue[Programmer-Aided] #ttgreen[Analysis]
-  ]
 
-  == I. Programs
-  #ttblue[_Refinements_ for Rust]
+  #toolbox.side-by-side(gutter: 3em, columns: (1fr, 1.1fr))[
 
-  #hide[
-    == II. Analysis
-    #ttgreen[_Type-directed_ Abstract-Interpretation]
+    #figure(image("figures/orwell.jpg", height: 135%))
+
+  ][
+
+    #text(1.0em)[
+      #align(left)[
+        _“We shall make_
+        #v(-0.5em)
+        #strike(stroke: 3pt + myred)[_thoughtcrime_] #ttred[_bugs_]
+        #v(-0.5em)
+        _literally impossible:_
+        #v(-0.5em)
+        _there will be no words_
+        #v(-0.5em)
+        _to express it.”_
+
+        --- George Orwell (1984)
+      ]
+    ]
   ]
 ]
+
+#slide[
+
+  #v(-0.7em)
+
+  === #text(1.1em)[What _is_ Programming Languages Research?]
+
+  #v(0.6em)
+
+  #toolbox.side-by-side(gutter: 1em, columns: (1fr, 1fr))[
+    #hide[
+      #text(1.0em)[
+        #align(left)[
+          _“We shall make_
+          #v(-0.5em)
+          #strike(stroke: 3pt + myred)[_thoughtcrime_] #ttred[_bugs_]
+          #v(-0.5em)
+          _literally impossible:_
+          #v(-0.5em)
+          _there will be no words_
+          #v(-0.5em)
+          _to express it.”_
+
+          --- George Orwell (1984)
+        ]
+      ]
+    ]
+  ][
+    #text(0.8em)[
+
+      #one-by-one()[
+
+        Null Derefs
+
+      ][
+
+        Array Overflows
+
+      ][
+
+        Integer Overlflows
+
+      ][
+
+        User def. invariants
+
+      ][
+
+        Security Requirements
+
+      ][
+
+        Functional Correctness
+
+      ]
+    ]
+  ]
+]
+
+
+#slide[
+
+  #v(-0.7em)
+
+  === #text(1.1em)[What _is_ Programming Languages Research?]
+
+  #v(0.6em)
+
+  #toolbox.side-by-side(gutter: 1em, columns: (1fr, 1fr))[
+
+    #text(2em)[But ... _how_?]
+
+  ][
+    #hide[
+      #text(0.8em)[
+
+        Null Derefs
+
+
+        Array Overflows
+
+
+        Integer Overlflows
+
+
+        User def. invariants
+
+
+        Security Requirements
+
+
+        Functional Correctness
+
+      ]
+    ]
+  ]
+]
+
+
+// #slide[
+//   = #ttblue[Programmer-Aided] #text(fill: darkgreen)[Analysis]
+//   // #show: later
+
+//   == I. Programs
+//   #ttblue[_Refinements_ for Rust]
+//   // #show: later
+
+//   == II. Analysis
+//   #ttgreen[_Type-directed_ Abstract-Interpretation]
+//   // #show: later
+
+// ]
+
+// #slide[
+//   #hide[
+//     = #ttblue[Programmer-Aided] #ttgreen[Analysis]
+//   ]
+
+//   == I. Programs
+//   #ttblue[_Refinements_ for Rust]
+
+//   #hide[
+//     == II. Analysis
+//     #ttgreen[_Type-directed_ Abstract-Interpretation]
+//   ]
+// ]
 
 #slide[
   = Refinement Types
@@ -107,9 +251,12 @@
 ]
 
 #slide[
+
+  #v(-1em)
+
   == Refinement Types for _Functional_ Code
 
-  #v(1em)
+  #v(2em)
 
   #grid(
     columns: 4,
@@ -149,6 +296,59 @@
 
   *Problem:* Dependency on _mutable_ variables!
 ]
+
+#slide[
+
+  #text(3em)[*March 2019*]
+
+]
+
+#slide[
+
+  #text(3em)[*March 2019*]
+
+]
+
+#slide[
+  #figure(image("figures/nico-1.png", height: 110%))
+]
+
+#slide[
+  #figure(image("figures/nico-2.png", height: 110%))
+]
+#slide[
+  #figure(image("figures/nico-3.png", height: 110%))
+]
+
+#slide[
+  #figure(image("figures/nico-4a.png", height: 110%))
+]
+
+#slide[
+  #figure(image("figures/nico-4b.png", height: 110%))
+]
+
+#slide[
+  #figure(image("figures/nico-5.png", height: 110%))
+]
+
+
+#slide[
+
+  #text(3em)[*... 6 years later*]
+
+]
+
+#slide[
+  #figure(image("figures/flux.png", width: 60%))
+
+  (/flʌks/)
+
+  #v(0.81em)
+
+  #text(size: 0.75em)[_n. 1 a flowing or flow. 2 a substance used to refine metals. v. 3 to melt; make fluid._]
+]
+
 
 
 #slide[

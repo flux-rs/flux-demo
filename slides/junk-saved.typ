@@ -46,23 +46,10 @@
 
 // ---------------------------------------------------------------------------------
 
-#slide[
-  = Liquid Types for Rust
 
-  #v(1em)
-
-  #figure(
-    image("figures/flux.png", width: 50%),
-  )
-
-Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
-
-]
 
 #slide[
-  #figure(
-    image("figures/flux.png", width: 50%),
-  )
+  #figure(image("figures/flux.png", width: 50%))
 
   (/flʌks/)
 
@@ -72,7 +59,7 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 ]
 
 #slide[
-  = #ttblue[Programmer-Aided] #text(fill:darkgreen)[Analysis]
+  = #ttblue[Programmer-Aided] #text(fill: darkgreen)[Analysis]
   // #show: later
 
   == I. Programs
@@ -87,15 +74,15 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
 #slide[
   #hide[
-  = #ttblue[Programmer-Aided] #ttgreen[Analysis]
+    = #ttblue[Programmer-Aided] #ttgreen[Analysis]
   ]
 
   == I. Programs
   #ttblue[_Refinements_ for Rust]
 
   #hide[
-  == II. Analysis
-  #ttgreen[_Type-directed_ Abstract-Interpretation]
+    == II. Analysis
+    #ttgreen[_Type-directed_ Abstract-Interpretation]
   ]
 ]
 
@@ -105,23 +92,23 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #center-block(pad:0.4fr)[
-   #one-by-one[
+  #center-block(pad: 0.4fr)[
+    #one-by-one[
 
-    *1. _Refinements_*  `i32`, `bool`, ...
+      *1. _Refinements_* `i32`, `bool`, ...
 
-  ][
+    ][
 
-    *2. _Ownership_* `mut`, `&`, `&mut`, ...
+      *2. _Ownership_* `mut`, `&`, `&mut`, ...
 
-  ][
+    ][
 
-    *3. _Datatypes_* `struct`, `enum`, ...
+      *3. _Datatypes_* `struct`, `enum`, ...
 
-  ][
+    ][
 
-    *4. _Interfaces_* `trait`, `impl`, ...
-  ]
+      *4. _Interfaces_* `trait`, `impl`, ...
+    ]
   ]
 
 ]
@@ -133,16 +120,16 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #center-block(pad:0.4fr)[
+  #center-block(pad: 0.4fr)[
 
-    *1. _Refinements_*  `i32`, `bool`, ...
+    *1. _Refinements_* `i32`, `bool`, ...
 
     #hide[
-    *2. _Ownership_* `mut`, `&`, `&mut`, ...
+      *2. _Ownership_* `mut`, `&`, `&mut`, ...
 
-    *3. _Datatypes_* `struct`, `enum`, ...
+      *3. _Datatypes_* `struct`, `enum`, ...
 
-    *4. _Interfaces_* `trait`, `impl`, ...
+      *4. _Interfaces_* `trait`, `impl`, ...
     ]
   ]
 ]
@@ -157,17 +144,17 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #center-block(pad:0.4fr)[
+  #center-block(pad: 0.4fr)[
     #hide[
-    *1. _Refinements_*  `i32`, `bool`, ...
+      *1. _Refinements_* `i32`, `bool`, ...
     ]
 
     *2. _Ownership_* `mut`, `&`, `&mut`, ...
 
     #hide[
-    *3. _Datatypes_* `struct`, `enum`, ...
+      *3. _Datatypes_* `struct`, `enum`, ...
 
-    *4. _Interfaces_* `trait`, `impl`, ...
+      *4. _Interfaces_* `trait`, `impl`, ...
     ]
   ]
 ]
@@ -182,17 +169,17 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #center-block(pad:0.4fr)[
+  #center-block(pad: 0.4fr)[
     #hide[
-    *1. _Refinements_*  `i32`, `bool`, ...
+      *1. _Refinements_* `i32`, `bool`, ...
 
-    *2. _Ownership_* `mut`, `&`, `&mut`, ...
+      *2. _Ownership_* `mut`, `&`, `&mut`, ...
     ]
 
     *3. _Datatypes_* `struct`, `enum`, ...
 
     #hide[
-    *4. _Interfaces_* `trait`, `impl`, ...
+      *4. _Interfaces_* `trait`, `impl`, ...
     ]
   ]
 ]
@@ -205,13 +192,13 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #center-block(pad:0.4fr)[
+  #center-block(pad: 0.4fr)[
     #hide[
-    *1. _Refinements_*  `i32`, `bool`, ...
+      *1. _Refinements_* `i32`, `bool`, ...
 
-    *2. _Ownership_* `mut`, `&`, `&mut`, ...
+      *2. _Ownership_* `mut`, `&`, `&mut`, ...
 
-    *3. _Datatypes_* `struct`, `enum`, ...
+      *3. _Datatypes_* `struct`, `enum`, ...
     ]
 
     *4. _Interfaces_* `trait`, `impl`, ...
@@ -221,10 +208,10 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
 // ----------------------------------------------------------------
 
-#slide[ = #text(fill:red,size: 3em)[END] ]
+#slide[ = #text(fill: red, size: 3em)[END] ]
 
 #slide[
-  = #ttblue[Programmer-Aided] #text(fill:darkgreen)[Analysis]
+  = #ttblue[Programmer-Aided] #text(fill: darkgreen)[Analysis]
   // #show: later
 
   == Programs
@@ -239,15 +226,15 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
 #slide[
   #hide[
-  = #ttblue[Programmer-Aided] #ttgreen[Analysis]
+    = #ttblue[Programmer-Aided] #ttgreen[Analysis]
   ]
 
   == Programs
   #ttblue[_Refinements_ for Rust]
 
   #hide[
-  == Analysis
-  #ttgreen[_Type-directed_ Abstract-Interpretation]
+    == Analysis
+    #ttgreen[_Type-directed_ Abstract-Interpretation]
   ]
 ]
 
@@ -261,46 +248,48 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
 ]
 
-#slide[ = Refine using _Ownership_
+#slide[
+  = Refine using _Ownership_
 
-#v(1em)
+  #v(1em)
 
-#center-block[
-  #one-by-one[
+  #center-block[
+    #one-by-one[
 
-    *1. Index* types with #ttpurple[_pure values_]
+      *1. Index* types with #ttpurple[_pure values_]
 
-  ][
+    ][
 
-    *2. Update* refinements for #ttpurple[_owned locations_]
+      *2. Update* refinements for #ttpurple[_owned locations_]
 
-  ][
+    ][
 
-    *3. Pack* invariants in #ttgreen[_borrowed references_]
+      *3. Pack* invariants in #ttgreen[_borrowed references_]
 
-  ][
+    ][
 
-    *4. Strong* updates using #ttgreen[_strong references_]
+      *4. Strong* updates using #ttgreen[_strong references_]
+    ]
   ]
 ]
-]
 
-#slide[ = Refine using _Ownership_
+#slide[
+  = Refine using _Ownership_
 
-#v(1em)
+  #v(1em)
 
-#center-block[
+  #center-block[
 
     *1. Index* types with #ttpurple[_pure values_]
 
     #hide[
-    *2. Update* refinements for #ttpurple[_owned locations_]
+      *2. Update* refinements for #ttpurple[_owned locations_]
 
 
-    *3. Pack* invariants in #ttgreen[_borrowed references_]
+      *3. Pack* invariants in #ttgreen[_borrowed references_]
 
 
-    *4. Strong* updates using #ttgreen[_strong references_]
+      *4. Strong* updates using #ttgreen[_strong references_]
     ]
   ]
 ]
@@ -371,11 +360,11 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
   #v(1em)
 
   #codebox(pad: 0.35fr, size: 1em)[
-  ```rust
-  fn tt() -> bool[true] {
-    1 < 2
-  }
-  ```
+    ```rust
+    fn tt() -> bool[true] {
+      1 < 2
+    }
+    ```
   ]
 
   A function that always returns #val[true]
@@ -387,12 +376,12 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #codebox(pad:0.33fr)[
-  ```rust
-  fn ff() -> bool[false] {
-    2 < 1
-  }
-  ```
+  #codebox(pad: 0.33fr)[
+    ```rust
+    fn ff() -> bool[false] {
+      2 < 1
+    }
+    ```
   ]
 
   A function that always returns #val[false]
@@ -404,12 +393,12 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #codebox(pad:0.45fr)[
-  ```rust
-  fn ff() -> i32[12] {
-    4 + 8
-  }
-  ```
+  #codebox(pad: 0.45fr)[
+    ```rust
+    fn ff() -> i32[12] {
+      4 + 8
+    }
+    ```
   ]
 
   A function that always returns #val[12]
@@ -422,13 +411,13 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #codebox(pad: .40fr, size:0.9em)[
-  ```rust
-  fn assert(b:bool[true]){}
+  #codebox(pad: .40fr, size: 0.9em)[
+    ```rust
+    fn assert(b:bool[true]){}
 
 
 
-  ```
+    ```
   ]
 
   A function that _requires_ the input be #val[true]
@@ -439,16 +428,14 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
   #v(1em)
 
-  #codly(
-  highlights: ((line: 4, start: 8, end: 13, fill: red), )
-  )
-  #codebox(pad: .40fr, size:0.9em)[
-  ```rust
-  fn assert(b:bool[true]){}
-  // ...
-  assert(1 < 2);
-  assert(10 < 2);
-  ```
+  #codly(highlights: ((line: 4, start: 8, end: 13, fill: red),))
+  #codebox(pad: .40fr, size: 0.9em)[
+    ```rust
+    fn assert(b:bool[true]){}
+    // ...
+    assert(1 < 2);
+    assert(10 < 2);
+    ```
   ]
 
   A function that _requires_ the input be #val[true]
@@ -457,59 +444,62 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
 
 
-#slide[ = Refine using _Ownership_
+#slide[
+  = Refine using _Ownership_
 
-#v(1em)
+  #v(1em)
 
-#center-block[
+  #center-block[
 
     #hide[
-    *1. Index* types with #ttpurple[_pure values_]
+      *1. Index* types with #ttpurple[_pure values_]
     ]
 
     *2. Update* refinements for #ttpurple[_owned locations_]
 
     #hide[
-    *3. Pack* invariants in #ttgreen[_borrowed references_]
+      *3. Pack* invariants in #ttgreen[_borrowed references_]
 
 
-    *4. Strong* updates using #ttgreen[_strong references_]
+      *4. Strong* updates using #ttgreen[_strong references_]
     ]
   ]
 ]
 
-#slide[ = Refine using _Ownership_
+#slide[
+  = Refine using _Ownership_
 
-#v(1em)
+  #v(1em)
 
-#center-block[
+  #center-block[
 
     #hide[
-    *1. Index* types with #ttpurple[_pure values_]
+      *1. Index* types with #ttpurple[_pure values_]
 
-    *2. Update* refinements for #ttpurple[_owned locations_]
+      *2. Update* refinements for #ttpurple[_owned locations_]
     ]
 
     *3. Pack* invariants in #ttgreen[_borrowed references_]
 
     #hide[
-    *4. Strong* updates using #ttgreen[_strong references_]
+      *4. Strong* updates using #ttgreen[_strong references_]
     ]
   ]
 ]
 
-#slide[ = Refine using _Ownership_
+#slide[
+  = Refine using _Ownership_
 
-#v(1em)
+  #v(1em)
 
-#center-block[
+  #center-block[
 
     #hide[
-    *1. Index* types with #ttpurple[_pure values_]
+      *1. Index* types with #ttpurple[_pure values_]
 
-    *2. Update* refinements for #ttpurple[_owned locations_]
+      *2. Update* refinements for #ttpurple[_owned locations_]
 
-    *3. Pack* invariants in #ttgreen[_borrowed references_]
+      *3. Pack* invariants in #ttgreen[_borrowed references_]
     ]
     *4. Strong* updates using #ttgreen[_strong references_]
   ]
@@ -518,12 +508,12 @@ Nico Lehmann, Adam Geller, Niki Vazou, #ttblue[_*Ranjit Jhala*_]
 
 #slide[
   #hide[
-  = #ttblue[Programmer-Aided] #ttgreen[Analysis]
+    = #ttblue[Programmer-Aided] #ttgreen[Analysis]
   ]
 
   #hide[
-  == Programs
-  #ttblue[_Refinements_ for Rust]
+    == Programs
+    #ttblue[_Refinements_ for Rust]
   ]
 
   == Analysis
