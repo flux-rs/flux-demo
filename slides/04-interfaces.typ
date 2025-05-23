@@ -973,13 +973,98 @@
 ]
 
 
+
+#slide[
+
+  #v(-2.6em)
+  = Beyond Indexing: _Iterators_
+
+  #show: later
+  #v(1em)
+
+  #codly(highlights: ((line: 300, start: 6, end: 9, fill: green),))
+  #codebox(size: 1em, pad: 0.1fr)[
+    ```rust
+    trait Iterator {
+      type Item;
+      fn next(&mut self) -> Option<Item>;
+    }
+    ```
+  ]
+
+  #show: later
+  Used to desugar #text(1.2em)[```rust for i in 0..n```]
+
+]
+
+#slide[
+  #v(-0.7em)
+
+  = Beyond Indexing: _Iterators_
+
+  #v(0.7em)
+
+  #codly(highlights: ((line: 300, start: 6, end: 9, fill: green),))
+  #codebox(size: 0.7em, pad: 0.05fr)[
+    #reveal-code(lines: (2, 3, 4, 7), full: true)[
+      ```rust
+      trait Iterator {
+        type Item;
+        reft step(Self, Self) -> bool; // relation between states
+        reft done(Self) -> bool;       // finished?
+        fn next(&mut self[s]) -> Option<Item>[!done(s)]
+           ensures self: Self{t: next(s, t)};
+      }
+      ```
+    ]
+  ]
+
+  #v(-0.5em)
+
+  Iterators are _state machines_
+  #v(-0.5em)
+  #text(0.8em)[#link("https://dl.acm.org/doi/10.1007/978-3-031-30820-8_9")[Denis & Jourdan, 2023]]
+
+]
+
+
+#slide[
+  #v(-0.7em)
+
+  = Beyond Indexing: _Iterators_
+
+  #v(0.7em)
+
+  #codly(highlights: ((line: 300, start: 6, end: 9, fill: green),))
+  #codebox(size: 0.7em, pad: 0.05fr)[
+
+    ```rust
+    trait Iterator {
+      type Item;
+      reft step(Self, Self) -> bool; // relation between states
+      reft done(Self) -> bool;       // finished?
+      fn next(&mut self[s]) -> Option<Item>[!done(s)]
+         ensures self: Self{t: next(s, t)};
+    }
+    ```
+  ]
+
+  #v(-0.5em)
+
+  Scales nicely to `Iter`, `Zip`, `Map`, `Enumerate` ...
+  #v(-0.5em)
+  #text(0.8em)[#link("https://dl.acm.org/doi/10.1007/978-3-031-30820-8_9")[Denis & Jourdan, 2023]]
+
+]
+
+
 #slide[
 
   #v(-0.7em)
 
   === *Problem:* Specifications for _Generic Interfaces_
 
-  Implemented by many types
+  #text(0.8em)[Implemented by many types]
 
   #v(1em)
 
@@ -1005,8 +1090,9 @@
     ]
   ]
 
+  #show: later
   === *Solution:* _Associated Refinements_
 
-  _Split_ specification across `trait` and `impl`
+  #text(0.8em)[_Split_ specification across `trait` and `impl`]
 
 ]
