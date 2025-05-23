@@ -55,7 +55,7 @@
       #align(left)[
         _“We shall make_
         #v(-0.5em)
-        #strike(stroke: 3pt + myred)[_thoughtcrime_] #ttred[_bugs_]
+        #strike(stroke: 3pt + myred)[_thoughtcrime_] #ttred[*_bugs_*]
         #v(-0.5em)
         _literally impossible:_
         #v(-0.5em)
@@ -83,7 +83,7 @@
         #align(left)[
           _“We shall make_
           #v(-0.5em)
-          #strike(stroke: 3pt + myred)[_thoughtcrime_] #ttred[_bugs_]
+          #strike(stroke: 3pt + myred)[_thoughtcrime_] #ttred[*_bugs_*]
           #v(-0.5em)
           _literally impossible:_
           #v(-0.5em)
@@ -166,34 +166,6 @@
   ]
 ]
 
-
-// #slide[
-//   = #ttblue[Programmer-Aided] #text(fill: darkgreen)[Analysis]
-//   // #show: later
-
-//   == I. Programs
-//   #ttblue[_Refinements_ for Rust]
-//   // #show: later
-
-//   == II. Analysis
-//   #ttgreen[_Type-directed_ Abstract-Interpretation]
-//   // #show: later
-
-// ]
-
-// #slide[
-//   #hide[
-//     = #ttblue[Programmer-Aided] #ttgreen[Analysis]
-//   ]
-
-//   == I. Programs
-//   #ttblue[_Refinements_ for Rust]
-
-//   #hide[
-//     == II. Analysis
-//     #ttgreen[_Type-directed_ Abstract-Interpretation]
-//   ]
-// ]
 
 #slide[
   = Refinement Types
@@ -334,13 +306,23 @@
 
 
 #slide[
+  #v(-1em)
 
-  #text(3em)[*... 6 years later*]
+  #text(3em)[*... 6 years#super[†] later*]
+
+  #super[†] and 62KLoc and 1,556 commits...
 
 ]
 
 #slide[
-  #figure(image("figures/flux.png", width: 60%))
+
+  #figure(image("figures/nico-champagne.png", width: 100%))
+
+]
+
+
+#slide[
+  #figure(image("figures/flux.png", width: 63%))
 
   (/flʌks/)
 
