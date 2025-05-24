@@ -136,7 +136,10 @@
 ]
 
 #slide[
-  == *Preserve* refinements in #ttgreen[_borrows_]
+
+  #v(-1.3em)
+
+  == *Preserve* refinements in #ttgreen[_mutable borrows_]
 
   #v(1em)
 
@@ -160,7 +163,10 @@
 ]
 
 #slide[
-  == *Preserve* refinements in #ttgreen[_borrows_]
+
+  #v(-0.7em)
+
+  == *Preserve* refinements in #ttgreen[_mutable borrows_]
 
   #v(1em)
 
@@ -175,14 +181,17 @@
 
   Value _written_ through `&mut` _must preserve_ refinements
 
-  #v(-0.5em)
-
+  // #v(-0.5em)
+  #show: later
   *Exercise:* How to _fix_ the error in `decr` ?
 ]
 
 
 #slide[
-  == *Preserve* refinements in #ttgreen[_borrows_]
+
+  #v(-0.1em)
+
+  == *Preserve* refinements in #ttgreen[_mutable borrows_]
 
   #v(0.5em)
 
@@ -206,7 +215,10 @@
 ]
 
 #slide[
-  == *Preserve* refinements in #ttgreen[_borrows_]
+
+  #v(-0.1em)
+
+  == *Preserve* refinements in #ttgreen[_mutable borrows_]
 
   #v(0.5em)
 
@@ -246,6 +258,9 @@
 #slide[ = *Strong* updates at #ttgreen[_mutable borrows_] ]
 
 #slide[
+
+  #v(-1.75em)
+
   == *Strong* updates at #ttgreen[_mutable borrows_]
 
   #v(0.5em)

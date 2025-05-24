@@ -273,7 +273,7 @@
 
   Output's type #ttpurple[_depends on input_]
 
-  #codly(highlights: ((line: 6, start: 8, end: 20, fill: red),))
+  #codly(highlights: ((line: 6, start: 8, end: 22, fill: red),))
   #codebox(pad: .15fr)[
     #reveal-code(lines: (3, 5, 6), full: false)[
       ```rust
@@ -358,6 +358,8 @@
 
 #slide[
 
+  #v(-0.3em)
+
   = *Existential* specifies #ttpurple[_sets of values_]
 
   #v(2em)
@@ -373,31 +375,41 @@
 
 #slide[
 
+  #v(-0.3em)
+
   = *Existential* specifies #ttpurple[_sets of values_]
 
   #v(2em)
 
-  #exty(size: 1.5em)[i32][v][0<=v]
+  #exty[i32][v][0<=v]
 
-  #text(size: 1.5em)[
+  #v(-1.5em)
+
+  #text(size: 1.2em)[
     #ttgreen[`i32`] values that are #ttpurple[_non-negative_]
   ]
 ]
 
 #slide[
 
+  #v(-0.3em)
+
   = *Existential* specifies #ttpurple[_sets of values_]
 
   #v(2em)
 
-  #exty(size: 1.5em)[usize][v][v < n]
+  #exty[usize][v][v< #h(-0.6em) n]
 
-  #text(size: 1.5em)[
+  #v(-1.5em)
+
+  #text(size: 1.2em)[
     #ttgreen[`usize`] values #ttpurple[_less than `n`_]
   ]
 ]
 
 #slide[
+
+  #v(-1.3em)
 
   = *Existential* specifies #ttpurple[_sets of values_]
 
@@ -405,19 +417,27 @@
 
   #codly(highlights: ((line: 10, start: 8, end: 18, fill: red),))
   #codebox(pad: .50fr, size: 0.55em)[
-    ```rust
-    fn abs(n:i32) -> i32{v:0<=v} {
-      if n < 0 {
-        0 - n
-      } else {
-        n
+    #reveal-code(lines: (7, 9, 10), full: false)[
+      ```rust
+      fn abs(n:i32) -> i32{v:0<=v} {
+        if n < 0 {
+          0 - n
+        } else {
+          n
+        }
       }
-    }
-    ...
-    assert(abs(n) >= 0);
-    assert(abs(n) >= n); // EX: How to fix?
-    ```
+      ...
+      assert(abs(n) >= 0);
+      assert(abs(n) >= n); // EX: How to fix?
+      ```
+    ]
   ]
+
+  #v(-0.2em)
+
+  #show: later
+  #text(0.9em)[*Exercise:* How can we _fix_ the spec for `abs`?]
+
 ]
 
 #slide[
@@ -436,8 +456,7 @@
     ```
   ]
 
-  #show: later
-  What is a suitable type for the input `i`?
+  *Exercise:* What is a suitable type for the input `i`?
 
 ]
 

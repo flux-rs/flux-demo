@@ -40,6 +40,8 @@
 
 
 #slide[
+  #v(-0.45em)
+
   = _3. Datatypes_
 
   #v(2em)
@@ -57,6 +59,8 @@
 
 
 #slide[
+  #v(-0.45em)
+
   = _3. Datatypes_
 
   #v(2em)
@@ -125,6 +129,8 @@
 #slide[ = Refined Vectors: Specification ]
 
 #slide[
+  #v(-1.55em)
+
   == Refined Vectors: _Specification_
 
   #v(2em)
@@ -167,6 +173,9 @@
 ]
 
 #slide[
+
+  #v(-1.55em)
+
   == Refined Vectors: _Specification_
 
   #v(2em)
@@ -189,6 +198,9 @@
 #slide[ = Refined Vectors: _Verification_ ]
 
 #slide[
+
+  #v(-1.8em)
+
   == Refined Vectors: _Verification_
 
   #v(1em)
@@ -243,13 +255,13 @@
   #v(1em)
 
   #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
-  #codebox(pad: 0.09fr, size: 0.78em)[
+  #codebox(pad: 0.08fr, size: 0.78em)[
     ```rust
     // get `i`-th element of vector
-    fn get(&RVec<T>[@v], usize{i: i < v.len}) -> &T
+    fn get(&RVec<T>[@v], usize{i: i < v.len}) -> &T;
 
     // set `i`-th element of vector
-    fn set(&mut RVec<T>[@n], usize{i: i < v.len}, val:T)
+    fn set(&mut RVec<T>[@n], usize{i: i < v.len}, val:T);
     ```
   ]
 
@@ -278,7 +290,7 @@
     }
     ```
   ]
-  How can we _fix_ the error?
+  *Exercise:* How can we _fix_ the error?
 
 ]
 
@@ -318,16 +330,18 @@
   ][
     #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
     #codebox(pad: 0.0fr, size: 0.7em)[
-      ```rust
-      #[refined_by(i: int, o: int)]
-      struct Layer {
-        num_inputs: usize[i],
-        num_outputs: usize[o],
-        weight: RVec<RVec<f64>[i]>[o],
-        bias: RVec<f64>[o],
-        outputs: RVec<f64>[o],
-      }
-      ```
+      #reveal-code(lines: (2, 4, 5, 6, 8), full: true)[
+        ```rust
+        #[refined_by(i: int, o: int)]
+        struct Layer {
+          num_inputs: usize[i],
+          num_outputs: usize[o],
+          weight: RVec<RVec<f64>[i]>[o],
+          bias: RVec<f64>[o],
+          outputs: RVec<f64>[o],
+        }
+        ```
+      ]
     ]
   ]
 ]
@@ -364,6 +378,9 @@
 ]
 
 #slide[
+
+  #v(-0.95em)
+
   = Neuron Layer: _Forward Propagation_
 
   #v(1em)
@@ -373,15 +390,17 @@
   ][
     #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
     #codebox(pad: 0.0fr, size: 0.66em)[
-      ```rust
-      fn forward(&mut self, input: &RVec<f64>) {
-        (0..self.num_outputs).for_each(|i| {
-          let in_wt = dot(&self.weight[i], input);
-          let sum = in_wt + self.bias[i];
-          self.outputs[i] = sigmoid(sum);
-        })
-      }
-      ```
+      #reveal-code(lines: (1, 2, 3, 4, 5), full: true)[
+        ```rust
+        fn forward(&mut self, input: &RVec<f64>) {
+          (0..self.num_outputs).for_each(|i| {
+            let in_wt = dot(&self.weight[i], input);
+            let sum = in_wt + self.bias[i];
+            self.outputs[i] = sigmoid(sum);
+          })
+        }
+        ```
+      ]
     ]
   ]
 ]
@@ -433,25 +452,31 @@
 ]
 
 #slide[
+
   == Lists: _Specification_
 
   #v(1em)
 
   #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
   #codebox(pad: 0.05fr, size: 1em)[
-    ```rust
-    #[refined_by(size : int)]
-    enum List<T> {
-      Nil -> List[0],
-      Cons(T, Box<List<T>[@n]>) -> List[n+1],
-    }
-    ```
+    #reveal-code(lines: (2, 3, 5), full: true)[
+      ```rust
+      #[refined_by(size : int)]
+      enum List<T> {
+        Nil -> List[0],
+        Cons(T, Box<List<T>[@n]>) -> List[n+1],
+      }
+      ```
+    ]
   ]
 
   *Refined* #text(1.2em)[`List`] indexed by _size_ (or _set_ or _seq_ of values)
 ]
 
 #slide[
+
+  #v(-0.2em)
+
   == Lists: _Verification_
 
   #v(0.5em)
@@ -472,10 +497,11 @@
 
   #v(-0.5em)
 
-  #text(size: 1.2em)[`l2`] is _consumed_ when _spliced into_ #text(size: 1.2em)[`l1`]
+  #text(size: 1.2em)[`l2`] is *_consumed_* when spliced into #text(size: 1.2em)[`l1`]
 ]
 
 #slide[
+  #v(-1.2em)
   == Lists: _Specification_
 
   #v(1em)
@@ -495,21 +521,26 @@
 ]
 
 #slide[
+
+  #v(-1.1em)
+
   == Lists: _Verification_
 
   #v(0.5em)
 
   #codly(highlights: ((line: 5, start: 18, end: 24, fill: red),))
   #codebox(pad: 0.22fr, size: 0.70em)[
-    ```rust
-    fn get_nth<T>(l: &List<T>, k: usize) -> &T {
-      match l {
-        List::Cons(h, tl) if k == 0 => h,
-        List::Cons(h, tl) => get_nth(tl, k - 1),
-        List::Nil => never(),
+    #reveal-code(lines: (1, 2, 3, 4, 7), full: true)[
+      ```rust
+      fn get_nth<T>(l: &List<T>, k: usize) -> &T {
+        match l {
+          List::Cons(h, tl) if k == 0 => h,
+          List::Cons(h, tl) => get_nth(tl, k - 1),
+          List::Nil => never(),
+        }
       }
-    }
-    ```
+      ```
+    ]
   ]
 
   #v(-0.5em)
@@ -591,6 +622,9 @@
 
 
 #slide[
+
+  #v(-1.5em)
+
   = *Neural Network:* _Specification_
 
   #v(1em)
@@ -610,19 +644,24 @@
 ]
 
 #slide[
-  == Lists: _Specification_
+
+  #v(-1.5em)
+
+  = *Neural Network:* _Specification_
 
   #v(1em)
 
   #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
   #codebox(pad: 0.00fr, size: 0.8em)[
-    ```rust
-    #[refined_by(i: int, o: int)]
-    enum Network {
-      Last(Layer[@i, @o]) -> Network[i, o],
-      Next(Layer[@i, @n], Box<Network[n, @o]>) -> Network[i, o],
-    }
-    ```
+    #reveal-code(lines: (2, 3, 5), full: true)[
+      ```rust
+      #[refined_by(i: int, o: int)]
+      enum Network {
+        Last(Layer[@i, @o]) -> Network[i, o],
+        Next(Layer[@i, @n], Box<Network[n, @o]>) -> Network[i, o],
+      }
+      ```
+    ]
   ]
 
   How to ensure layers _compose_ correctly?
@@ -656,7 +695,7 @@
 
 
 #slide[
-  == *Neural Network has _Many_ Layers*
+  === *Refinements Ensure Correct _Composition_*
 
   #v(0.5em)
 
@@ -668,7 +707,7 @@
 ]
 
 #slide[
-  == *Neural Network has _Many_ Layers*
+  === *Refinements Ensure Correct _Composition_*
 
   #v(0.5em)
 
@@ -687,21 +726,59 @@
 
   #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
   #codebox(pad: 0.22fr, size: 0.6em)[
-    ```rust
-    fn new(input: usize, hidden: &[usize], output: usize)
-       -> Network[input, output]
-    {
-      if hidden_sizes.len() == 0 {
-        Network::Last(Layer::new(input, output))
-      } else {
-        let n = hidden[0];
-        let layer = Layer::new(input, n);
-        let rest = Network::new(n, &hidden[1..], output);
-        Network::Next(layer, Box::new(rest))
+    #reveal-code(lines: (2, 5, 7, 8, 9, 12), full: true)[
+      ```rust
+      fn new(input: usize, hidden: &[usize], output: usize)
+         -> Network[input, output]
+      {
+        if hidden_sizes.len() == 0 {
+          Network::Last(Layer::new(input, output))
+        } else {
+          let n = hidden[0];
+          let layer = Layer::new(input, n);
+          let rest = Network::new(n, &hidden[1..], output);
+          Network::Next(layer, Box::new(rest))
+        }
       }
-    }
-    ```
+      ```
+    ]
   ]
+]
+
+#slide[
+  == Neural Network: _Verification_
+
+  #v(0.2em)
+
+  #codly(
+    highlights: (
+      (line: 4, start: 7, end: 26, fill: red),
+      (line: 8, start: 7, end: 26, fill: red),
+    ),
+  )
+  #codebox(pad: 0.23fr, size: 0.53em)[
+    #reveal-code(lines: (1, 3, 6, 7, 8, 12), full: true)[
+      ```rust
+      fn forward(&mut Network, input: &RVec<f64>) -> RVec<f64> {
+        match self {
+          NeuralNetwork::Last(layer) => {
+            layer.forward(input);
+            layer.outputs.clone()
+          }
+          NeuralNetwork::Next(layer, next) => {
+            layer.forward(input);
+            next.forward(&layer.outputs)
+          }
+        }
+      }
+      ```
+    ]
+  ]
+
+  #v(-0.58em)
+
+  #ttwhite[*Exercise:* _Fix_ the specification for #text(size: 1.2em)[`forward`]?]
+
 ]
 
 #slide[
@@ -737,6 +814,7 @@
   *Exercise:* _Fix_ the specification for #text(size: 1.2em)[`forward`]?
 
 ]
+
 
 #slide[
   = #text(1.5em)[`enum`]

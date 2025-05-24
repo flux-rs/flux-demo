@@ -5,7 +5,7 @@
 #let darkblue = rgb(7, 90, 184)
 #let mypurple = rgb("#d454bd")
 #let lavender = rgb(187, 102, 234)
-#let myred = rgb("#b8303ebd")
+#let myred = rgb("#ca3342f6")
 #let codefont = "Fira Code"
 
 #let ttcol(body, color) = {
