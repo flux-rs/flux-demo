@@ -137,3 +137,37 @@
     #predicate_grammar
   ]
 ]
+
+/*
+
+Constraints and Validity
+
+- predicates & constraints
+- VCs and SMT Validity
+
+Lang-1
+  - example / inc?
+- Syntax: Refinements, Types, Terms
+  - example
+- Judgments
+  - Entailment
+  - Subtyping
+  - Check
+  - Synth
+- Rules
+  - example
+- Cons-Gen
+  - example
+
+Lang-2
+  - example
+- Syntax: Refinements, Types, Terms
+  - example
+- Rules
+  - example
+- Cons-Gen
+  - example
+
+
+
+*/

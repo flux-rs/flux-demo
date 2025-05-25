@@ -917,7 +917,7 @@
 
 #slide[
 
-  #v(-1.1em)
+  #v(-1.4em)
 
   = _Associated Refinements_
   #text(0.9em)[Can now _verify_ #ttpurple[_"index bounds"_]]
@@ -948,7 +948,7 @@
 
 #slide[
 
-  #v(-1.1em)
+  #v(-1.4em)
 
   = _Associated Refinements_
 
@@ -977,6 +977,39 @@
   #show: later
   #v(-0.3em)
   *Exercise:* How to _fix_ the specification for `hack`?
+]
+
+#slide[
+
+  #v(-1.4em)
+
+  = _Associated Refinements_
+
+  #text(0.9em)[Prevent _bypassing_ checks e.g. `hack`]
+
+  #v(0.2em)
+
+  #codly(highlights: ((line: 400, start: 3, end: 14, fill: red),))
+  #codebox(size: 0.55em, pad: 0.26fr)[
+    ```rust
+    fn hack(c:C, i:usize{C::in_bounds(i, c)}) -> &C::Output
+    where C: Index<usize>
+    {
+      c.index(i)
+    }
+    ```
+  ]
+
+
+
+  #v(-0.65em)
+  *At call-site*
+
+  #text(0.8em)[```rust fn index(&C[c], i:usize{C::in_bounds(i, c)}) -> &i32```]
+
+
+  #v(-0.3em)
+  *Fix:* Use associated refinement in spec for `hack`!
 ]
 
 
@@ -1058,7 +1091,7 @@
 
   #v(-0.5em)
 
-  Scales nicely to `Iter`, `Zip`, `Map`, `Enumerate` ...
+  Scales nicely to #uncover("1-")[`Iter`,] #uncover("2-")[`Zip`,] #uncover("3-")[ `Map`,] #uncover("4-")[`Enumerate` ...]
   #v(-0.5em)
   #text(0.8em)[#link("https://dl.acm.org/doi/10.1007/978-3-031-30820-8_9")[Denis & Jourdan, 2023]]
 
@@ -1097,7 +1130,6 @@
     ]
   ]
 
-  #show: later
   === *Solution:* _Associated Refinements_
 
   #text(0.8em)[_Split_ specification across `trait` and `impl`]
