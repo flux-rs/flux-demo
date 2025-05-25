@@ -3,7 +3,7 @@
 
 #slide[
 
-  = Liquid Types for Rust
+  = Refinement Types for Rust
 
   #v(1em)
 

@@ -28,7 +28,7 @@
 ]
 
 #slide[
-  == Idiomatic Rust ... _Not_
+  == Idiomatic Rust #uncover("2-")[... _Not_]
 
   #ttwhite[#text(0.8em)[_Step 1:_ Use #text(1.2em)[`std::vec::Vec`]]]
 
@@ -84,8 +84,6 @@
 
   #text(0.8em)[_Step 2:_ Use #text(1.2em)[`for`] loop]
 
-  // #v(1.7em)
-
   #toolbox.side-by-side(gutter: 0em, columns: (7fr, 1fr, 7fr))[
     #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
     #codebox(size: 0.7em, pad: 0.13fr)[
@@ -100,17 +98,19 @@
       ```
     ]
   ][
-    `-->`
+    #uncover("2-")[`===>`]
   ][
-    #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
-    #codebox(size: 0.7em, pad: 0.13fr)[
-      ```rust
-      let mut res = 0.0;
-      for i in 0..xs.len() {
-        res += xs[i] * ys[i];
-      }
-      res
-      ```
+    #uncover("2-")[
+      #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+      #codebox(size: 0.7em, pad: 0.13fr)[
+        ```rust
+        let mut res = 0.0;
+        for i in 0..xs.len() {
+          res += xs[i] * ys[i];
+        }
+        res
+        ```
+      ]
     ]
   ]
 ]
@@ -122,8 +122,6 @@
   == Idiomatic Rust ... _Not_
 
   #text(0.8em)[_Step 3:_ Use #text(1.2em)[`for_each`]]
-
-  // #v(1.7em)
 
   #toolbox.side-by-side(gutter: 0em, columns: (7fr, 1fr, 8fr))[
     #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
@@ -137,18 +135,20 @@
       ```
     ]
   ][
-    `-->`
+    #uncover("2-")[`===>`]
   ][
-    #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
-    #codebox(size: 0.7em, pad: 0.13fr)[
-      ```rust
-      let mut res = 0.0;
-      (0..xs.len())
-        .for_each(|i|
-           res += xs[i] * ys[i]
-         );
-      res
-      ```
+    #uncover("2-")[
+      #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+      #codebox(size: 0.7em, pad: 0.13fr)[
+        ```rust
+        let mut res = 0.0;
+        (0..xs.len())
+          .for_each(|i|
+             res += xs[i] * ys[i]
+           );
+        res
+        ```
+      ]
     ]
   ]
 ]
@@ -177,15 +177,17 @@
       ```
     ]
   ][
-    `-->`
+    #uncover("2-")[`===>`]
   ][
-    #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
-    #codebox(size: 0.7em, pad: 0.13fr)[
-      ```rust
-      (0..xs.len())
-       .map(|i| xs[i] * ys[i])
-       .sum()
-      ```
+    #uncover("2-")[
+      #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
+      #codebox(size: 0.7em, pad: 0.13fr)[
+        ```rust
+        (0..xs.len())
+         .map(|i| xs[i] * ys[i])
+         .sum()
+        ```
+      ]
     ]
   ]
 ]
@@ -193,9 +195,9 @@
 
 #slide[
 
-  #v(-1em)
+  #v(-1.5em)
 
-  = Idiomatic Rust!
+  == Idiomatic Rust!
 
   #v(1em)
 
@@ -306,7 +308,7 @@
   #v(0.5em)
 
   #uncover("4-")[
-    *_Generic Interfaces_* implemented by many Types
+    *_Generic Interfaces_* implemented by _many_ types
   ]
 ]
 
@@ -331,7 +333,7 @@
 
   #v(-0.5em)
 
-  *Implemented by Many Types*
+  *Implemented by _many_ types*
 ]
 
 #slide[
@@ -354,18 +356,19 @@
 
   #v(-0.5em)
 
-  *Implemented by Many Types*
+  *Implemented by _many_ types*
 
 
   #codly(highlights: ((line: 3, start: 5, end: 9, fill: blue),))
-  #codebox(size: 0.8em, pad: 0.19fr)[
+  #codebox(size: 0.8em, pad: 0.30fr)[
     ```rust
-    impl Index<Range<usize>> for Vec<T> {...}
+    impl Index<usize> for Vec<T> {...}
     ```
   ]
 
   #v(-0.5em)
 
+  #show: later
   #text(0.8em)[
     #toolbox.side-by-side(columns: (1fr, 1fr, 1fr))[
       #ttblue[`Self`] $≐$ #ttgreen[`Vec<T>`]
@@ -405,7 +408,7 @@
 
   #v(-0.5em)
 
-  *Implemented by Many Types*
+  *Implemented by _many_ types*
 
 
   #codly(highlights: ((line: 3, start: 5, end: 9, fill: blue),))
@@ -417,6 +420,7 @@
 
   #v(-0.5em)
 
+  #show: later
   #text(0.8em)[
     #toolbox.side-by-side(columns: (1fr, 1.5fr, 1fr))[
       #ttblue[`Self`] $≐$ #ttgreen[`Vec<T>`]
@@ -454,7 +458,7 @@
 
   #v(-0.5em)
 
-  *Implemented by Many Types*
+  *Implemented by _many_ types*
 
 
   #codly(highlights: ((line: 3, start: 5, end: 9, fill: blue),))
@@ -466,6 +470,7 @@
 
   #v(-0.5em)
 
+  #show: later
   #text(0.8em)[
     #toolbox.side-by-side(columns: (1fr, 1fr, 1fr))[
       #ttblue[`Self`] $≐$ #ttgreen[`Map<K, V>`]
@@ -614,18 +619,20 @@
   #toolbox.side-by-side(gutter: 0.0em, columns: (1.5fr, 1.3fr))[
     #codly(highlights: ((line: 3, start: 6, end: 11, fill: blue),))
     #codebox(size: 0.65em, pad: 0.00fr)[
-      ```rust
-      fn head(v:&Vec<i32>) -> i32
-      {
-        *v.hack(0) // ok: no req on hack!
-      }
+      #reveal-code(lines: (0, 5, 10), full: false)[
+        ```rust
+        fn hack(c:C, i:usize) -> &C::Output
+        where C: Index<usize>
+        {
+          c.index(i) // ok: no req on trait!
+        }
 
-      fn hack(c:C, i:usize) -> &C::Output
-      where C: Index<usize>
-      {
-        c.index(i) // ok: no req on trait!
-      }
-      ```
+        fn head(v:&Vec<i32>) -> i32
+        {
+          *v.hack(0) // ok: no req on `hack`!
+        }
+        ```
+      ]
     ]
   ][
     #v(-0.55em)
@@ -691,6 +698,7 @@
 
   #v(0.5em)
 
+  #show: later
   *Solution*
 
   #ttpurple[_Associated Refinements_]
@@ -704,7 +712,6 @@
   _Split_ specification across `trait` and `impl`
 
 ]
-
 
 #slide[
 
@@ -722,7 +729,7 @@
     [
       #codly(highlights: ((line: 4, start: 21, end: 49, fill: blue),))
       #codebox(size: 0.65em, pad: 0.04fr)[
-        #reveal-code(lines: (1, 2, 3, 6), full: false)[
+        #reveal-code(lines: (0, 2, 3, 5), full: false)[
           ```rust
           trait Index<Idx> {
             type Out;
@@ -753,7 +760,7 @@
 ]
 
 #slide[
-  #v(-1.5em)
+  #v(-1.3em)
   = _Associated Refinements_
   #text(0.7em)[_Split_ specification across #ttblue[`trait`] and #ttgreen[`impl`]]
 
@@ -796,7 +803,7 @@
 ]
 
 #slide[
-  #v(-1.5em)
+  #v(-1.3em)
   = _Associated Refinements_
   #text(0.7em)[_Split_ specification across #ttblue[`trait`] and #ttgreen[`impl`]]
 
@@ -837,7 +844,7 @@
 
 #slide[
 
-  #v(-0.45em)
+  #v(-3em)
 
   = _Associated Refinements_
   #text(0.9em)[Can now _verify_ #ttpurple[_"index bounds"_]]
@@ -1064,7 +1071,7 @@
 
   === *Problem:* Specifications for _Generic Interfaces_
 
-  #text(0.8em)[Implemented by many types]
+  #text(0.8em)[Implemented by _many_ types]
 
   #v(1em)
 
@@ -1115,3 +1122,6 @@
   ]
 
 ]
+
+/*
+ */

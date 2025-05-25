@@ -1,10 +1,14 @@
 #import "@preview/polylux:0.4.0": *
 #import "iowa_crisp.typ": *
 
+
 #slide[
   #text(2em)[*Flux in Practice*]
+]
 
-  #show: later
+
+#slide[
+  #text(2em)[*Flux in Practice*]
 
   #text(1.4em)[Verified _Process Isolation_ in Tock]
 

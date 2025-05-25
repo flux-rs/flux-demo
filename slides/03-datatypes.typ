@@ -874,6 +874,7 @@
 ]
 
 #slide[
+  #v(-0.6em)
   == Administrative Normal Form: _Specification_
 
   #text(0.8em)[Calls/operations have *_immediate operands_* (i.e. vars or
@@ -899,6 +900,7 @@
 
 
 #slide[
+  #v(-0.6em)
   == Administrative Normal Form: _Specification_
 
   #text(0.8em)[Calls/operations have *_immediate operands_* (i.e. vars or
@@ -906,24 +908,27 @@
 
   #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
   #codebox(pad: 0.0fr, size: 0.53em)[
-    ```rust
-    #[refined_by(imm: bool)]
-    enum Exp {
+    #reveal-code(lines: (2, 6, 11), full: true)[
+      ```rust
+      #[refined_by(imm: bool)]
+      enum Exp {
 
-      Var(String) -> Exp[{imm: true}],
+        Var(String) -> Exp[{imm: true}],
 
-      Num(i32) -> Exp[{imm: true}],
+        Num(i32) -> Exp[{imm: true}],
 
-      Bin(Op, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false}],
+        Bin(Op, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false}],
 
-      Let(Id, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false}])],
-    }
-    ```
+        Let(Id, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false}])],
+      }
+      ```
+    ]
   ]
 ]
 
 
 #slide[
+  #v(-0.6em)
   == Administrative Normal Form: _Specification_
 
   #text(0.8em)[_*Calls/operations*_ have immediate operands (i.e. vars or
@@ -931,40 +936,45 @@
 
   #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
   #codebox(pad: 0.0fr, size: 0.53em)[
-    ```rust
-    #[refined_by(imm: bool, anf: bool)]
-    enum Exp {
+    #reveal-code(lines: (2, 6, 8, 11), full: true)[
+      ```rust
+      #[refined_by(imm: bool, anf: bool)]
+      enum Exp {
 
-      Var(String) -> Exp[{imm: true, anf: true}],
+        Var(String) -> Exp[{imm: true, anf: true}],
 
-      Num(i32) -> Exp[{imm: true, anf: true}],
+        Num(i32) -> Exp[{imm: true, anf: true}],
 
-      Bin(Op, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false, anf: e1.imm && e2.imm}],
+        Bin(Op, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false, anf: e1.imm && e2.imm}],
 
-      Let(Id, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false, anf: e1.anf && e2.anf}])],
-    }
-    ```
+        Let(Id, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false, anf: e1.anf && e2.anf}])],
+      }
+      ```
+    ]
   ]
 ]
 
 
 #slide[
+  #v(-0.1em)
   == Administrative Normal Form: _Verification_
 
   #v(0.5em)
 
   #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
   #codebox(pad: 0.3fr, size: 0.73em)[
-    ```rust
-    fn is_imm(&Exp[@e]) -> bool[e.imm] {
-      match self {
-        Exp::Var(_) => true,
-        Exp::Num(_) => true,
-        Exp::Bin(_, e1, e2) => false,
-        Exp::Let(_, e1, e2) => false,
+    #reveal-code(lines: (2, 4, 10), full: false)[
+      ```rust
+      fn is_imm(&Exp[@e]) -> bool[e.imm] {
+        match self {
+          Exp::Var(_) => true,
+          Exp::Num(_) => true,
+          Exp::Bin(_, e1, e2) => false,
+          Exp::Let(_, e1, e2) => false,
+        }
       }
-    }
-    ```
+      ```
+    ]
   ]
 
   #v(-0.5em)
@@ -975,22 +985,25 @@
 
 
 #slide[
+  #v(-0.1em)
   == Administrative Normal Form: _Verification_
 
   #v(0.5em)
 
   #codly(highlights: ((line: 100, start: 0, end: 0, fill: red),))
   #codebox(pad: 0.1fr, size: 0.73em)[
-    ```rust
-    fn is_anf(&Exp[@e]) -> bool[e.anf] {
-      match self {
-        Exp::Var(_) => true,
-        Exp::Num(_) => true,
-        Exp::Bin(_, e1, e2) => e1.is_imm() && e2.is_imm(),
-        Exp::Let(_, e1, e2) => e1.is_anf() && e2.is_anf(),
+    #reveal-code(lines: (2, 4, 5, 10), full: true)[
+      ```rust
+      fn is_anf(&Exp[@e]) -> bool[e.anf] {
+        match self {
+          Exp::Var(_) => true,
+          Exp::Num(_) => true,
+          Exp::Bin(_, e1, e2) => e1.is_imm() && e2.is_imm(),
+          Exp::Let(_, e1, e2) => e1.is_anf() && e2.is_anf(),
+        }
       }
-    }
-    ```
+      ```
+    ]
   ]
 
   #v(-0.5em)
@@ -1000,7 +1013,7 @@
 ]
 
 #slide[
-
+  #v(-0.2em)
   == Administrative Normal Form: _Conversion_
 
   #v(1em)
@@ -1018,13 +1031,13 @@
     ]
   ]
 
-  Two helpful *Type Aliases*
+  Two helpful type *aliases*
 
 ]
 
 
 #slide[
-
+  #v(-1.27em)
   == Administrative Normal Form: _Conversion_
 
   #v(1em)
@@ -1056,8 +1069,10 @@
   ]
 
 ]
-#slide[
 
+
+#slide[
+  #v(-0.6em)
   == Administrative Normal Form: _Conversion_
 
   #v(1em)
