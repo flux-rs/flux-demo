@@ -12,6 +12,7 @@ pub mod arrays;
 pub mod basics;
 pub mod borrows;
 pub mod csv;
+pub mod demo;
 pub mod dotproduct;
 pub mod kmeans;
 pub mod lists;
