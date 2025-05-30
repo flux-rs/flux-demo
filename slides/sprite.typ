@@ -34,8 +34,6 @@
 #let extg(x, t, g) = $bind(#x, #t); #g$
 #let allc(x, b, p, c) = $forall bind(x, b). #h(0.0em) p arrow.double.r c$
 
-// #let bind(x, t) = $x : t$
-
 #let mymono(str, col) = {
   text(fill: col, font: "Inconsolata")[#str]
 }
@@ -50,8 +48,35 @@
 // #let ite(e1, e2, e3) = $mono("if") #e1 mono("then") #e2 mono("else") #e3$
 #let ite(e1, e2, e3) = $kw("if") #e1 kw("then") #e2 kw("else") #e3$
 
-
 #let rname(name) = text(0.7em, font: "PT Sans")[#name]
+
+#let predicate_grammar = grid(
+  columns: (auto, auto, auto, auto),
+  row-gutter: 0.6em,
+  column-gutter: (1em, 1em, 2em),
+  align: (right, center, left, left),
+
+  // Rows
+  $p, q$, $::=$, $x, y, z$, $italic("variable")$,
+  [], $|$, $italic("true"), italic("false")$, $italic("boolean")$,
+  [], $|$, $0, -1, 1, ...$, $italic("number")$,
+  [], $|$, $p_1 plus.circle p_2$, $italic("arithmetic")$,
+  [], $|$, $p_1 <= p_2$, $italic("comparison")$,
+  [], $|$, $p_1 and p_2$, $italic("and")$,
+  [], $|$, $p_1 or p_2$, $italic("or")$,
+  [], $|$, $not p$, $italic("not")$,
+)
+
+#let constraint_grammar = grid(
+  columns: (auto, auto, auto, auto),
+  row-gutter: 0.6em,
+  column-gutter: (1em, 1.2em, 1.5em),
+  align: (right, center, left, left),
+  $"vc"$, $::=$, $p$, $italic("predicates")$,
+  [], $|$, $"vc"_1 and "vc"_2$, $italic("conjunction")$,
+  [], $|$, $forall bind(x, b). p arrow.r.double "vc"$, $italic("implication")$,
+)
+
 
 #slide[
   #type-check($Gamma$, $e$, $t$)
@@ -72,7 +97,7 @@
       )
     )
   $
-  // $Pi$ constitutes a derivation of $phi$.
+
 ]
 
 #slide[
@@ -104,39 +129,269 @@
 
 ]
 
+#slide[
+
+  = Plan
+
+  #v(1em)
+
+  #center-block(pad: 0.6fr)[
+    #one-by-one[
+
+      *1. _SMT Solvers 101_*
+
+    ][
+
+      *2. _Types and Terms_*
+
+    ][
+
+      *3. _Bidirectional Typing_*
+
+    ][
+      *4. _Refinement Inference_*
+    ]
+  ]
+
+]
 
 #slide[
 
-  // Method 2: 4-column grid with separate production and description columns
-  #let predicate_grammar = grid(
-    columns: (auto, auto, auto, auto),
-    // column-gutter: 0.5em,
-    row-gutter: 0.6em,
-    column-gutter: (1em, 1em, 2em),
-    align: (right, center, left, left),
+  = Plan
 
-    // Rows
-    $sans("Predicates") quad p, q$, $::=$, $x, y, z$, $italic("variables")$,
-    [], $|$, $italic("true"), italic("false")$, $italic("booleans")$,
-    [], $|$, $0, -1, 1, ...$, $italic("numbers")$,
-    [], $|$, $p_1 plus.circle p_2$, $italic("arithmetic")$,
-    [], $|$, $p_1 tilde p_2$, $italic("comparisons")$,
-    [], $|$, $p_1 and p_2$, $italic("and")$,
-    [], $|$, $p_1 or p_2$, $italic("or")$,
-    [], $|$, $not p$, $italic("not")$,
+  #v(1em)
 
-    [], [], [], [],
+  #center-block(pad: 0.6fr)[
 
-    $sans("Constraints") quad c$, $::=$, $p$, $italic("predicates")$,
-    [], $|$, $c_1 and c_2$, $italic("conjunction")$,
-    [], $|$, $forall bind(x, b). p arrow.r.double c$, $italic("conjunction")$,
-    [], $|$, $allc(x, b, p, c)$
-  )
+    *1. _SMT Solvers 101_*
 
-  #text(0.8em)[
-    #predicate_grammar
+    #hide[
+      *2. _Types and Terms_*
+
+      *3. _Bidirectional Typing_*
+
+      *4. _Refinement Inference_*
+    ]
   ]
 ]
+
+
+
+
+
+#slide[
+
+  #v(-3em)
+
+  = SMT Solvers 101
+
+  #v(2em)
+
+  #one-by-one[
+
+    *Predicates*
+
+  ][
+
+    *Constraints*
+
+  ][
+
+    *Validity Checking*
+  ]
+]
+
+
+
+#slide[
+
+  #v(-1.7em)
+
+  = SMT Solvers 101
+
+  #v(0.5em)
+
+  #text(0.7em)[
+    #grid(
+      columns: (1fr, 1fr),
+      column-gutter: 2em,
+      align: (top, top),
+      [
+        *Predicates*
+
+        #predicate_grammar
+      ],
+      uncover("2-")[
+        *Examples*
+
+        #v(1em)
+
+        $
+          0 <= x
+        $
+
+        $
+          0 <= x + y
+        $
+
+        $
+          v = x + y
+        $
+
+        $
+          v = x or v = y
+        $
+      ],
+    )
+  ]
+
+]
+
+
+#slide[
+
+  #v(-3.6em)
+
+  = SMT Solvers 101
+
+
+  #v(3em)
+
+  #text(0.7em)[
+    #grid(
+      columns: (1fr, 1fr),
+      column-gutter: 2em,
+      align: (top, top),
+      [
+        *Verification Conditions*
+
+        #constraint_grammar
+      ],
+      uncover("2-")[
+        *Example*
+
+        #uncover(2)[
+          $
+            mat(
+              delim: #none,
+              align: #left,
+              forall bind(x, #tint). space 0 < x arrow.r.double;
+              quad forall bind(y, #tint). space 0 < y arrow.r.double;
+              quad quad forall bind(v, #tint). space v = x + y arrow.r.double 0 < v;
+            )
+          $
+        ]
+
+
+      ],
+    )
+  ]
+]
+
+#slide[
+
+  #v(-0.85em)
+
+  = SMT Solvers 101
+
+  Validity Checking
+
+  #v(0.5em)
+
+  #uncover("2-")[
+    #figure(image("figures/smt.png", height: 35%))
+  ]
+
+  #v(0.5em)
+  #uncover("3-")[
+    "Is constraint true _for all_ values of variables..."
+  ]
+
+]
+
+#slide[
+  #v(-1em)
+
+  = SMT Solvers 101
+
+  #v(1.5em)
+
+  #text(0.7em)[
+    #grid(
+      columns: (1fr, 1fr),
+      column-gutter: 2em,
+      align: (top, top),
+      [
+        *Predicates*
+        #predicate_grammar
+      ],
+      [
+
+        #uncover("2-")[
+          *Constraints*
+          #constraint_grammar
+        ]
+
+      ],
+    )
+  ]
+
+]
+
+#slide[
+  $
+    mat(
+      delim: #none,
+      align: #left,
+      forall bind(x, #tint). space 0 < x arrow.r.double;
+      quad forall bind(y, #tint). space 0 < y arrow.r.double;
+      quad quad forall bind(v, #tint). space v = x + y arrow.r.double;
+      quad quad quad 0 < v
+    )
+  $
+]
+
+#slide[
+  #text(0.8em)[
+    $
+      mat(
+        delim: #none,
+        align: #left,
+        ∀ bind(n, #tint).;
+        quad ¬n ≤ 0 arrow.r.double;
+        quad quad forall bind(a_0, #tint).;
+        quad quad quad n - 1 <= a_0 arrow.r.double;
+        quad quad quad quad n <= n + a_0;
+        quad and n ≤ 0 =>;
+        quad quad n ≤ 0
+      )
+    $
+  ]
+]
+
+#slide[
+
+  = Plan
+
+  #v(1em)
+
+  #center-block(pad: 0.6fr)[
+
+    #hide[
+      *1. _SMT Solvers 101_*
+    ]
+
+    *2. _Types and Terms_*
+
+    #hide[
+
+      *3. _Bidirectional Typing_*
+
+      *4. _Refinement Inference_*
+    ]
+  ]
+]
+
 
 /*
 

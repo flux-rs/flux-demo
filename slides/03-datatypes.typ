@@ -271,6 +271,71 @@
 
 ]
 
+
+
+#slide[
+
+  == I. Programs
+
+  Refinements for Rust
+
+
+  == II. Analysis
+
+  Type-directed Abstract Interpretation
+
+
+  == III. Results
+
+  Verified _Process Isolation_ in Tock OS
+]
+
+#slide[
+
+  = Refinements for Rust
+
+  #v(1em)
+
+  #center-block(pad: 0.4fr)[
+
+    *1. _Refinements_* `i32`, `bool`, ...
+
+
+    *2. _Ownership_* `mut`, `&`, `&mut`, ...
+
+
+    *3. _Datatypes_* `struct`, `enum`, ...
+
+    *4. _Interfaces_* `trait`, `impl`, ...
+
+  ]
+]
+
+#slide[
+
+  = Refinements for Rust
+
+  #v(1em)
+
+  #center-block(pad: 0.4fr)[
+
+    #hide[
+      *1. _Refinements_* `i32`, `bool`, ...
+
+
+      *2. _Ownership_* `mut`, `&`, `&mut`, ...
+    ]
+
+
+    *3. _Datatypes_* `struct`, `enum`, ...
+
+    #hide[
+      *4. _Interfaces_* `trait`, `impl`, ...
+    ]
+  ]
+]
+
+
 #slide[
   == Refined Vectors: _Verification_
 
@@ -379,7 +444,7 @@
 
 #slide[
 
-  #v(-0.95em)
+  #v(-0.60em)
 
   = Neuron Layer: _Forward Propagation_
 
@@ -394,17 +459,44 @@
         ```rust
         fn forward(&mut self, input: &RVec<f64>) {
           (0..self.num_outputs).for_each(|i| {
-            let in_wt = dot(&self.weight[i], input);
-            let sum = in_wt + self.bias[i];
+            let wt = dot(&self.weight[i], input);
+            let sum = wt + self.bias[i];
             self.outputs[i] = sigmoid(sum);
           })
         }
         ```
       ]
     ]
+    #ttwhite()[*Exercise:* Can you _fix_ the error?]
   ]
 ]
 
+#slide[
+
+  #v(-0.60em)
+
+  = Neuron Layer: _Forward Propagation_
+
+  #v(1em)
+
+  #center-block2(pad: 0.00fr, size1: 0.45fr, size2: 0.7fr)[
+    #figure(image("figures/neural-layer-3.png", height: 65%))
+  ][
+    #codly(highlights: ((line: 3, start: 14, end: 46, fill: red),))
+    #codebox(pad: 0.0fr, size: 0.66em)[
+      ```rust
+      fn forward(&mut self, input: &RVec<f64>) {
+        (0..self.num_outputs).for_each(|i| {
+          let wt = dot(&self.weight[i], input);
+          let sum = wt + self.bias[i];
+          self.outputs[i] = sigmoid(sum);
+        })
+      }
+      ```
+    ]
+    *Exercise:* Can you _fix_ the error?
+  ]
+]
 
 #slide[
   = _3. Datatypes_

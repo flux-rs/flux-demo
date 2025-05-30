@@ -228,7 +228,6 @@
 
   == Refinement Types for _Functional_ Code
 
-  #show: later
   #v(2em)
 
   #grid(
@@ -250,7 +249,7 @@
 
 #slide[
 
-  #v(-2.3em)
+  #v(-0.6em)
 
   == Refinement Types for _Imperative_ Code?
 
@@ -268,13 +267,19 @@
     ```
   ]
 
-  #ttwhite[*Problem:* Dependency on _mutable_ variables!]
+  #ttwhite[
+    *Problem:* Dependency on _mutable_ variables!
+    #v(-0.5em)
+    What does refinement _mean_ if `x` can change?
+
+  ]
+
 
 ]
 
 #slide[
 
-  #v(-2.3em)
+  #v(-0.8em)
 
   == Refinement Types for _Imperative_ Code?
 
@@ -296,6 +301,8 @@
   ]
 
   *Problem:* Dependency on _mutable_ variables!
+  #v(-0.5em)
+  What does refinement _mean_ if `x` can change?
 
 ]
 
@@ -334,7 +341,7 @@
 
   #text(3em)[*... 6 years#super[†] later*]
 
-  #super[†] and 1500 commits and 62KLoc ...
+  #super[†] and 1500 commits and 60KLoc later ...
 
 ]
 
@@ -353,6 +360,23 @@
   #v(0.81em)
 
   #text(size: 0.75em)[_n. 1 a flowing or flow. 2 a substance used to refine metals. v. 3 to melt; make fluid._]
+]
+
+
+#slide[
+
+  == I. Programs
+
+  Refinements for Rust
+
+  == II. Analysis
+
+  Type-directed Abstract Interpretation
+
+  == III. Results
+
+  Verified Process Isolation in Tock OS
+
 ]
 
 
