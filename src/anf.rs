@@ -196,3 +196,10 @@ impl Exp {
         }
     }
 }
+
+fn check(s: &[u8]) -> u8 {
+    if s.len() > 0 {
+        return s[0];
+    }
+    return 0;
+}

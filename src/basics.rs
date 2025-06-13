@@ -104,6 +104,21 @@ fn abs(n: i32) -> i32 {
     if n < 0 { -n } else { n }
 }
 
+#[spec(fn (n:i32) -> Option<i32{v: n < v}>)]
+fn foo(n: i32) -> Option<i32> {
+    Some(n + 1)
+}
+
+#[spec(fn () -> Result<i32{v:v > 0}, ()>)]
+fn blibbing() -> Result<i32, ()> {
+    let bob = foo(100);
+    bob.ok_or(())
+    // let mut x = 10;
+    // x += 1;
+    // x += 1;
+    // x += 1;
+}
+
 // --------------------------------------------------------------------
 // Exclusive Ownership
 // --------------------------------------------------------------------
