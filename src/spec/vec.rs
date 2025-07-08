@@ -12,18 +12,6 @@ use flux_rs::attrs::*;
 struct Vec<T, A: Allocator = Global>;
 
 #[extern_spec]
-#[assoc(fn in_bounds(idx: Self, v: T) -> bool)]
-trait SliceIndex<T>
-where
-    T: ?Sized,
-{
-}
-
-#[extern_spec]
-#[assoc(fn in_bounds(idx: int, len: int) -> bool {idx < len} )]
-impl<T> SliceIndex<[T]> for usize {}
-
-#[extern_spec]
 impl<T, I: SliceIndex<[T]>, A: Allocator> Index<I> for Vec<T, A> {
     #[spec(fn(&Vec<T, A>[@len], {I[@idx] | <I as SliceIndex<[T]>>::in_bounds(idx, len)}) -> _)]
     fn index(z: &Vec<T, A>, index: I) -> &<I as SliceIndex<[T]>>::Output;
