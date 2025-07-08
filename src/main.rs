@@ -21,6 +21,7 @@ pub mod neural;
 pub mod rvec;
 pub mod spec;
 pub mod typestate;
+pub mod uninit;
 pub mod vectors;
 
 fn main() {

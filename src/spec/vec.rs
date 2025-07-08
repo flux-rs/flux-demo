@@ -8,6 +8,7 @@ use flux_rs::attrs::*;
 
 #[extern_spec]
 #[refined_by(len: int)]
+#[invariant(0 <= len)]
 struct Vec<T, A: Allocator = Global>;
 
 #[extern_spec]

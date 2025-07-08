@@ -100,6 +100,52 @@ fn distance(x: &Point, y: &Point) -> f32 {
     res
 }
 
+#[spec(fn(src: &Vec<i32>[@n]) -> Vec<i32>[n])]
+fn copy_with_range(src: &Vec<i32>) -> Vec<i32> {
+    let mut v = Vec::new();
+    for i in 0..src.len() {
+        v.push(src[i]);
+    }
+    v
+}
+
+#[spec(fn(src: &Vec<i32>[@n]) -> Vec<i32>[n])]
+fn copy_with_iter(src: &Vec<i32>) -> Vec<i32> {
+    let n = src.len();
+    let mut v = Vec::new();
+    for item in src {
+        v.push(*item);
+    }
+    v
+}
+
+#[spec(fn(src: &Vec<i32>[@n]) -> usize[n])]
+fn count_with_range(src: &Vec<i32>) -> usize {
+    let mut v = 0;
+    for item in 0..src.len() {
+        v += 1;
+    }
+    v
+}
+
+#[spec(fn(src: &Vec<i32>[@n]) -> usize[n])]
+fn count_good(src: &Vec<i32>) -> usize {
+    let mut v = 0;
+    for item in src {
+        v += 1;
+    }
+    v
+}
+
+#[spec(fn(src: &[i32][@n]) -> usize[n])]
+fn count_slice(src: &[i32]) -> usize {
+    let mut v = 0;
+    for item in src {
+        v += 1;
+    }
+    v
+}
+
 /* Horn Constraints for `range`
 
 // Horn Constraint
