@@ -12,7 +12,9 @@ incremental = true
 enabled = true
 
 [dependencies]
-flux-rs = { git = "https://github.com/flux-rs/flux" }
+# flux-rs = { git = "https://github.com/flux-rs/flux" }
+flux-rs = { path = "/Users/rjhala/research/flux/lib/flux-rs" }
+flux-core = { path = "/Users/rjhala/research/flux/lib/flux-core" }
 rand = "0.8"
 # im = "15.1.0"
 
