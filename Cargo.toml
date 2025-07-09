@@ -15,6 +15,7 @@ enabled = true
 # flux-rs = { git = "https://github.com/flux-rs/flux" }
 flux-rs = { path = "/Users/rjhala/research/flux/lib/flux-rs" }
 flux-core = { path = "/Users/rjhala/research/flux/lib/flux-core" }
+flux-alloc = { path = "/Users/rjhala/research/flux/lib/flux-alloc" }
 rand = "0.8"
 # im = "15.1.0"
 
