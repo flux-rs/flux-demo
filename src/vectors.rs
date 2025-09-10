@@ -2,6 +2,11 @@ use crate::basics::*;
 use crate::rvec::{RVec, rvec};
 use flux_rs::attrs::*;
 
+fn billy_bob() {
+    let n = 10;
+    assert(n == 10);
+}
+
 #[spec(fn() -> usize{v: 10 <= v})]
 fn test_rvec0() -> usize {
     let x = rvec![10, 20, 30];

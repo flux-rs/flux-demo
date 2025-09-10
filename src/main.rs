@@ -10,6 +10,8 @@ flux_rs::defs! {
 extern crate flux_alloc;
 extern crate flux_core;
 
+pub mod table;
+pub mod chapter8;
 pub mod anf;
 pub mod arrays;
 pub mod basics;
@@ -26,6 +28,7 @@ pub mod rvec;
 pub mod typestate;
 pub mod uninit;
 pub mod vectors;
+pub mod sparse;
 
 fn main() {
     return;

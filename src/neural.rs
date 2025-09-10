@@ -46,6 +46,14 @@ struct Layer {
     outputs: RVec<f64>,
 }
 
+#[opts(check_overflow = "lazy")]
+#[spec(fn(n: usize[100]) -> usize[101])]
+fn foo(n: usize) -> usize {
+    let m = n + 1;
+    m
+}
+
+
 #[spec(fn(n: usize, f:F) -> RVec<A>[n]
        where F: FnMut(usize{v:0<=v && v < n}) -> A)]
 fn init0<F, A>(n: usize, mut f: F) -> RVec<A>
@@ -132,6 +140,18 @@ fn mean_squared_error(predicted: &RVec<f64>, actual: &RVec<f64>) -> f64 {
         .map(|i| (predicted[i] - actual[i]).powi(2))
         .sum::<f64>()
         / predicted.len() as f64
+}
+
+
+#[spec(fn(&[f64][5]))]
+fn test_enumerate(vec: &[f64]) {
+    let mut iter = vec.iter().enumerate();
+    assert(iter.next().is_some());
+    assert(iter.next().is_some());
+    assert(iter.next().is_some());
+    assert(iter.next().is_some());
+    assert(iter.next().is_some());
+    // assert(iter.next().is_some());
 }
 
 // -------------------------------------------------------------------------------------
