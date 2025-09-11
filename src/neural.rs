@@ -93,8 +93,8 @@ where
 #[spec(fn(input_size: usize, output_size: usize) -> RVec<RVec<f64>[input_size]>[output_size])]
 fn mk_weights(input_size: usize, output_size: usize) -> RVec<RVec<f64>> {
     let mut rng = rand::thread_rng();
-    let weights = init(output_size, |_| {
-        init(input_size, |_| rng.gen_range(-1.0..1.0))
+    let weights = init2(output_size, |_| {
+        init2(input_size, |_| rng.gen_range(-1.0..1.0))
     });
     weights
 }
@@ -131,6 +131,16 @@ impl Layer {
             self.bias[i] -= learning_rate * error[i];
         }
         input_error
+    }
+
+
+
+    #[spec(fn(&mut Layer[@l], &RVec<f64>[l.i]) -> RVec<f64>[l.o])]
+    fn ooforward(self: &mut Layer, input: &RVec<f64>) -> RVec<f64> {
+                (0..self.num_outputs).map(|i| {
+        let wt_in = dot_product(&self.weight[i], input);
+        sigmoid(wt_in + self.bias[i])
+        }).collect()
     }
 }
 
