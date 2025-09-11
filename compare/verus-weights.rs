@@ -1,3 +1,22 @@
+
+/* In `flux` the `mk_weights` below is just
+ 
+#[spec(fn(n: usize, f:F) -> RVec<A>[n] where F: FnMut(usize{v:v < n}) -> A)]
+fn init<F, A>(n: usize, mut f: F) -> RVec<A>
+where
+    F: FnMut(usize) -> A,
+{
+    (0..n).map(|i| f(i)).collect()
+}
+
+#[spec(fn(input_size: usize, output_size: usize) -> RVec<RVec<f64>[input_size]>[output_size])]
+fn mk_weights(input_size: usize, output_size: usize) -> RVec<RVec<f64>> {
+  let mut rng = rand::thread_rng();
+  init(output_size, |_| { init(input_size, |_| rng.gen_range(-1.0..1.0)) })
+}
+
+ */
+
 verus! {
 
 fn init<F, A>(n: usize, mut f: F) -> (res: Vec<A>)
