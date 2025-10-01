@@ -210,6 +210,8 @@ impl<T, A: Allocator + Clone> Clone for Rc<T, A> {
     fn clone(&self) -> Self;
 }
 
+
+
 #[extern_spec]
 impl<T> Rc<T> {
     #[spec(fn(T[@a]) -> Self[a])]
@@ -217,11 +219,20 @@ impl<T> Rc<T> {
 }
 
 #[extern_spec]
+#[flux::refined_by(val: str)]
+struct String;
+
+#[extern_spec]
+impl Clone for String {
+    #[spec(fn (&String[@s]) -> String[s])]
+    fn clone(&self) -> Self;
+}
+
+#[extern_spec]
 impl PartialEq for String {
     #[spec(fn(&String[@x], &String[@y]) -> bool[x == y])]
     fn eq(&self, other: &String) -> bool;
 }
-
 
 #[refined_by(binds: Set<String>)]
 enum Env {
