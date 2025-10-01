@@ -11,8 +11,10 @@ extern crate flux_alloc;
 extern crate flux_core;
 
 pub mod table;
+pub mod eval;
 pub mod chapter8;
 pub mod anf;
+pub mod scope;
 pub mod arrays;
 pub mod basics;
 pub mod borrows;

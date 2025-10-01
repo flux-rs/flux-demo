@@ -3,9 +3,6 @@ use crate::rvec::rvec;
 use flux_rs::assert;
 use flux_rs::attrs::*;
 
-fn test() {
-    assert(10 < 20)
-}
 
 type Id = String;
 

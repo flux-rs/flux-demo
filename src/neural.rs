@@ -53,7 +53,6 @@ fn foo(n: usize) -> usize {
     m
 }
 
-
 #[spec(fn(n: usize, f:F) -> RVec<A>[n]
        where F: FnMut(usize{v:0<=v && v < n}) -> A)]
 fn init0<F, A>(n: usize, mut f: F) -> RVec<A>
@@ -133,14 +132,14 @@ impl Layer {
         input_error
     }
 
-
-
     #[spec(fn(&mut Layer[@l], &RVec<f64>[l.i]) -> RVec<f64>[l.o])]
     fn ooforward(self: &mut Layer, input: &RVec<f64>) -> RVec<f64> {
-                (0..self.num_outputs).map(|i| {
-        let wt_in = dot_product(&self.weight[i], input);
-        sigmoid(wt_in + self.bias[i])
-        }).collect()
+        (0..self.num_outputs)
+            .map(|i| {
+                let wt_in = dot_product(&self.weight[i], input);
+                sigmoid(wt_in + self.bias[i])
+            })
+            .collect()
     }
 }
 
@@ -151,7 +150,6 @@ fn mean_squared_error(predicted: &RVec<f64>, actual: &RVec<f64>) -> f64 {
         .sum::<f64>()
         / predicted.len() as f64
 }
-
 
 #[spec(fn(&[f64][5]))]
 fn test_enumerate(vec: &[f64]) {

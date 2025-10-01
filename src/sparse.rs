@@ -113,5 +113,5 @@ impl CSRMatrix {
 }
 
 fn test_assert() {
-    assert(10 < 2); // ERROR
+    assert(1 < 2); // ERROR
 }
