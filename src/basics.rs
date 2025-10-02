@@ -29,7 +29,7 @@ fn test_assert() {
     let x = 1;
     let y = 2;
     let z = 3;
-    assert(10 < 2);
+    assert(z < x);
 }
 
 fn jumbo(n: i32) -> i32 {

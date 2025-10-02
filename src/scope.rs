@@ -9,7 +9,9 @@ use flux_rs::assert;
 use flux_rs::attrs::*;
 
 fn test(){
-    assert(1 + 1 ==2);
+    let x = 1;
+    let y = 2;
+    assert(x + x == x);
 }
 
 type Id = String;
