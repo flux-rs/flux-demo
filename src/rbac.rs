@@ -16,7 +16,7 @@ fn test() {
 }
 
 #[reflect]
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Permissions {
     Read,
     Write,
@@ -26,6 +26,15 @@ pub enum Permissions {
     ConfigureSystem,
 }
 
+#[spec(fn(r1: Permissions, r2: Permissions) -> bool[r1 == r2])]
+fn test_eq_perm(r1: Permissions, r2: Permissions) -> bool {
+    r1 == r2
+}
+
+#[cfg(flux)]
+flux_core::eq!(Permissions);
+
+
 #[reflect]
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Role {
@@ -33,6 +42,15 @@ pub enum Role {
     User,
     Guest,
 }
+
+#[spec(fn(r1: Role, r2: Role) -> bool[r1 == r2])]
+fn test_eq(r1: Role, r2: Role) -> bool {
+    r1 == r2
+}
+
+#[cfg(flux)]
+flux_core::eq!(Role);
+
 
 defs! {
 
@@ -69,7 +87,7 @@ defs! {
     }
 }
 
-// EXERCISE: complete the implementation of method `permissions` *method*
+// EXERCISE: complete the implementation of method `permissions`
 
 impl Role {
 
@@ -87,7 +105,7 @@ impl Role {
         self.permissions().contains(p)
     }
 
-    // RJ: why is this not IFF?
+    // EXERCISE: Fix the bug? (lump write/comment) together?
     #[spec(fn(&Self[@r], &Permissions[@p]) -> bool[set_is_in(p, permissions(r))])]
     pub fn check_permission_match(&self, p: &Permissions) -> bool {
         let admin = Role::Admin; // const-promotion
@@ -103,27 +121,16 @@ impl Role {
     }
 }
 
-#[spec(fn(r1: Role, r2: Role) -> bool[r1 == r2])]
-fn test_eq(r1: Role, r2: Role) -> bool {
-    r1 == r2
-}
 
-// flux_core::eq!(Role);
-#[specs {
-    impl PartialEq for Role {
-        #[reft] fn eq(self: Role, other: Role) -> bool {
-                self == other
-        }
 
-        fn eq(&Role[@r1], other: &Role[@r2]) -> bool[<Role as PartialEq>::eq(r1, r2)];
-    }
-}]
-const _: () = ();
 
 
 
 // --------------------------------------------------------------------------------------------
 
+// Rationale for both `allow` and `deny` sets is
+// you CANNOT `allow` (resp. deny) things that are `deny`ed (resp. `allow`ed)
+// That is: once something is in `deny` it CANNOT be `allow`ed
 #[refined_by(role: Role, allow: Set<Permissions>, deny: Set<Permissions>)]
 #[invariant(set_subset(allow, permissions(role)))]
 #[invariant(set_is_disjoint(allow, deny))]
@@ -143,7 +150,34 @@ struct User {
     deny: RSet<Permissions>,
 }
 
+defs! {
+    fn can_allow(u: User, p: Permissions) -> bool {
+        set_is_in(p, permissions(u.role)) && !set_is_in(p, u.deny)
+    }
+
+    fn can_deny(u: User, p: Permissions) -> bool {
+        !set_is_in(p, u.allow)
+    }
+
+    fn upd_allow(u: User, p: Permissions) -> Set<Permissions> {
+        if can_allow(u, p) {
+            set_add(p, u.allow)
+        } else {
+            u.allow
+        }
+    }
+
+    fn upd_deny(u: User, p: Permissions) -> Set<Permissions> {
+        if can_deny(u, p) {
+            set_add(p, u.deny)
+        } else {
+            u.deny
+        }
+    }
+}
+
 impl User {
+    #[spec(fn(name: String, role: Role) -> Self[User { role: role, allow: set_emp(), deny: set_emp() }])]
     fn new(name: String, role: Role) -> Self {
         Self {
             name,
@@ -153,19 +187,54 @@ impl User {
         }
     }
 
-    #[spec(fn(me: &mut Self[@u], p:Permissions) ensures me: Self)]
-    fn allow(&mut self, p: Permissions) {
+    #[spec(fn(&Self[@u], &Permissions[@p]) -> bool[set_is_in(p, u.allow)])]
+    fn is_allowed(&self, p: &Permissions) -> bool {
+        self.allow.contains(p)
+    }
+
+    // EXERCISE: write this spec, but give a simpler warm-up version first.
+
+    #[spec(fn(me: &mut Self[@u], &Permissions[@p]) -> bool[can_allow(u, p)]
+              ensures me: Self[User { allow: upd_allow(u, p), ..u }])]
+    fn allow(&mut self, p: &Permissions) -> bool {
         if self.role.check_permission(&p) && !self.deny.contains(&p) {
-            self.allow.insert(p);
+            self.allow.insert(*p);
+            true
         } else {
-            panic!("Cannot allow permission {:?} for role {:?}", p, self.role);
+            false
         }
     }
 
-    #[spec(fn(me: &mut Self[@u], p:Permissions) ensures me: Self)]
-    fn deny(&mut self, p: Permissions) {
-        if !self.allow.contains(&p) {
-            self.deny.insert(p);
+    #[spec(fn(me: &mut Self[@u], &Permissions[@p]) -> bool[can_deny(u, p)]
+              ensures me: Self[User { deny: upd_deny(u, p), ..u }])]
+    fn deny(&mut self, p: &Permissions) -> bool {
+        if !self.allow.contains(p) {
+            self.deny.insert(*p);
+            true
+        } else {
+            false
         }
     }
+}
+
+fn test_rbac() {
+    let mut rj = User::new("rjhala".to_string(), Role::Admin);
+    let mut guest = User::new("guest".to_string(), Role::Guest);
+
+    let read = Permissions::Read;   // const-promotion
+    let write = Permissions::Write; // const-promotion
+
+    assert(rj.is_allowed(&read) == false);
+    assert(rj.allow(&read));
+    assert(rj.is_allowed(&read) == true);
+    assert(rj.allow(&read) == true); // idempotent
+    assert(rj.deny(&read) == false); // cannot deny what is allowed
+    assert(rj.is_allowed(&read) == true);
+
+    assert(guest.is_allowed(&write) == false);
+    assert(guest.allow(&write) == false); // cannot allow what role does not permit
+    assert(guest.is_allowed(&write) == false);
+    assert(guest.deny(&write) == true);
+    assert(guest.deny(&write) == true); // idempotent
+    assert(guest.is_allowed(&write) == false);
 }

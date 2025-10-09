@@ -249,9 +249,7 @@ fn count(mut start: usize) -> usize {
 
 
 #[specs {
-    mod basics {
-        fn jumbo(n: i32) -> i32[n + 1];
-    }
+    fn jumbo(n: i32) -> i32[n + 1];
 }]
 const _: () = ();
 
