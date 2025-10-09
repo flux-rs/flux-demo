@@ -26,6 +26,8 @@ pub mod lists;
 pub mod mapreduce;
 pub mod neural;
 pub mod rvec;
+pub mod rset;
+pub mod rbac;
 // pub mod spec;
 pub mod typestate;
 pub mod uninit;
