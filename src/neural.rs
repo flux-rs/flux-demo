@@ -11,6 +11,69 @@ fn sigmoid(x: f64) -> f64 {
     1.0 / (1.0 + (-x).exp())
 }
 
+mod dot {
+    use flux_rs::attrs::*;
+
+    // 1. plain while loop
+    #[spec(fn(&[f64][@n], &[f64][n]) -> f64)]
+    fn dot_product_while(a: &[f64], b: &[f64]) -> f64 {
+        let mut sum = 0.0;
+        let mut i = 0;
+        while i < a.len() {
+            sum += a[i] * b[i];
+            i += 1;
+        }
+        sum
+    }
+
+    // 2. while-with-range
+    #[spec(fn(&[f64][@n], &[f64][n]) -> f64)]
+    fn dot_product_range(a: &[f64], b: &[f64]) -> f64 {
+        let mut sum = 0.0;
+        let rng = 0..a.len();
+        let mut it = rng.into_iter();
+        while let Some(i) = it.next() {
+            sum += a[i] * b[i];
+        }
+        sum
+    }
+
+    // 3. for-with-range
+    #[spec(fn(&[f64][@n], &[f64][n]) -> f64)]
+    fn dot_product_for(a: &[f64], b: &[f64]) -> f64 {
+        let mut sum = 0.0;
+        for i in 0..a.len() {
+            sum += a[i] * b[i];
+        }
+        sum
+    }
+
+    // 4. for-loop with enumerate
+    #[spec(fn(&[f64][@n], &[f64][n]) -> f64)]
+    fn dot_product_enumerate(a: &[f64], b: &[f64]) -> f64 {
+        let mut sum = 0.0;
+        for (i, vi) in a.iter().enumerate() {
+            sum += vi * b[i];
+        }
+        sum
+    }
+
+    // 5. foreach with closure
+    #[spec(fn(&[f64][@n], &[f64][n]) -> f64)]
+    fn dot_product_foreach(a: &[f64], b: &[f64]) -> f64 {
+        let mut sum = 0.0;
+        (0..a.len()).for_each(|i| sum += a[i] * b[i]);
+        sum
+    }
+
+    // 6. map with closure
+    #[spec(fn(&[f64][@n], &[f64][n]) -> f64)]
+    fn dot_product_map(a: &[f64], b: &[f64]) -> f64 {
+        (0..a.len()).map(|i| (a[i] * b[i])).sum()
+    }
+
+}
+
 #[spec(fn(&RVec<f64>[@n], &RVec<f64>[n]) -> f64)]
 fn dot_product(a: &RVec<f64>, b: &RVec<f64>) -> f64 {
     let mut sum = 0.0;
@@ -25,26 +88,43 @@ fn dot_product2(a: &RVec<f64>, b: &RVec<f64>) -> f64 {
     (0..a.len()).map(|i| (a[i] * b[i])).sum()
 }
 
+#[spec(fn(&[f64][@n], &[f64][n]) -> f64)]
+fn dot_product3(a: &[f64], b: &[f64]) -> f64 {
+    let mut sum = 0.0;
+    for (i, vi) in a.iter().enumerate() {
+        sum += vi * b[i];
+    }
+    sum
+}
+
 // HT: https://byteblog.medium.com/building-a-simple-neural-network-from-scratch-in-rust-3a7b12ed30a9
 
 // Define the structure of a single layer in the network
-#[refined_by(i: int, o: int)]
 struct Layer {
-    #[field(usize[i])]
     num_inputs: usize,
-
-    #[field(usize[o])]
     num_outputs: usize,
-
-    #[field(RVec<RVec<f64>[i]>[o])]
     weight: RVec<RVec<f64>>,
-
-    #[field(RVec<f64>[o])]
     bias: RVec<f64>,
-
-    #[field(RVec<f64>[o])]
     outputs: RVec<f64>,
 }
+
+
+
+#[specs {
+    #[refined_by(i: int, o: int)]
+    struct Layer {
+        num_inputs: usize[i],
+        num_outputs: usize[o],
+        weight: RVec<RVec<f64>[i]>[o],
+        bias: RVec<f64>[o],
+        outputs: RVec<f64>[o],
+    }
+}]
+const _: () = ();
+
+
+
+
 
 #[opts(check_overflow = "lazy")]
 #[spec(fn(n: usize[100]) -> usize[101])]
@@ -68,8 +148,11 @@ where
     res
 }
 
+//        where F: FnMut(usize{v:0<=v && v < n}) -> A)]
 #[spec(fn(n: usize, f:F) -> RVec<A>[n]
-       where F: FnMut(usize{v:0<=v && v < n}) -> A)]
+       where F: FnMut(usize) -> A
+)]
+//       where F: FnMut(usize{v:0<=v && v < n}) -> A)]
 fn init<F, A>(n: usize, mut f: F) -> RVec<A>
 where
     F: FnMut(usize) -> A,
@@ -79,6 +162,12 @@ where
         res.push(f(i));
     }
     res
+}
+
+#[spec(fn(vec: &RVec<T>[@n]) -> RVec<T>[n])]
+fn mirror<T: Clone>(vec: &RVec<T>) -> RVec<T> {
+    let n = vec.len();
+    init(n, |i| vec[n-i-1].clone())
 }
 
 #[spec(fn(n: usize, f:F) -> RVec<A>[n] where F: FnMut(usize{v:0<=v && v < n}) -> A)]

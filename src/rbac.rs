@@ -1,10 +1,6 @@
 extern crate flux_core;
-
 use crate::rset;
 use flux_rs::{assert, attrs::*};
-// use flux_core::eq;
-
-use std::rc::Rc;
 
 use crate::rset::*;
 
@@ -22,34 +18,86 @@ pub enum Permissions {
     Write,
     Comment,
     Delete,
-    ManageUsers,
     ConfigureSystem,
 }
 
-#[spec(fn(r1: Permissions, r2: Permissions) -> bool[r1 == r2])]
-fn test_eq_perm(r1: Permissions, r2: Permissions) -> bool {
-    r1 == r2
-}
+// flux_core::eq!(Permissions);
 
-#[cfg(flux)]
-flux_core::eq!(Permissions);
+#[specs {
+    impl std::cmp::PartialEq for Permissions {
+        #[reft]
+        fn is_eq(p1: Permissions, p2: Permissions, v:bool) -> bool {
+            v <=> (p1 == p2)
+        }
+        #[reft] fn is_ne(p1: Permissions, p2: Permissions, v:bool) -> bool {
+            v <=> (p1 != p2)
+        }
+        fn eq(&Self[@r1], &Self[@r2]) -> bool[r1 == r2];
+    }
+}]
+const _: () = ();
+
+
+
+fn test_eq_perm(p1: Permissions, p2: Permissions) {
+    let read = Permissions::Read; // const-promotion
+    let write = Permissions::Write; // const-promotion
+    assert(read == read);
+    assert(read != write);
+}
 
 
 #[reflect]
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Eq )]
 pub enum Role {
     Admin,
-    User,
+    Member,
     Guest,
+}
+
+impl PartialEq for Role {
+    #[spec(fn(&Self[@r1], &Self[@r2]) -> bool[r1 == r2])]
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Role::Admin, Role::Admin) => true,
+            (Role::Member, Role::Member) => true,
+            (Role::Guest, Role::Guest) => true,
+            _ => false,
+        }
+    }
+
+    #[spec(fn(&Self[@r1], &Self[@r2]) -> bool[r1 != r2])]
+    fn ne(&self, other: &Self) -> bool {
+        !self.eq(other)
+    }
+}
+
+fn test_role_eq() {
+  let admin = Role::Admin;
+  let member = Role::Member;
+  assert(admin == admin);
+  assert(admin != member);
+  assert(member == member);
+}
+
+#[spec(fn(&Role[@r]) -> bool[r == Role::Admin])]
+fn is_admin_eq(r: &Role) -> bool {
+    let admin = Role::Admin; // const-promotion
+    *r == admin
+}
+
+#[spec(fn(&Role[@r]) -> bool[r == Role::Admin])]
+pub fn is_admin(r: &Role) -> bool {
+    match r {
+        Role::Admin => true,
+        _ => false,
+    }
 }
 
 #[spec(fn(r1: Role, r2: Role) -> bool[r1 == r2])]
 fn test_eq(r1: Role, r2: Role) -> bool {
     r1 == r2
 }
-
-#[cfg(flux)]
-flux_core::eq!(Role);
 
 
 defs! {
@@ -58,12 +106,11 @@ defs! {
         set_add(Permissions::Read,
         set_add(Permissions::Write,
         set_add(Permissions::Delete,
-        set_add(Permissions::ManageUsers,
         set_add(Permissions::ConfigureSystem,
-        set_emp())))))
+        set_emp()))))
     }
 
-    fn user_permissions() -> Set<Permissions> {
+    fn member_permissions() -> Set<Permissions> {
         set_add(Permissions::Read,
         set_add(Permissions::Write,
         set_add(Permissions::Comment,
@@ -79,8 +126,8 @@ defs! {
     fn permissions(r:Role) -> Set<Permissions> {
         if r == Role::Admin {
             admin_permissions()
-        } else if r == Role::User {
-            user_permissions()
+        } else if r == Role::Member {
+            member_permissions()
         } else {
             guest_permissions()
         }
@@ -94,8 +141,8 @@ impl Role {
     #[spec(fn(&Self[@r]) -> RSet<Permissions>[permissions(r)])]
     pub fn permissions(&self) -> RSet<Permissions> {
         match self {
-            Role::Admin => rset!(Permissions::Read, Permissions::Write, Permissions::Delete, Permissions::ManageUsers, Permissions::ConfigureSystem),
-            Role::User => rset!(Permissions::Read, Permissions::Write, Permissions::Comment),
+            Role::Admin => rset!(Permissions::Read, Permissions::Write, Permissions::Delete, Permissions::ConfigureSystem),
+            Role::Member => rset!(Permissions::Read, Permissions::Write, Permissions::Comment),
             Role::Guest => rset!(Permissions::Read),
         }
     }
@@ -109,13 +156,12 @@ impl Role {
     #[spec(fn(&Self[@r], &Permissions[@p]) -> bool[set_is_in(p, permissions(r))])]
     pub fn check_permission_match(&self, p: &Permissions) -> bool {
         let admin = Role::Admin; // const-promotion
-        let user = Role::User;   // const-promotion
+        let user = Role::Member;   // const-promotion
         match p {
             Permissions::Read => true,
             Permissions::Write => *self == admin || *self == user,
             Permissions::Comment => *self == user,
             Permissions::Delete
-            | Permissions::ManageUsers
             | Permissions::ConfigureSystem => *self == admin,
         }
     }
@@ -124,30 +170,106 @@ impl Role {
 
 
 
+fn test_set_add() {
+  let read = Permissions::Read;
+  let write = Permissions::Write;
+  let mut s = RSet::new();
+  s.insert(read);
+  assert(s.contains(&read));
+  assert(!s.contains(&write));
+  s.insert(write);
+  assert(s.contains(&read));
+  assert(s.contains(&write));
+}
 
+fn test_rset_macro() {
+  let read = Permissions::Read;
+  let write = Permissions::Write;
+  let s = rset!{read, write};
+  assert(s.contains(&read) && s.contains(&write));
+}
+
+fn test_union_intersection() {
+  let rd = Permissions::Read;
+  let wr = Permissions::Write;
+  let cm = Permissions::Comment;
+  // make two sets
+  let s1 = rset![rd, wr];
+  let s2 = rset![wr, cm];
+  // check union
+  let su = s1.union(&s2);
+  assert(su.contains(&rd) && su.contains(&wr) && su.contains(&cm));
+  // check intersection
+  let si = s1.intersection(&s2);
+  assert(!si.contains(&rd) && si.contains(&wr) && !si.contains(&cm));
+}
+
+#[spec(fn(&RSet<T>[@s1], &RSet<T>[@s2]) -> bool[s1 == s2])]
+fn set_eq<T:Eq+std::hash::Hash>(s1: &RSet<T>, s2: &RSet<T>) -> bool {
+    s1.subset(&s2) && s2.subset(&s1)
+}
 
 // --------------------------------------------------------------------------------------------
 
-// Rationale for both `allow` and `deny` sets is
-// you CANNOT `allow` (resp. deny) things that are `deny`ed (resp. `allow`ed)
-// That is: once something is in `deny` it CANNOT be `allow`ed
-#[refined_by(role: Role, allow: Set<Permissions>, deny: Set<Permissions>)]
-#[invariant(set_subset(allow, permissions(role)))]
-#[invariant(set_is_disjoint(allow, deny))]
+// // Rationale for both `allow` and `deny` sets is
+// // you CANNOT `allow` (resp. deny) things that are `deny`ed (resp. `allow`ed)
+// // That is: once something is in `deny` it CANNOT be `allow`ed
+// #[refined_by(role: Role, allow: Set<Permissions>, deny: Set<Permissions>)]
+// #[invariant(set_subset(allow, permissions(role)))]
+// #[invariant(set_is_disjoint(allow, deny))]
+// #[derive(Debug)]
+// struct User {
+//     name: String,
+
+//     #[field(Role[role])]
+//     role: Role,
+
+//     // Invariant: allow ⊆ role.permissions()
+//     #[field(RSet<Permissions>[allow])]
+//     allow: RSet<Permissions>,
+
+//     // Invariant: allow ∩ deny = ∅
+//     #[field(RSet<Permissions>[deny])]
+//     deny: RSet<Permissions>,
+// }
+
 #[derive(Debug)]
 struct User {
+  name: String,
+  role: Role,
+  allow: RSet<Permissions>,
+  deny: RSet<Permissions>,
+}
+
+#[specs {
+  #[refined_by(role:Role, allow:Set<Permissions>, deny:Set<Permissions>)]
+  #[invariant(set_subset(allow, permissions(role)))]
+  #[invariant(set_intersection(allow, deny) == set_emp())]
+  struct User {
     name: String,
+    role: Role[role],
+    allowed: RSet<Permissions>[allow],
+    denied: RSet<Permissions>[deny],
+  }
+}]
+const _: () = ();
 
-    #[field(Role[role])]
-    role: Role,
+use Role::*;
+use Permissions::*;
 
-    // Invariant: allow ⊆ role.permissions()
-    #[field(RSet<Permissions>[allow])]
-    allow: RSet<Permissions>,
-
-    // Invariant: allow ∩ deny = ∅
-    #[field(RSet<Permissions>[deny])]
-    deny: RSet<Permissions>,
+fn test_user() {
+    let alice = User {
+        name: "Alice".to_string(),
+        role: Guest,
+        allow: rset!{ Read /* , Write */ },
+        deny: rset!{ },
+    };
+    let bob = User {
+        name: "Bob".to_string(),
+        role: Admin,
+        allow: rset!{ Read, Write, Delete },
+        deny: rset!{ Write },
+    };
 }
 
 defs! {
