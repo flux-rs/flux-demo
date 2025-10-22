@@ -1,9 +1,15 @@
 // Simple GPIO pin driver with typestate pattern
 // Demonstrates runtime state detection when taking over hardware
 
-use std::{mem::replace, sync::atomic::{AtomicBool, Ordering}};
+use std::{
+    mem::replace,
+    sync::atomic::{AtomicBool, Ordering},
+};
 
-use flux_rs::{alias, bitvec::BV32, constant, defs, invariant, opaque, refined_by, reflect, spec, specs, trusted};
+use flux_rs::{
+    alias, bitvec::BV32, constant, defs, invariant, opaque, refined_by, reflect, spec, specs,
+    trusted,
+};
 
 // Unsafe HW Stuff / Singleton ------------------------------------------------------
 struct Peripherals {
@@ -12,49 +18,28 @@ struct Peripherals {
     gpio_c: Gpio,
 }
 
-// #[trusted]
-// impl Peripherals {
-//     fn take_gpio_a(&mut self) -> Gpio {
-//         let p = replace(&mut self.gpio_a, None);
-//         p.unwrap()
-//     }
-//     fn take_gpio_b(&mut self) -> Gpio {
-//         let p = replace(&mut self.gpio_b, None);
-//         p.unwrap()
-//     }
-//     fn take_gpio_c(&mut self) -> Gpio {
-//         let p = replace(&mut self.gpio_c, None);
-//         p.unwrap()
-//     }
-// }
-
 // Real hardware example addresses (STM32-like):
 // GPIOA: 0x4800_0000
 // GPIOB: 0x4800_0400
 // GPIOC: 0x4800_0800
 // Each GPIO port has the same register layout but different base address
-// static mut PERIPHERALS: Option<Peripherals> = Some(Peripherals {
-//     gpio_a: Gpio(0x4800_0000 as *mut GpioRegisters),
-//     gpio_b: Gpio(0x4800_0400 as *mut GpioRegisters),
-//     gpio_c: Gpio(0x4800_0800 as *mut GpioRegisters),
-// });
 
 // Safe singleton access to peripherals
 #[trusted]
 fn take_peripherals() -> Option<Peripherals> {
     static TAKEN: AtomicBool = AtomicBool::new(false);
-    // unsafe {
-        // use std::sync::atomic::{AtomicBool, Ordering};
-        if TAKEN.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst).is_ok() {
-            Some(Peripherals {
-                gpio_a: Gpio(0x4800_0000 as *mut GpioRegisters),
-                gpio_b: Gpio(0x4800_0400 as *mut GpioRegisters),
-                gpio_c: Gpio(0x4800_0800 as *mut GpioRegisters),
+    if TAKEN
+        .compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst)
+        .is_ok()
+    {
+        Some(Peripherals {
+            gpio_a: Gpio(0x4800_0000 as *mut GpioRegisters),
+            gpio_b: Gpio(0x4800_0400 as *mut GpioRegisters),
+            gpio_c: Gpio(0x4800_0800 as *mut GpioRegisters),
         })
-        } else {
-            None
-        }
-    // }
+    } else {
+        None
+    }
 }
 
 #[trusted]
@@ -64,14 +49,22 @@ impl Gpio {
         unsafe { &*self.0 }
     }
 
+    // sets the modes bitvec
     #[spec(fn(self: &mut Gpio, modes: BV32) ensures self: Gpio[modes])]
     pub fn set_modes(&mut self, modes: BV32) {
-        unsafe { let regs = &mut *self.0; regs.modes = modes; }
+        unsafe {
+            let regs = &mut *self.0;
+            regs.modes = modes;
+        }
     }
 
+    // does not change modes
     #[spec(fn(self: &mut Gpio[@modes], output: u32) ensures self: Gpio[modes])]
     pub fn set_output(&mut self, output: u32) {
-        unsafe { let regs = &mut *self.0; regs.output = output; }
+        unsafe {
+            let regs = &mut *self.0;
+            regs.output = output;
+        }
     }
 }
 
@@ -84,9 +77,9 @@ impl Gpio {
 #[repr(C)]
 struct GpioRegisters {
     #[field(BV32[modes])]
-    modes: BV32,     // Bit 0 = pin 0 mode, bit 1 = pin 1 mode, etc.
-    output: u32,    // Bit 0 = pin 0 output, bit 1 = pin 1 output, etc.
-    input: u32,     // Bit 0 = pin 0 input, bit 1 = pin 1 input, etc.
+    modes: BV32, // Bit 0 = pin 0 mode, bit 1 = pin 1 mode, etc.
+    output: u32, // Bit 0 = pin 0 output, bit 1 = pin 1 output, etc.
+    input: u32,  // Bit 0 = pin 0 input, bit 1 = pin 1 input, etc.
 }
 
 #[reflect]
@@ -101,7 +94,6 @@ struct Gpio(*mut GpioRegisters);
 
 #[alias(type Pin[n: int] = {u8[n] | 0 <= n && n < 32})]
 type Pin = u8;
-
 
 defs! {
     fn get_mode(bv: bitvec<32>, index: int) -> Mode {
@@ -133,29 +125,24 @@ impl Gpio {
     #[spec(fn(&Gpio[@modes], pin: Pin) -> Mode[get_mode(modes, pin)])]
     fn get_mode(&self, pin: Pin) -> Mode {
         let regs = self.get_registers();
-        let b0 = ZERO; // const promotion!
-        let b1 = ONE;  // const promotion!
-        let pin = BV32::new(pin as u32);
-        if ((regs.modes >> pin) & b1) == b0 {
+        let b0 = 0;
+        if ((regs.modes >> pin) & 1) == b0 {
             Mode::Input
         } else {
             Mode::Output
         }
-
     }
 
     #[spec(fn(self: &mut Gpio[@modes], pin: Pin, mode: Mode)
            ensures self: Gpio[set_mode(modes, pin, mode)])]
     fn set_mode(&mut self, pin: Pin, mode: Mode) {
         let regs = self.get_registers();
-        let b1 = ONE;  // const promotion!
-        let pin = BV32::new(pin as u32);
         match mode {
             Mode::Input => {
-                self.set_modes(regs.modes & !(b1 << pin));
+                self.set_modes(regs.modes & !(ONE << pin));
             }
             Mode::Output => {
-                self.set_modes(regs.modes | (b1 << pin));
+                self.set_modes(regs.modes | (ONE << pin));
             }
         }
     }
@@ -163,7 +150,7 @@ impl Gpio {
     // requires pin in Input mode
     #[spec(fn(&Gpio[@modes], pin: Pin) -> bool
            requires get_mode(modes, pin) == Mode::Input)]
-    fn read(&self, pin: Pin) -> bool                {
+    fn read(&self, pin: Pin) -> bool {
         let regs = self.get_registers();
         ((regs.input >> pin) & 1) == 1
     }
@@ -191,18 +178,18 @@ pub fn example_same_port() {
 
     // Multiple pins share the same registers (same port) but can be in different states!
     // Configure the pins as input or output
-    gpio_a.set_mode(0, Mode::Output);  // PA0 = Output
-    gpio_a.set_mode(1, Mode::Output);  // PA1 = Output
-    gpio_a.set_mode(5, Mode::Input);   // PA5 = Input
+    gpio_a.set_mode(0, Mode::Output); // PA0 = Output
+    gpio_a.set_mode(1, Mode::Output); // PA1 = Output
+    gpio_a.set_mode(5, Mode::Input); // PA5 = Input
 
     // Each pin's state is tracked by the type system through refinements
     // The hardware mode register might look like: 0b00...00100011
     // Bit 0 = 1 (output), Bit 1 = 1 (output), Bit 5 = 0 (input)
 
     // They all manipulate the same hardware registers using different bit positions
-    gpio_a.write(0, true);   // Sets bit 0 in GPIOA output register (high)
-    gpio_a.write(1, true);   // Sets bit 1 in GPIOA output register (high)
-    let button_state = gpio_a.read(5);  // Reads bit 5 from GPIOA input register
+    gpio_a.write(0, true); // Sets bit 0 in GPIOA output register (high)
+    gpio_a.write(1, true); // Sets bit 1 in GPIOA output register (high)
+    let button_state = gpio_a.read(5); // Reads bit 5 from GPIOA input register
 
     // Type system prevents mistakes through refinements:
     // gpio_a.write(5, true);  // ERROR! Can't write to a pin in Input mode
@@ -223,14 +210,14 @@ pub fn example_different_ports() {
 
     // Same pin number, different ports = different physical pins
     // Configure pins as outputs
-    gpio_a.set_mode(5, Mode::Output);   // PA5
-    gpio_b.set_mode(5, Mode::Output);   // PB5 (completely different pin!)
-    gpio_c.set_mode(13, Mode::Output);  // PC13 (often the onboard LED)
+    gpio_a.set_mode(5, Mode::Output); // PA5
+    gpio_b.set_mode(5, Mode::Output); // PB5 (completely different pin!)
+    gpio_c.set_mode(13, Mode::Output); // PC13 (often the onboard LED)
 
     // Control the pins from different ports
-    gpio_a.write(5, true);   // PA5 set high
-    gpio_b.write(5, false);  // PB5 set low
-    gpio_c.write(13, true);  // PC13 set high
+    gpio_a.write(5, true); // PA5 set high
+    gpio_b.write(5, false); // PB5 set low
+    gpio_c.write(13, true); // PC13 set high
 }
 
 // Example 1: Taking over hardware in unknown state
@@ -269,7 +256,7 @@ fn example_forced_configuration(gpio: &mut Gpio) {
     gpio.set_mode(led_pin, Mode::Output);
 
     // Now we can safely use it as output
-    gpio.write(led_pin, true);  // Set high
+    gpio.write(led_pin, true); // Set high
     gpio.write(led_pin, false); // Set low
 
     // This won't compile - can't read from an output pin:
