@@ -277,10 +277,6 @@ defs! {
         set_is_in(p, permissions(u.role)) && !set_is_in(p, u.deny)
     }
 
-    fn can_deny(u: User, p: Permissions) -> bool {
-        !set_is_in(p, u.allow)
-    }
-
     fn upd_allow(u: User, p: Permissions) -> Set<Permissions> {
         if can_allow(u, p) {
             set_add(p, u.allow)
@@ -289,6 +285,9 @@ defs! {
         }
     }
 
+    fn can_deny(u: User, p: Permissions) -> bool {
+        !set_is_in(p, u.allow)
+    }
     fn upd_deny(u: User, p: Permissions) -> Set<Permissions> {
         if can_deny(u, p) {
             set_add(p, u.deny)

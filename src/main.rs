@@ -30,8 +30,8 @@ pub mod rset;
 pub mod rbac;
 // pub mod spec;
 pub mod typestate;
-// pub mod typestate_addr;
-pub mod typestate_bits;
+pub mod typestate_addr;
+// pub mod typestate_bits;
 
 pub mod uninit;
 pub mod vectors;

@@ -1,16 +1,90 @@
 // Simple GPIO pin driver with typestate pattern
 // Demonstrates runtime state detection when taking over hardware
 
-use flux_rs::{alias, bitvec::BV32, defs, invariant, opaque, refined_by, reflect, spec, trusted};
+use std::{mem::replace, sync::atomic::{AtomicBool, Ordering}};
+
+use flux_rs::{alias, bitvec::BV32, constant, defs, invariant, opaque, refined_by, reflect, spec, specs, trusted};
+
+// Unsafe HW Stuff / Singleton ------------------------------------------------------
+struct Peripherals {
+    gpio_a: Gpio,
+    gpio_b: Gpio,
+    gpio_c: Gpio,
+}
+
+// #[trusted]
+// impl Peripherals {
+//     fn take_gpio_a(&mut self) -> Gpio {
+//         let p = replace(&mut self.gpio_a, None);
+//         p.unwrap()
+//     }
+//     fn take_gpio_b(&mut self) -> Gpio {
+//         let p = replace(&mut self.gpio_b, None);
+//         p.unwrap()
+//     }
+//     fn take_gpio_c(&mut self) -> Gpio {
+//         let p = replace(&mut self.gpio_c, None);
+//         p.unwrap()
+//     }
+// }
+
+// Real hardware example addresses (STM32-like):
+// GPIOA: 0x4800_0000
+// GPIOB: 0x4800_0400
+// GPIOC: 0x4800_0800
+// Each GPIO port has the same register layout but different base address
+// static mut PERIPHERALS: Option<Peripherals> = Some(Peripherals {
+//     gpio_a: Gpio(0x4800_0000 as *mut GpioRegisters),
+//     gpio_b: Gpio(0x4800_0400 as *mut GpioRegisters),
+//     gpio_c: Gpio(0x4800_0800 as *mut GpioRegisters),
+// });
+
+// Safe singleton access to peripherals
+#[trusted]
+fn take_peripherals() -> Option<Peripherals> {
+    static TAKEN: AtomicBool = AtomicBool::new(false);
+    // unsafe {
+        // use std::sync::atomic::{AtomicBool, Ordering};
+        if TAKEN.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst).is_ok() {
+            Some(Peripherals {
+                gpio_a: Gpio(0x4800_0000 as *mut GpioRegisters),
+                gpio_b: Gpio(0x4800_0400 as *mut GpioRegisters),
+                gpio_c: Gpio(0x4800_0800 as *mut GpioRegisters),
+        })
+        } else {
+            None
+        }
+    // }
+}
+
+#[trusted]
+impl Gpio {
+    #[spec(fn(&Gpio[@modes]) -> &GpioRegisters[modes])]
+    pub fn get_registers(&self) -> &GpioRegisters {
+        unsafe { &*self.0 }
+    }
+
+    #[spec(fn(self: &mut Gpio, modes: BV32) ensures self: Gpio[modes])]
+    pub fn set_modes(&mut self, modes: BV32) {
+        unsafe { let regs = &mut *self.0; regs.modes = modes; }
+    }
+
+    #[spec(fn(self: &mut Gpio[@modes], output: u32) ensures self: Gpio[modes])]
+    pub fn set_output(&mut self, output: u32) {
+        unsafe { let regs = &mut *self.0; regs.output = output; }
+    }
+}
 
 // Gpio API --------------------------------------------------------------------------
 // Hardware register interface (simplified)
 // In real hardware (e.g., STM32), these registers control multiple pins at once
 // Each bit in the register corresponds to one pin
 // Example: GPIOA controls pins PA0-PA15
+#[refined_by(modes: bitvec<32>)]
 #[repr(C)]
 struct GpioRegisters {
-    mode: u32,      // Bit 0 = pin 0 mode, bit 1 = pin 1 mode, etc.
+    #[field(BV32[modes])]
+    modes: BV32,     // Bit 0 = pin 0 mode, bit 1 = pin 1 mode, etc.
     output: u32,    // Bit 0 = pin 0 output, bit 1 = pin 1 output, etc.
     input: u32,     // Bit 0 = pin 0 input, bit 1 = pin 1 input, etc.
 }
@@ -22,11 +96,14 @@ enum Mode {
 }
 
 #[opaque]
-#[refined_by(mode: bitvec<32>)]
+#[refined_by(modes: bitvec<32>)]
 struct Gpio(*mut GpioRegisters);
 
-defs! {
+#[alias(type Pin[n: int] = {u8[n] | 0 <= n && n < 32})]
+type Pin = u8;
 
+
+defs! {
     fn get_mode(bv: bitvec<32>, index: int) -> Mode {
         let val = (bv >> bv_int_to_bv32(index)) & 1;
         if val == 0 {
@@ -46,33 +123,39 @@ defs! {
     }
 }
 
-#[trusted]
+#[constant(bv_int_to_bv32(0))]
+const ZERO: BV32 = BV32::new(0);
+
+#[constant(bv_int_to_bv32(1))]
+const ONE: BV32 = BV32::new(1);
+
 impl Gpio {
-    #[spec(fn(&Gpio[@mode], pin: Pin) -> Mode[get_mode(mode, pin)])]
+    #[spec(fn(&Gpio[@modes], pin: Pin) -> Mode[get_mode(modes, pin)])]
     fn get_mode(&self, pin: Pin) -> Mode {
-        unsafe {
-            let regs = &*self.0;
-            let mode = (regs.mode >> pin) & 1;
-            if mode == 0 {
-                Mode::Input
-            } else {
-                Mode::Output
-            }
+        let regs = self.get_registers();
+        let b0 = ZERO; // const promotion!
+        let b1 = ONE;  // const promotion!
+        let pin = BV32::new(pin as u32);
+        if ((regs.modes >> pin) & b1) == b0 {
+            Mode::Input
+        } else {
+            Mode::Output
         }
+
     }
 
     #[spec(fn(self: &mut Gpio[@modes], pin: Pin, mode: Mode)
            ensures self: Gpio[set_mode(modes, pin, mode)])]
     fn set_mode(&mut self, pin: Pin, mode: Mode) {
-        unsafe {
-            let regs = &mut *self.0;
-            match mode {
-                Mode::Input => {
-                    regs.mode &= !(1 << pin);
-                }
-                Mode::Output => {
-                    regs.mode |= 1 << pin;
-                }
+        let regs = self.get_registers();
+        let b1 = ONE;  // const promotion!
+        let pin = BV32::new(pin as u32);
+        match mode {
+            Mode::Input => {
+                self.set_modes(regs.modes & !(b1 << pin));
+            }
+            Mode::Output => {
+                self.set_modes(regs.modes | (b1 << pin));
             }
         }
     }
@@ -81,44 +164,30 @@ impl Gpio {
     #[spec(fn(&Gpio[@modes], pin: Pin) -> bool
            requires get_mode(modes, pin) == Mode::Input)]
     fn read(&self, pin: Pin) -> bool                {
-        unsafe {
-            let regs = &*self.0;
-            ((regs.input >> pin) & 1) == 1
-        }
+        let regs = self.get_registers();
+        ((regs.input >> pin) & 1) == 1
     }
 
     // requires pin in Output mode
     #[spec(fn(self: &mut Gpio[@modes], pin: Pin, value: bool)
            requires get_mode(modes, pin) == Mode::Output)]
     fn write(&mut self, pin: Pin, value: bool) {
-        unsafe {
-            let regs = &mut *self.0;
-            if value {
-                regs.output |= 1 << pin;
-            } else {
-                regs.output &= !(1 << pin);
-            }
+        let regs = self.get_registers();
+        if value {
+            self.set_output(regs.output | (1 << pin));
+        } else {
+            self.set_output(regs.output & !(1 << pin));
         }
     }
 }
+
 // CLIENT CODE EXAMPLES --------------------------------------------------
-// Real hardware example addresses (STM32-like):
-// GPIOA: 0x4800_0000
-// GPIOB: 0x4800_0400
-// GPIOC: 0x4800_0800
-// Each GPIO port has the same register layout but different base address
-
-const GPIOA: Gpio = Gpio(0x4800_0000 as *mut GpioRegisters);
-const GPIOB: Gpio = Gpio(0x4800_0400 as *mut GpioRegisters);
-const GPIOC: Gpio = Gpio(0x4800_0800 as *mut GpioRegisters);
-
-#[alias(type Pin[n: int] = {u8[n] | 0 <= n && n < 32})]
-type Pin = u8;
 
 // Example showing multiple pins from the same port in DIFFERENT states
 pub fn example_same_port() {
     // Get mutable access to GPIOA
-    let mut gpio_a = GPIOA;
+    let mut peripherals = take_peripherals().expect("Peripherals already taken");
+    let gpio_a = &mut peripherals.gpio_a;
 
     // Multiple pins share the same registers (same port) but can be in different states!
     // Configure the pins as input or output
@@ -147,9 +216,10 @@ pub fn example_same_port() {
 // Example showing pins from different ports
 pub fn example_different_ports() {
     // Get mutable references to different GPIO ports
-    let mut gpio_a = GPIOA;
-    let mut gpio_b = GPIOB;
-    let mut gpio_c = GPIOC;
+    let mut peripherals = take_peripherals().expect("Peripherals already taken");
+    let gpio_a = &mut peripherals.gpio_a;
+    let gpio_b = &mut peripherals.gpio_b;
+    let mut gpio_c = &mut peripherals.gpio_c;
 
     // Same pin number, different ports = different physical pins
     // Configure pins as outputs
