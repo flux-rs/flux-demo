@@ -1,8 +1,6 @@
 // Simple GPIO pin driver with typestate pattern
 // Demonstrates runtime state detection when taking over hardware
 
-// snapshot using unsafe/ptr
-
 use flux_rs::{alias, bitvec::BV32, defs, invariant, opaque, refined_by, reflect, spec, trusted};
 
 // Gpio API --------------------------------------------------------------------------
