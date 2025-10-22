@@ -30,6 +30,8 @@ pub mod rset;
 pub mod rbac;
 // pub mod spec;
 pub mod typestate;
+pub mod typestate_spi;
+
 pub mod uninit;
 pub mod vectors;
 pub mod sparse;

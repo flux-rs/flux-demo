@@ -150,9 +150,7 @@ where
 
 //        where F: FnMut(usize{v:0<=v && v < n}) -> A)]
 #[spec(fn(n: usize, f:F) -> RVec<A>[n]
-       where F: FnMut(usize) -> A
-)]
-//       where F: FnMut(usize{v:0<=v && v < n}) -> A)]
+       where F: FnMut(usize{v:0<=v && v < n}) -> A)]
 fn init<F, A>(n: usize, mut f: F) -> RVec<A>
 where
     F: FnMut(usize) -> A,
@@ -200,7 +198,7 @@ impl Layer {
         }
     }
 
-    #[spec(fn(&mut Layer[@l], &RVec<f64>[l.i]) )]
+    #[spec(fn(&mut Self[@l], &RVec<f64>[l.i]) )]
     fn forward(&mut self, input: &RVec<f64>) {
         (0..self.num_outputs).for_each(|i| {
             let weighted_input = dot_product(&self.weight[i], input);
@@ -253,37 +251,72 @@ fn test_enumerate(vec: &[f64]) {
 
 // -------------------------------------------------------------------------------------
 
-#[refined_by(i: int, o: int)]
-enum NeuralNetwork {
-    #[variant((Layer[@i, @o]) -> NeuralNetwork[i, o])]
+// #[refined_by(i: int, o: int)]
+enum Network {
+   // #[variant((Layer[@i, @o]) -> Network[i, o])]
     Last(Layer),
 
-    #[variant((Layer[@i, @h], Box<NeuralNetwork[h, @o]>) -> NeuralNetwork[i, o])]
-    Next(Layer, Box<NeuralNetwork>),
+   // #[variant((Layer[@i, @h], Box<Network[h, @o]>) -> Network[i, o])]
+    Next(Layer, Box<Network>),
 }
 
-impl NeuralNetwork {
+
+
+#[specs {
+  #[refined_by(i: int, o: int)]
+  enum Network {
+    Last(Layer[@i, @o]) -> Network[i, o],
+    Next(Layer[@i, @h], Box<Network[h, @o]>) -> Network[i, o],
+  }
+}]
+const _: () = ();
+
+#[macro_export]
+macro_rules! network {
+    // Base case for a single element
+    ($last:expr) => {
+        Network::Last($last)
+    };
+
+    // Recursive case for multiple elements
+    ($first:expr, $($rest:expr),+) => {
+        // Build from the inside out by recursively processing the rest
+        Network::Next($first, Box::new(network!($($rest),+)))
+    };
+}
+
+#[spec(fn() -> Network[3, 4])]
+fn example_network() -> Network {
+  let blue = Layer::new(3, 4);
+  let green = Layer::new(4, 2);
+  let yellow = Layer::new(2, 3);
+  let orange = Layer::new(3, 4);
+  network![blue, green, yellow, orange]
+}
+
+
+impl Network {
     /// Create a new neural network with the given input size, hidden layer sizes, and output size.
-    #[spec(fn(input_size: usize, hidden_sizes: &[usize], output_size: usize) -> NeuralNetwork[input_size, output_size])]
-    fn new(input_size: usize, hidden_sizes: &[usize], output_size: usize) -> NeuralNetwork {
-        if hidden_sizes.len() == 0 {
-            NeuralNetwork::Last(Layer::new(input_size, output_size))
+    #[spec(fn(input_size: usize, hidden_sizes: &[usize], output_size: usize) -> Network[input_size, output_size])]
+    fn new(input_size: usize, hidden_sizes: &[usize], output_size: usize) -> Network {
+        if hidden_sizes.is_empty() {
+            Network::Last(Layer::new(input_size, output_size))
         } else {
             let n = hidden_sizes[0];
-            let rest = NeuralNetwork::new(n, &hidden_sizes[1..], output_size);
+            let rest = Network::new(n, &hidden_sizes[1..], output_size);
             let layer = Layer::new(input_size, n);
-            NeuralNetwork::Next(layer, Box::new(rest))
+            Network::Next(layer, Box::new(rest))
         }
     }
 
-    #[spec(fn(&mut NeuralNetwork[@i, @o], &RVec<f64>[i]) -> RVec<f64>[o])]
+    #[spec(fn(&mut Network[@i, @o], &RVec<f64>[i]) -> RVec<f64>[o])]
     fn forward(&mut self, input: &RVec<f64>) -> RVec<f64> {
         match self {
-            NeuralNetwork::Last(layer) => {
+            Network::Last(layer) => {
                 layer.forward(input);
                 layer.outputs.clone()
             }
-            NeuralNetwork::Next(layer, next) => {
+            Network::Next(layer, next) => {
                 layer.forward(input);
                 next.forward(&layer.outputs)
             }
@@ -292,7 +325,7 @@ impl NeuralNetwork {
 
     /// Backpropagation algorithm: assumes we have already done a "forwards" pass with
     /// the results stored in each `Layer`'s `outputs` field.
-    #[spec(fn(&mut NeuralNetwork[@i, @o], &RVec<f64>[i], &RVec<f64>[o], _) -> RVec<f64>[i])]
+    #[spec(fn(&mut Network[@i, @o], &RVec<f64>[i], &RVec<f64>[o], _) -> RVec<f64>[i])]
     fn backward(
         &mut self,
         inputs: &RVec<f64>,
@@ -300,13 +333,13 @@ impl NeuralNetwork {
         learning_rate: f64,
     ) -> RVec<f64> {
         match self {
-            NeuralNetwork::Last(layer) => {
+            Network::Last(layer) => {
                 let error = (0..layer.num_outputs)
                     .map(|i| layer.outputs[i] - target[i])
                     .collect();
                 layer.backward(inputs, &error, learning_rate)
             }
-            NeuralNetwork::Next(layer, next) => {
+            Network::Next(layer, next) => {
                 let error = next.backward(&layer.outputs, target, learning_rate);
                 layer.backward(inputs, &error, learning_rate)
             }
