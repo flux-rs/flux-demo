@@ -12,12 +12,13 @@ incremental = true
 enabled = true
 
 [dependencies]
-# flux-rs = { git = "https://github.com/flux-rs/flux" }
-# flux-core = { git = "https://github.com/flux-rs/flux" }
-# flux-alloc = { git = "https://github.com/flux-rs/flux" }
-flux-rs = { path = "/Users/rjhala/research/flux/lib/flux-rs" }
-flux-core = { path = "/Users/rjhala/research/flux/lib/flux-core" }
-flux-alloc = { path = "/Users/rjhala/research/flux/lib/flux-alloc" }
+flux-rs = { git = "https://github.com/flux-rs/flux" }
+flux-core = { git = "https://github.com/flux-rs/flux" }
+flux-alloc = { git = "https://github.com/flux-rs/flux" }
+# flux-rs = { path = "/Users/petros/Documents/UCSD/Work/flux/lib/flux-rs" }
+# flux-core = { path = "/Users/petros/Documents/UCSD/Work/flux/lib/flux-core" }
+# flux-alloc = { path = "/Users/petros/Documents/UCSD/Work/flux/lib/flux-alloc" }
+external_proofs = { path = "./external_proofs" }
 rand = "0.8"
 im = "15.1.0"
 
