@@ -7,9 +7,6 @@ edition = "2024"
 enabled = true
 
 [dependencies]
-# flux-rs = { path = "/Users/petros/Documents/UCSD/Work/flux/lib/flux-rs" }
-# flux-core = { path = "/Users/petros/Documents/UCSD/Work/flux/lib/flux-core" }
-# flux-alloc = { path = "/Users/petros/Documents/UCSD/Work/flux/lib/flux-alloc" }
 flux-rs = { git = "https://github.com/flux-rs/flux" }
 flux-core = { git = "https://github.com/flux-rs/flux" }
 flux-alloc = { git = "https://github.com/flux-rs/flux" }
