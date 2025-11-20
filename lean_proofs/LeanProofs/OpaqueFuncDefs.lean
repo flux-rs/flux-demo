@@ -7,6 +7,7 @@ class FluxOpaqueFuncs where
   svec_empty_seq : {t0 : Type} -> [Inhabited t0] -> (SmtMap Int t0)
   svec_svec_append : {t0 : Type} -> [Inhabited t0] -> ((Adt0 t0) -> ((Adt0 t0) -> (Adt0 t0)))
   svec_svec_slice : {t0 : Type} -> [Inhabited t0] -> ((Adt0 t0) -> (Int -> (Int -> (Adt0 t0))))
+  svec_is_sorted : ((Adt0 Int) -> Prop)
   svec2_vseq_empty : {t0 : Type} -> [Inhabited t0] -> (VSeq t0)
   svec2_vseq_push : {t0 : Type} -> [Inhabited t0] -> ((VSeq t0) -> (t0 -> (VSeq t0)))
   svec2_vseq_pop : {t0 : Type} -> [Inhabited t0] -> ((VSeq t0) -> (VSeq t0))

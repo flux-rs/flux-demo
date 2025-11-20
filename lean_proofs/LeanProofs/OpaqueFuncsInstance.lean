@@ -10,6 +10,7 @@ instance : FluxOpaqueFuncs where
   svec_empty_seq { t0 : Type } [Inhabited t0] := fun _ => default
   svec_svec_append := map_append
   svec_svec_slice := map_slice
+  svec_is_sorted (v : Adt0 Int) := ∀ i j : Int, (h1 : 0 ≤ i ∧ i < v.fld0_1) → (h2 : i ≤ j ∧ j < v.fld0_1) → v.fld0_0 i ≤ v.fld0_0 j
   svec2_vseq_empty := []
   svec2_vseq_get := fun l pos => l.getD (List.length l - pos - 1).natAbs default
   svec2_vseq_push := flip List.cons
