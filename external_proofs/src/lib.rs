@@ -4,6 +4,7 @@ extern crate flux_core;
 mod svec;
 mod svec2;
 mod ghost_index;
+mod fib;
 
 use svec::{SVec as MVec};
 use svec2::SVec;

@@ -12,3 +12,4 @@ def svec2_vseq_pop : {t0 : Type} -> [Inhabited t0] -> ((VSeq t0) -> (VSeq t0)) :
 def svec2_vseq_get : {t0 : Type} -> [Inhabited t0] -> ((VSeq t0) -> (Int -> t0)) := fluxOpaqueFuncs.svec2_vseq_get
 def svec2_vseq_set : {t0 : Type} -> [Inhabited t0] -> ((VSeq t0) -> (Int -> (t0 -> (VSeq t0)))) := fluxOpaqueFuncs.svec2_vseq_set
 def svec2_vseq_len : {t0 : Type} -> [Inhabited t0] -> ((VSeq t0) -> Int) := fluxOpaqueFuncs.svec2_vseq_len
+def fib_fib : (Int -> Int) := fluxOpaqueFuncs.fib_fib

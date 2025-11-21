@@ -13,3 +13,4 @@ class FluxOpaqueFuncs where
   svec2_vseq_get : {t0 : Type} -> [Inhabited t0] -> ((VSeq t0) -> (Int -> t0))
   svec2_vseq_set : {t0 : Type} -> [Inhabited t0] -> ((VSeq t0) -> (Int -> (t0 -> (VSeq t0))))
   svec2_vseq_len : {t0 : Type} -> [Inhabited t0] -> ((VSeq t0) -> Int)
+  fib_fib : (Int -> Int)
