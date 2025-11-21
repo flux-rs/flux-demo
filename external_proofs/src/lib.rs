@@ -151,110 +151,29 @@ where T : Clone {
 }
 
 #[proven_externally]
-#[sig(fn(&MVec<i32>[@v], l: usize{ l <= v.len }, r: usize{ l <= r && r <= v.len }) 
-    requires is_sorted(v) 
-    ensures is_sorted(svec_slice(v, l, r))
-)]
-fn lemma_sorted_slice(_v: &MVec<i32>, _l: usize, _r: usize) {}
-
-#[proven_externally]
-#[sig(fn(&MVec<i32>[@v], i32[@e]) 
-    requires is_sorted(v) && e > map_select(v.elems, (v.len - 1)) 
-    ensures is_sorted(MVec { elems: map_store(v.elems, v.len, e), len: v.len + 1 })
-)]
-fn lemma_sorted_push(_v: &MVec<i32>, _e: i32) {}
-
-#[proven_externally]
-#[sig(fn(&MVec<i32>[@v], i32[@e]) 
-    requires v.len == 0 
-    ensures is_sorted(MVec{ elems: map_store(v.elems, 0, e), len: 1 })
-)]
-fn lemma_empty_push_sorted(_v: &MVec<i32>, _e: i32) {}
-
-
-#[proven_externally]
-#[sig(fn(&MVec<i32>[@v1], &MVec<i32>[@v2]) 
-    requires is_sorted(v1) && is_sorted(v2) && v1.len > 0 && v2.len > 0 && map_select(v1.elems, v1.len - 1) <= map_select(v2.elems, 0) 
-    ensures is_sorted(svec_append(v1, v2))
-)]
-fn lemma_sorted_append(_v1: &MVec<i32>, _v2: &MVec<i32>) {}
-
-#[proven_externally]
-#[sig(fn(&MVec<i32>[@v], l: usize{ l <= v.len }, r: usize{ l <= r && r <= v.len }, i: usize{ i < r - l }) 
-    ensures map_select(svec_slice(v, l, r).elems, i) == map_select(v.elems, l + i)
-)]
-fn lemma_slice_get(_v: &MVec<i32>, _l: usize, _r: usize, _i: usize) {}
-
-#[sig(fn(vec: &strg MVec<i32>[@v], i32[@e], i: usize{ i < v.len }) 
-    requires is_sorted(v) && (i == 0 || e > map_select(v.elems, i - 1)) 
-    ensures vec: MVec<i32>{ v : is_sorted(v) }
-)]
-fn insert_sorted_help(v: &mut MVec<i32>, e: i32, i: usize) {
-
-    lemma_sorted_slice(&v, i, v.len());
-    lemma_slice_get(&v, i, v.len(), 0);
-    lemma_svec_slice_len_eq(&v, i, v.len());
-    lemma_sorted_slice(&v, 0, i);
-
-    if e <= *v.get(i) && i == 0 {
-        let rhalf = slice(&v, i, v.len());
-        *v = MVec::new();
-        lemma_empty_push_sorted(&v, e);
-        v.push(e);
-        lemma_sorted_append(&v, &rhalf);
-        append(v, &rhalf);
-        return;
-    }
-
-    if e <= *v.get(i) {
-        lemma_slice_get(&v, 0, i, i - 1);
-        lemma_svec_slice_len_eq(&v, 0, i);
-        let rhalf = slice(&v, i, v.len());
-        *v = slice(&v, 0, i);
-        lemma_sorted_push(&v, e);
-        v.push(e);
-        lemma_sorted_append(&v, &rhalf);
-        append(v, &rhalf);
-        return;
-    }
-    
-    if i + 1 < v.len() {
-        insert_sorted_help(v, e, i + 1);
-        return;
-    }
-
-    lemma_sorted_push(v, e);
-    v.push(e);
-}
-
-#[sig(fn(vec: &strg MVec<i32>[@v], i32[@e]) requires is_sorted(v) ensures vec: MVec<i32>{ v : is_sorted(v) })]
+#[sig(fn(v: &mut MVec<i32>[@s], i32[@e]) requires is_sorted(s) ensures v: MVec<i32>{ v: is_sorted(v) })]
 fn insert_sorted(v: &mut MVec<i32>, e: i32) {
-    if v.len() == 0 {
-        lemma_empty_push_sorted(&v, e);
+    let mut i = 0;
+    while i < v.len() && e > *v.get(i) {
+        i += 1;
+    }
+
+    if i == v.len() {
         v.push(e);
     } else {
-        insert_sorted_help(v, e, 0);
+        insert(v, i, e);
     }
 }
 
-#[trusted]
-#[sig(fn(&MVec<i32>[@v]) requires v.len == 0 ensures is_sorted(v))]
-fn empty_sorted(_v: &MVec<i32>) {}
-
-
-#[sig(fn(res: &mut MVec<i32>[@r], &MVec<i32>[@v], idx: usize{ idx < v.len }) requires is_sorted(r) ensures res: MVec<i32> { v : is_sorted(v) })]
-fn insertion_sort_help(res: &mut MVec<i32>, v: &MVec<i32>, idx: usize) {
-    insert_sorted(res, *v.get(idx));
-    if idx + 1 < v.len() {
-        insertion_sort_help(res, v, idx + 1);
-    }
-}
-
-#[sig(fn(&MVec<i32>[@v]) -> MVec<i32>{ v: is_sorted(v) } requires v.len > 0 )]
+#[proven_externally]
+#[sig(fn(&MVec<i32>[@v]) -> MVec<i32>{ v : is_sorted(v) })]
 fn sorted(v: &MVec<i32>) -> MVec<i32> {
     let mut res: MVec<i32> = MVec::new();
-    empty_sorted(&res);
-    insertion_sort_help(&mut res, v, 0);
+    let mut i = 0;
+    while i < v.len() {
+        insert_sorted(&mut res, *v.get(i));
+        i += 1;
+    }
     res
 }
 
