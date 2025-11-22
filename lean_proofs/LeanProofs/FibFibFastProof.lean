@@ -14,35 +14,20 @@ def fib_fib_fast_proof : fib_fib_fast := by
   intro n ; intros
   and_intros
   · intros
+    unfold k0 k1 k2 at *;
     and_intros
-    · intros idx idx_eq prev prev_eq curr curr_eq
+    · intros
+      and_intros <;>
+        grind [fib_fib_eq, fib_rec]
+    · intro idx ; intros
       and_intros
-      · omega
-      · omega
-      · simp [fib_fib_eq]
-        unfold fib_rec fib_rec
-        simp [idx_eq] ; assumption
-      · simp [fib_fib_eq]
-        unfold fib_rec fib_rec
-        simp [idx_eq] ; assumption
-      · trivial
-      · trivial
-    · intros idx prev curr _ ks_hold
-      unfold k0 at ks_hold ; have k0_holds := ks_hold.left ; clear ks_hold
-      and_intros
-      · intros _ idx_ge_n
+      · intros
         have idx_eq_n : idx = n := by omega
         rw [←idx_eq_n]
         omega
       · intros _ idx_lt_n next_idx next_idx_eq next_fib next_fib_eq
-        and_intros
-        · omega
-        · omega
-        · rw [next_fib_eq, next_idx_eq]
-          simp [k0_holds, fib_fib_eq]
-          conv => rhs; unfold fib_rec
-          grind
-        · simp [next_idx_eq, k0_holds]
-        · trivial
-        · trivial
-  · intros ; simp [fib_fib_eq] ; unfold fib_rec ; grind
+        rw [next_fib_eq, next_idx_eq]
+        simp [fib_fib_eq, *]
+        conv => rhs ; rhs ; rhs ; unfold fib_rec
+        and_intros <;> grind
+  · intros ; grind [fib_fib_eq, fib_rec]
