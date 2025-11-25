@@ -18,8 +18,5 @@ def fib_fib_slow_proof : fib_fib_slow := by
         have h : ¬ n.natAbs ≤ 1 := by omega
         simp [h]
         grind
-  · intros _ n_le_1
-    simp [fib_fib_eq]
-    unfold fib_rec
-    have h : n.natAbs ≤ 1 := by omega
-    simp [h]
+  · intros
+    grind [fib_fib_eq, fib_rec]
