@@ -2,6 +2,9 @@ import LeanProofs.Lib
 import LeanProofs.InPlaceInsertionSortInsertSorted
 import LeanProofs.SharedTheorems
 
+
+
+
 theorem slice_slice (v1 : Adt0 Int) (l r l' r' : Int) (h1 : l ≤ l') (h2: r' ≤ r) : svec_svec_slice v1 l' r' = svec_svec_slice (svec_svec_slice v1 l r) l' r' := by
   sorry
 
@@ -49,6 +52,18 @@ theorem slice_sorted (v1 : Adt0 Int) (l r : Int) (h1 : l ≥ 0 ∧ l ≤ v1.fld0
 
 theorem sorted_set_slice (v : Adt0 Int) (right idx elem : Int) (h1 : svec_is_sorted (svec_svec_slice v 0 right)) (h2: (idx = 0 ∨ elem ≥ v.fld0_0 (idx - 1)) ∧ (elem ≤ v.fld0_0 idx ∨ idx = right)) : svec_is_sorted (svec_svec_slice (Adt0.mkadt0_0 (SmtMap_store v.fld0_0 idx elem) v.fld0_1) 0 right) := by
   sorry
+
+theorem eq_append (v1 v2 v3 : Adt0 Int) { l2 l3 : Int} { h1 : l2 = v2.fld0_1 } { h2 : l3 = v3.fld0_1 } : v2 = svec_svec_slice v1 0 l2 → v3 = svec_svec_slice v1 l2 (l2 + l3) → l2 + l3 = v1.fld0_1 → v1 = svec_svec_append v2 v3 := by
+  sorry
+
+theorem sorted_subslice (v : Adt0 Int) (r : Int) : svec_is_sorted (svec_svec_slice v 0 r) → v.fld0_0 r ≥ v.fld0_0 (r - 1) → svec_is_sorted (svec_svec_slice v 0 (r + 1)) := by
+  sorry
+
+theorem slice_append_left (v1 v2 v3 v4 : Adt0 Int) { l r : Int } : v1 = svec_svec_append v2 v3 → v4 = svec_svec_slice v2 l r → v4 = svec_svec_slice v1 l r := by
+  sorry
+
+theorem helper {f1 f2 : Int -> Int} (x : Int) (h : f1 = f2) : f1 x = f2 x :=
+  by grind
 
 -- loop invariant
 def k0 : SmtMap Int Int → Int → Int → SmtMap Int Int → Int → Int → Int → Prop :=
@@ -178,75 +193,75 @@ def in_place_insertion_sort_insert_sorted_proof : in_place_insertion_sort_insert
                       · omega
                       · simp [svec_slice_eq, map_slice] ; omega
                 · right
-                  and_intros
-                  · simp [next_i_eq, k0] at * ; omega
-                  · unfold k0 at *
-                    by_cases i_eq0 : i = 0
-                    · simp [next_i_eq, i_eq0, svec_slice_eq, map_slice, svec_append_eq, map_append]
-                      and_intros
-                      · funext x
-                        by_cases x_lt_0 : x < 0
-                        · simp [x_lt_0] ; intros ; exfalso ; omega
-                        · by_cases x_lt_ssb : x < sorted_bound + 1
-                          · have tmp1 : 0 ≤ x := by omega
-                            have tmp2 : ¬ sorted_bound < 0 := by omega
-                            have tmp3 : ¬ sorted_bound - (sorted_bound - 1) < 0 := by omega
-                            have tmp4 :  x < sorted_bound + (sorted_bound - (sorted_bound - 1)) := by omega
-                            simp [*]
-                            by_cases x_eq_sb : x = sorted_bound
-                            · have tmp5 : ¬ x < sorted_bound := by omega
-                              have tmp6 : sorted_bound - 1 < sorted_bound := by omega
-                              have tmp7 : ¬ sorted_bound + 1 - sorted_bound < 0 := by omega
-                              have tmp8 : sorted_bound < sorted_bound + (sorted_bound + 1 - sorted_bound) := by omega
-                              simp [SmtMap_select, SmtMap_store, *] at *
-                              rw [ks_hold.left.right.right.right.left]
-                            · have tmp5 : x < sorted_bound := by omega
-                              simp [SmtMap_store, *] at *
-                              rw [ks_hold.left.right.right.right.left]
-                          · have tmp1 : ¬ sorted_bound < 0 := by omega
-                            have tmp2 : ¬ x < sorted_bound := by omega
-                            have tmp3 : ¬ sorted_bound - (sorted_bound - 1) < 0 := by omega
-                            simp [*]
-                            intros ; exfalso ; omega
-                      · grind
-                    · simp [next_i_eq, svec_slice_eq, map_slice, svec_append_eq, map_append]
-                      and_intros
-                      · funext x
-                        by_cases x_lt_0 : x < 0
-                        · simp [*] ; intros ; exfalso ; omega
-                        · by_cases x_lt_ssb : x < sorted_bound + 1
-                          · have tmp1 : 0 ≤ x := by omega
-                            have tmp2 : ¬ sorted_bound - (i + 1) + 1 < 0 := by omega
-                            have tmp3 : ¬ sorted_bound - (sorted_bound - (i + 1)) < 0 := by omega
-                            by_cases x_lt_sb_sub_i : x < sorted_bound - i
-                            · have tmp4 : x < sorted_bound - (i + 1) + 1 := by omega
-                              simp [SmtMap_store, SmtMap_select, *] at *
-                              sorry
-                            · have tmp4 : ¬ x < sorted_bound - (i + 1) + 1 := by omega
-                              have tmp5 : x < sorted_bound - (i + 1) + 1 + (sorted_bound - (sorted_bound - (i + 1))) := by omega
-                              have tmp6 : sorted_bound - (i + 1) + 1 ≤ x ∧ x - (sorted_bound - (i + 1) + 1) < sorted_bound - (sorted_bound - (i + 1)) := by omega
-                              simp [*]
-                              simp [SmtMap_store, SmtMap_select]
-                              by_cases x_eq_sb_sub_i : x = sorted_bound - i
-                              · have tmp7 : ¬ x - (sorted_bound - (i + 1) + 1) + (sorted_bound - (i + 1)) = sorted_bound - i := by omega
-                                simp [*]
-                                grind
-                              · simp [x_eq_sb_sub_i]
-                                intros ; exfalso ; omega
-                          · have tmp1 : ¬ sorted_bound - (i + 1) + 1 < 0 := by omega
-                            have tmp2 : ¬ x < sorted_bound - (i + 1) + 1  := by omega
-                            have tmp3 : ¬ sorted_bound - (sorted_bound - (i + 1)) < 0 := by omega
-                            simp [*]
-                      · have tmp1 : ¬ sorted_bound + 1 < 0 := by omega
-                        have tmp2 : ¬ sorted_bound - (i + 1) + 1 < 0 := by omega
-                        have tmp3 : ¬ sorted_bound - (sorted_bound - (i + 1)) < 0 := by omega
-                        simp [*]
+                  simp ; and_intros
+                  · simp [k0, next_i_eq] at * ; omega
+                  · simp [ps_dup_eq]
+                    apply eq_append
+                    · simp [svec_slice_eq, map_slice]
+                      have tmp : ¬ sorted_bound - next_i + 1 < 0 := by omega
+                      simp [tmp]
+                      rfl
+                    · simp [svec_slice_eq, map_slice]
+                      have tmp : ¬  (sorted_bound - (sorted_bound - next_i) < 0) := by
+                        simp [k0, next_i_eq] at *
                         omega
-                  · simp [ps_dup_eq, next_i_eq, SmtMap_store, SmtMap_select] at *
+                      simp [tmp]
+                      rfl
+                    · rw [←slice_slice]
+                      · simp [svec_slice_eq, map_slice, SmtMap_store, SmtMap_select, k0, *] at *
+                        funext x
+                        by_cases x_in_bounds : 0 ≤ x ∧ x < sorted_bound - (i + 1) + 1
+                        · simp [x_in_bounds]
+                          have tmp : ¬ x = sorted_bound - i := by omega
+                          simp [tmp]
+                          by_cases i_eq_0 : i = 0
+                          · grind
+                          · simp [*] at *
+                            have h := ks_hold.left.right.right.right.right.right.left
+                            simp [svec_append_eq, map_append] at h
+                            have ⟨h_elems, h_lens⟩ := h
+                            have tmp := helper x h_elems
+                            grind
+                        · omega
+                      · omega
+                      · simp [next_i_eq, k0] at * ; omega
+                    · rw [←slice_slice]
+                      · simp [svec_slice_eq, map_slice, SmtMap_store, SmtMap_select, k0, *] at *
+                        and_intros
+                        · funext x
+                          by_cases x_in_bounds : 0 ≤ x ∧ x < sorted_bound - (sorted_bound - (i + 1))
+                          · have tmp1 : x < sorted_bound - (i + 1) + 1 + (sorted_bound - (sorted_bound - (i + 1))) - (sorted_bound - (i + 1) + 1) := by omega
+                            simp [x_in_bounds, tmp1]
+                            by_cases i_eq_0 : i = 0
+                            · grind
+                            · by_cases x_eq_0 : x = 0
+                              · have tmp : (sorted_bound - (i + 1) + 1) = sorted_bound - i := by omega
+                                simp [x_eq_0, tmp]
+                                simp [*] at *
+                                have h := ks_hold.left.right.right.right.right.right.left
+                                simp [svec_append_eq, map_append] at h
+                                have ⟨h_elems, h_lens⟩ := h
+                                have tmp := helper (sorted_bound - (i + 1)) h_elems
+                                grind
+                              · have tmp : ¬ x + (sorted_bound - (i + 1) + 1) = sorted_bound - i := by omega
+                                simp [tmp]
+                                simp [*] at *
+                                have h := ks_hold.left.right.right.right.right.right.left
+                                simp [svec_append_eq, map_append] at h
+                                have ⟨h_elems, h_lens⟩ := h
+                                have tmp := helper ((x + (sorted_bound - (i + 1) + 1))) h_elems
+                                grind
+                          · omega
+                        · omega
+                      · simp [next_i_eq, k0] at * ; omega
+                      · simp [next_i_eq, k0] at * ; omega
+                    · simp [svec_slice_eq, map_slice, next_i_eq, k0] at *
+                      omega
+                  · simp [*, SmtMap_select, SmtMap_store] at *
                     grind
                 · trivial
                 · trivial
-              · intros a72 v1_elems v1_elems_eq v1_len v1_len_eq ps_elems ps_elems_eq ps_len ps_len_eq _ k7_holds ps_dup ps_dup_eq ps_dup_len ps_dup_len_eq next_i next_i_eq v1_elems v1_elems_eq v1_len v1_len_eq
+              · intros --a72 v1_elems v1_elems_eq v1_len v1_len_eq ps_elems ps_elems_eq ps_len ps_len_eq _ k7_holds ps_dup ps_dup_eq ps_dup_len ps_dup_len_eq next_i next_i_eq v1_elems v1_elems_eq v1_len v1_len_eq
                 trivial
     · intros v1_elems v1_elems_eq v1_len v1_len_eq ps_elems ps_elems_eq ps_len ps_len_eq _ k4_holds
       and_intros
@@ -255,112 +270,29 @@ def in_place_insertion_sort_insert_sorted_proof : in_place_insertion_sort_insert
       · unfold k0 at * ; omega
       · intros _ h_ps_with_elem _ ps_len_lb
         and_intros
-        · unfold k0 k4 at *
-          cases k4_holds
-          case inl i_eq_sorted_bound =>
-            have i_ne_0 : ¬ i = 0 := by omega
-            simp [i_eq_sorted_bound]
-            apply sorted_set_slice
-            · simp [*] at *
-              have tmp : svec_is_sorted (svec_svec_slice { fld0_0 := ps.fld0_0, fld0_1 := ps.fld0_1 } 0 (sorted_bound + 1)) := by
-                cases ks_hold.left.right.right.right
-                case inl _ => exfalso ; omega
-                case inr sorted =>
-                  rw [sorted.right.left]
-                  apply append_sorted
-                  · rw [slice_slice ps 0 sorted_bound 0 1]
-                    apply slice_sorted
-                    and_intros
-                    · omega
-                    · simp [svec_slice_eq, map_slice] ; omega
-                    · omega
-                    · simp [svec_slice_eq, map_slice] ; omega
-                    · exact ks_hold.left.right.right.left
-                    · omega
-                    · omega
-                  ·
-                  · right ; right
-                    and_intros
-                    · simp [svec_slice_eq, map_slice]
-                    · simp [svec_slice_eq, map_slice]; omega
-                    · simp [svec_slice_eq, map_slice]
-                      have tmp : 0 < sorted_bound := by omega
-                      simp [tmp]
-                      sorry
-              assumption
-            · and_intros
-              · left ; rfl
-              · left ; simp [*] at * ; omega
-          case inr elem_ge_ps_at_idx =>
+        · apply sorted_set_slice
+          · simp [k0, k4, *] at *
             by_cases i_eq_0 : i = 0
-            · rw [i_eq_0]
-              simp [svec_is_sorted_eq, svec_slice_eq, map_slice, SmtMap_store, *] at *
-              intros i' j' i_lb i_ub j_lb j_ub
-              have tmp1 : ¬ sorted_bound + 1 < 0 := by omega
-              have tmp2 : 0 ≤ j' := by omega
-              simp [tmp1] at * ; simp [i_lb, i_ub, j_ub, tmp2]
-              have ps_sorted_to_sb := ks_hold.left.right.right.left
-              by_cases i'_eq_sb : i' = sorted_bound
-              · simp [*, SmtMap_select] ; grind
-              · simp [*, SmtMap_select]
-                by_cases j'_eq_sb : j' = sorted_bound
-                · simp [j'_eq_sb]
-                  apply Int.le_trans
-                  · have ps_sorted_to_sb_inst := ps_sorted_to_sb i' (sorted_bound - 1)
-                    have tmp1 : ¬ sorted_bound < 0 := by omega
-                    have tmp2 : 0 ≤ i' ∧ i' < sorted_bound := by omega
-                    have tmp3 : 1 ≤ sorted_bound ∧ sorted_bound - 1 < sorted_bound := by omega
-                    simp [tmp1, tmp2, tmp3] at ps_sorted_to_sb_inst
-                    apply ps_sorted_to_sb_inst
-                    omega
-                  · simp [SmtMap_select] at elem_ge_ps_at_idx
-                    exact elem_ge_ps_at_idx
-                · have ps_sorted_to_sb_inst := ps_sorted_to_sb i' j'
-                  have tmp1 : ¬ sorted_bound < 0 := by omega
-                  have tmp2 : 0 ≤ i' ∧ i' < sorted_bound := by omega
-                  have tmp3 : 0 ≤ j' ∧ j' < sorted_bound := by omega
-                  simp [tmp1, tmp2, tmp3] at ps_sorted_to_sb_inst
-                  simp [j'_eq_sb]
-                  grind
-            · sorry
-            -- · apply sorted_set_slice
-            --   · simp [*] at *
-            --     rw [ks_hold.left.right.right.right.right.right.left]
-            --     apply append_sorted
-            --     · rw [slice_slice ps 0 sorted_bound 0 (sorted_bound - i + 1)]
-            --       · apply slice_sorted
-            --         · simp [svec_slice_eq, map_slice] ; omega
-            --         · simp [svec_slice_eq, map_slice] ; omega
-            --         · exact ks_hold.left.right.right.right.right.left
-            --       · omega
-            --       · omega
-            --     ·
-            --     · by_cases i_lt_ssb : i < sorted_bound + 1
-            --       · right ; right
-            --         and_intros
-            --         · simp [svec_slice_eq, map_slice] ; omega
-            --         · simp [svec_slice_eq, map_slice] ; omega
-            --         · simp [svec_slice_eq, map_slice]
-            --           have tmp' : ¬ sorted_bound - i + 1 < 0 := by omega
-            --           have tmp'2 : (1 ≤ sorted_bound - i + 1 ∧ sorted_bound - i < sorted_bound - i + 1) := by omega
-            --           have tmp'3 : sorted_bound - i < sorted_bound := by omega
-            --           simp [tmp', tmp'2, tmp'3, SmtMap_select] at *
-            --           have ps_sorted_up_to_sb := ks_hold.left.right.right.right.right.left
-            --           have ps_sorted_inst := ps_sorted_up_to_sb (sorted_bound - i) (sorted_bound - i + 1)
-            --           have tmp'4 : ¬ sorted_bound < 0 := by omega
-            --           have tmp'5 : i ≤ sorted_bound ∧ sorted_bound - i < sorted_bound := by omega
-            --           simp [svec_slice_eq, map_slice, tmp'4, tmp'5] at ps_sorted_inst
-            --           sorry
-            --       · left ; simp [svec_slice_eq, map_slice] ; omega
-            --   · and_intros
-            --     · simp [ps_elems_eq] at *
-            --       grind
-            --     · have tmp : elem < ps.fld0_0 (sorted_bound - i) := by
-            --         cases ks_hold.left.right.right.right.right.right.right
-            --         case inl _ => exfalso ; omega
-            --         case inr a =>
-            --           have a' := a.right.right
-            --           conv at a' => rhs ; simp [*]
-            --           assumption
-            --       omega
+            · apply sorted_subslice <;> simp [*] at * ; grind
+            · simp [*] at *
+              rw [ks_hold.left.right.right.right.right.right.left]
+              apply append_sorted
+              · have tmp : svec_svec_slice { fld0_0 := v1.fld0_0, fld0_1 := v1.fld0_1 } 0 (sorted_bound - i + 1) = svec_svec_slice ps 0 (sorted_bound - i + 1) := by
+                  conv =>
+                    rhs
+                    rw [slice_slice ps 0 (sorted_bound + 1) 0 (sorted_bound - i + 1) (by omega) (by omega)]
+                  apply slice_append_left
+                  · exact ks_hold.left.right.right.right.right.right.left
+                  · apply slice_slice <;> omega
+                rw [tmp, slice_slice ps 0 sorted_bound 0 (sorted_bound - i + 1) (by omega) (by omega)]
+                apply slice_sorted
+                · simp [svec_slice_eq, map_slice] ; omega
+                · simp [svec_slice_eq, map_slice] ; omega
+                · exact ks_hold.left.right.right.right.right.left
+              · sorry
+              · right ; right
+                and_intros <;>
+                  (simp [svec_slice_eq, map_slice] at * ; grind)
+          · simp [k0, k4, *] at *
+            grind
         · unfold k0 at * ; omega
