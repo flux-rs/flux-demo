@@ -22,10 +22,7 @@ theorem small_sorted (v : Adt0 Int) (h : 0 ≤ v.fld0_1 ∧ v.fld0_1 ≤ 1) : sv
 
 def in_place_insertion_sort_in_place_insertion_sort_proof : in_place_insertion_sort_in_place_insertion_sort := by
   unfold in_place_insertion_sort_in_place_insertion_sort
-  exists k0
-  exists k1
-  exists k2
-  exists k3
+  exists k0, k1, k2, k3
   unfold k0 k1 k2 k3 at *
   intros
   and_intros
@@ -40,32 +37,28 @@ def in_place_insertion_sort_in_place_insertion_sort_proof : in_place_insertion_s
       and_intros
       · intros _ idx_ge_ps_len
         have idx_eq : idx = ps.fld0_1 := by omega
-        simp [idx_eq, svec_slice_eq, svec_is_sorted_eq, map_slice] at *
         have tmp1 : ¬ ps.fld0_1 < 0 := by omega
-        simp [tmp1] at ks
-        intros i j _ _ _ _
-        have tmp2 := ks.right.right i j
-        have tmp3 : 0 ≤ i ∧ i < ps.fld0_1 := by omega
-        have tmp4 : 0 ≤ j ∧ j < ps.fld0_1 := by omega
-        simp [tmp3, tmp4, ps_elems_eq] at tmp2
+        simp [idx_eq, svec_slice_eq, svec_is_sorted_eq, map_slice, tmp1] at *
+        have tmp3 : 0 ≤ (0:Int) ∧ (0:Int) < ps.fld0_1 := by omega
+        have tmp4 : (0:Int) ≤ (0:Int) ∧ (0:Int) < ps.fld0_1 := by omega
+        simp [tmp3, tmp4, ps_elems_eq] at *
         grind
       · intros _ idx_lt_ps_len
         and_intros
         · omega
-        · intros ; trivial
+        · intros; trivial
         · intros
           and_intros
           · simp [*] at *
             exact ks.right.right
           · omega
           · intros next_vec _ next_vec_sorted _ h_next_vec _ next_vec_len_lb next_vec_elems next_vec_elems_eq next_vec_len next_vec_len_eq next_idx next_idx_eq v_elems v_elems_eq v_len v_len_eq
-            and_intros <;> try grind
             have tmp1 : ¬ next_idx < 0 := by omega
             simp [svec_is_sorted_eq, svec_slice_eq, map_slice, tmp1] at *
+            and_intros <;> try grind
             intros i j _ _ _ _
             have tmp2 : 0 ≤ i ∧ i < next_idx := by omega
             have tmp3 : 0 ≤ j ∧ j < next_idx := by omega
-            have tmp4 := next_vec_sorted.left i j
             have tmp5 : ¬ idx + 1 < 0 := by omega
             have tmp6 : i < idx + 1 := by omega
             have tmp7 : j < idx + 1 := by omega
