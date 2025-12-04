@@ -73,17 +73,14 @@ impl PartialEq for Role {
 }
 
 fn test_role_eq() {
-  let admin = Role::Admin;
-  let member = Role::Member;
-  assert(admin == admin);
-  assert(admin != member);
-  assert(member == member);
+  assert(Role::Admin == Role::Admin);
+  assert(Role::Admin != Role::Member);
+  assert(Role::Member == Role::Member);
 }
 
 #[spec(fn(&Role[@r]) -> bool[r == Role::Admin])]
 fn is_admin_eq(r: &Role) -> bool {
-    let admin = Role::Admin; // const-promotion
-    *r == admin
+    *r == Role::Admin
 }
 
 #[spec(fn(&Role[@r]) -> bool[r == Role::Admin])]
