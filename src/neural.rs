@@ -1,7 +1,7 @@
 use crate::rvec::{self, AsRVec as _, RVec, rvec};
 use flux_rs::assert;
 use flux_rs::attrs::*;
-use flux_rs::detached_spec;
+use flux_rs::macros::detached_spec;
 use rand::{Rng, rngs::ThreadRng};
 
 fn test() {
@@ -12,103 +12,6 @@ fn sigmoid(x: f64) -> f64 {
     1.0 / (1.0 + (-x).exp())
 }
 
-mod add {
-    use flux_rs::attrs::*;
-
-
-
-
-
-
-
-
-    #[spec(fn (n:usize) -> usize[5])]
-    pub fn test_kvar_solution_demo(n: usize) -> usize {
-        let pano = 12;
-        let mut res = 0;
-        let mut i = 0;
-        while i < n {
-            i += 1;
-            res += 1;
-        }
-        return res;
-    }
-
-
-
-
-
-
-
-
-
-    #[spec(fn(lo: usize, hi:usize{lo<=hi}) -> Vec<usize{v:lo<=v && v<hi}>[hi-lo] )]
-    pub fn range(lo: usize, hi: usize) -> Vec<usize> {
-        let mut i = lo;
-        let mut res = Vec::new();
-        while i < hi {
-            res.push(i);
-            i += 1;
-        }
-        res
-    }
-
-    // 1. plain while loop
-    #[spec(fn(&[f64][@n], &[f64][n]) -> Vec<f64>[n])]
-    fn add_while(a: &[f64], b: &[f64]) -> Vec<f64> {
-        let mut res = Vec::new();
-        let mut i = 0;
-        while i < a.len() {
-            res.push(a[i] + b[i]);
-            i += 1;
-        }
-        res
-    }
-
-    // 2. while-with-range
-    #[spec(fn(&[f64][@n], &[f64][n]) -> Vec<f64>[n])]
-    fn add_range(a: &[f64], b: &[f64]) -> Vec<f64> {
-        let mut res = Vec::new();
-        let rng = 0..a.len();
-        let mut it = rng.into_iter();
-        while let Some(i) = it.next() {
-            res.push(a[i] + b[i]);
-        }
-        res
-    }
-
-    // 3. for-with-range
-    #[spec(fn(&[f64][@n], &[f64][n]) -> Vec<f64>[n])]
-    fn add_for(a: &[f64], b: &[f64]) -> Vec<f64> {
-        let mut res = Vec::new();
-        for i in 0..a.len() {
-            res.push(a[i] + b[i]);
-        }
-        res
-    }
-
-    // 4. for-loop with enumerate
-    #[spec(fn(&[f64][@n], &[f64][n]) -> Vec<f64>[n])]
-    fn add_enumerate(a: &[f64], b: &[f64]) -> Vec<f64> {
-        let mut res = Vec::new();
-        for (i, vi) in a.iter().enumerate() {
-            res.push(vi + b[i]);
-        }
-        res
-    }
-    // 5. map with closure
-    #[spec(fn(&[f64][@n], &[f64][n]) -> Vec<f64>[n])]
-    fn add_map(a: &[f64], b: &[f64]) -> Vec<f64> {
-        (0..a.len()).map(|i| (a[i] + b[i])).collect()
-    }
-    // // 5. foreach with closure
-    // #[spec(fn(&[f64][@n], &[f64][n]) -> Vec<f64>[n])]
-    // fn add_foreach(a: &[f64], b: &[f64]) -> Vec<f64> {
-    //     let mut res = Vec::new();
-    //     (0..a.len()).for_each(|i| res.push(a[i] + b[i]));
-    //     res
-    // }
-}
 
 mod dot {
     use flux_rs::attrs::*;

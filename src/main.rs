@@ -9,7 +9,7 @@ flux_rs::defs! {
 
 extern crate flux_alloc;
 extern crate flux_core;
-
+pub mod loops;
 pub mod table;
 pub mod eval;
 pub mod chapter8;
