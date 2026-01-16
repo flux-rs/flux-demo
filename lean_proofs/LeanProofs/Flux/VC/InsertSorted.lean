@@ -22,7 +22,7 @@ open InsertSortedKVarSolutions
 
 
 
-def InsertSorted := ∃ k0 : (a0 : Int) -> (a1 : (SmtMap Int Int)) -> (a2 : Int) -> (a3 : Int) -> Prop, ∃ k1 : (a0 : (SvecSVec Int)) -> (a1 : Int) -> (a2 : Int) -> (a3 : (SmtMap Int Int)) -> (a4 : Int) -> (a5 : Int) -> (a6 : Int) -> Prop, ∃ k2 : (a0 : (SvecSVec Int)) -> (a1 : Int) -> (a2 : Int) -> (a3 : Int) -> (a4 : (SmtMap Int Int)) -> (a5 : Int) -> (a6 : Int) -> (a7 : Int) -> Prop,
+def InsertSorted := ∃ k0 : (a0 : Int) -> (a1 : (SmtMap Int Int)) -> (a2 : Int) -> (a3 : Int) -> Prop, ∃ k1 : (a0 : (SvecSVec Int)) -> (a1 : Int) -> (a2 : Int) -> (a3 : (SmtMap Int Int)) -> (a4 : Int) -> (a5 : Int) -> (a6 : Int) -> Prop, ∃ k2 : (a0 : (SvecSVec Int)) -> (a1 : Int) -> (a2 : Int) -> (a3 : Int) -> (a4 : (SmtMap Int Int)) -> (a5 : Int) -> (a6 : Int) -> (a7 : Int) -> Prop, 
  ∀ (s₀ : (SvecSVec Int)),
   ∀ (e₀ : Int),
    (svec_is_sorted s₀) ->
@@ -59,3 +59,4 @@ def InsertSorted := ∃ k0 : (a0 : Int) -> (a1 : (SmtMap Int Int)) -> (a2 : Int)
             (svec_is_sorted (SvecSVec.mkSvecSVec₀ (SmtMap_store (t0 := Int) (t1 := Int) (SvecSVec.elems s₀) (SvecSVec.len s₀) e₀) ((SvecSVec.len s₀) + 1))))
          )
         )
+      
