@@ -5,6 +5,7 @@ defs! {
     fn empty_seq<T>() -> Map<int, T>;
     fn svec_append<T>(s1: SVec<T>, s2: SVec<T>) -> SVec<T>;
     fn svec_slice<T>(s1: SVec<T>, left: int, right: int) -> SVec<T>;
+    fn is_sorted(s: SVec<int>) -> bool;
 }
 
 #[opaque]

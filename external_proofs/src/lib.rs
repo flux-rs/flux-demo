@@ -104,6 +104,81 @@ where T : Clone {
 }
 
 #[proven_externally]
+#[sig(fn(&MVec<T>[@v], l: usize{ l < v.len }, r: usize{ l <= r && r < v.len }) ensures MVec{ elems: map_store(svec_slice(v, l, r).elems, r - l, map_select(v.elems, r)), len: r - l + 1 } == svec_slice(v, l, r + 1))]
+fn lemma_slice_push_extend<T>(_v: &MVec<T>, _l: usize, _r: usize) {}
+
+#[sig(fn(&MVec<T>[@v], l: usize{ 0 <= l && l <= v.len }, r: usize{ l <= r && r <= v.len }, slc: &mut MVec<T>[@s])
+    requires l + s.len <= r && s == svec_slice(v, l, l + s.len)
+    ensures slc : MVec<T>[svec_slice(v, l, r)]
+)]
+fn slice_help<T>(v: &MVec<T>, l: usize, r: usize, slc: &mut MVec<T>)
+where T : Clone {
+    if l + slc.len() < r {
+        lemma_slice_push_extend(&v, l, l + slc.len());
+        slc.push(reft_clone(v.get(l + slc.len())));
+        slice_help(v, l, r, slc);
+    }
+}
+
+#[proven_externally]
+#[sig(fn(&MVec<T>[@v], idx: usize{ idx <= v.len }) ensures svec_slice(v, idx, idx) == MVec{ elems: empty_seq(), len: 0 })]
+fn lemma_slice_from_to_eq_empty<T>(_v: &MVec<T>, _idx: usize) {}
+
+#[sig(fn(&MVec<T>[@v], l: usize{ 0 <= l && l <= v.len }, r: usize{ l <= r && r <= v.len }) -> MVec<T>[svec_slice(v, l, r)])]
+fn slice<T>(v: &MVec<T>, l: usize, r: usize) -> MVec<T>
+where T : Clone {
+    let mut res = MVec::new();
+    lemma_slice_from_to_eq_empty(&v, l);
+    slice_help(v, l, r, &mut res);
+    res
+}
+
+#[proven_externally]
+#[sig(fn(&MVec<T>[@v], l: usize{ l <= v.len}, r: usize{ l <= r && r <= v.len }) ensures svec_slice(v, l, r).len == r - l)]
+fn lemma_svec_slice_len_eq<T>(_v: &MVec<T>, _l: usize, _r: usize) {}
+
+#[sig(fn(vec: &mut MVec<T>[@v], pos: usize{ 0 <= pos && pos <= v.len }, T[@e]) 
+    ensures vec: MVec<T>[svec_append(
+        MVec{ elems: map_store(svec_slice(v, 0, pos).elems, pos , e), len: pos + 1 }, 
+        svec_slice(v, pos, v.len))
+    ])]
+fn insert<T>(v: &mut MVec<T>, pos: usize, e: T) 
+where T : Clone {
+    let rhalf = slice(&v, pos, v.len());
+    lemma_svec_slice_len_eq(&v, 0, pos);
+    *v = slice(&v, 0, pos);
+    v.push(e);
+    append(v, &rhalf);
+}
+
+#[proven_externally]
+#[sig(fn(v: &mut MVec<i32>[@s], i32[@e]) requires is_sorted(s) ensures v: MVec<i32>{ v: is_sorted(v) })]
+fn insert_sorted(v: &mut MVec<i32>, e: i32) {
+    let mut i = 0;
+    while i < v.len() && e > *v.get(i) {
+        i += 1;
+    }
+
+    if i == v.len() {
+        v.push(e);
+    } else {
+        insert(v, i, e);
+    }
+}
+
+#[proven_externally]
+#[sig(fn(&MVec<i32>[@v]) -> MVec<i32>{ v : is_sorted(v) })]
+fn sorted(v: &MVec<i32>) -> MVec<i32> {
+    let mut res: MVec<i32> = MVec::new();
+    let mut i = 0;
+    while i < v.len() {
+        insert_sorted(&mut res, *v.get(i));
+        i += 1;
+    }
+    res
+}
+
+#[proven_externally]
 #[sig(fn(&GhostIndex<MVec<T>>[@v1], &MVec<T>[@v2]) ensures svec_append(v1.v, v2).len == v1.v.len + v2.len)]
 fn lemma_svec_append_len<T>(_v1: &GhostIndex<MVec<T>>, _v2: &MVec<T>) {}
 
@@ -149,4 +224,17 @@ fn test06() -> i32 {
     vec.push(2);
     vec.set(1, 3);
     vec.pop()
+}
+
+fn test07() {
+    let mut v = MVec::new();
+    v.push(3);
+    v.push(2);
+    v.push(1);
+    let v = sorted(&v);
+    let mut i = 0;
+    while i < v.len() {
+        println!("{}", *v.get(i));
+        i += 1;
+    }
 }

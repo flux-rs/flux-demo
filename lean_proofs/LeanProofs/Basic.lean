@@ -7,5 +7,10 @@ import LeanProofs.User.Proof.LemmaAppendPushExtendProof
 import LeanProofs.User.Proof.LemmaSliceZeroToLenEqProof
 import LeanProofs.User.Proof.LemmaAppendEmptyRflProof
 import LeanProofs.User.Proof.LemmaEmptyAppendLeftIdentityProof
+import LeanProofs.User.Proof.LemmaSlicePushExtendProof
+import LeanProofs.User.Proof.LemmaSliceFromToEqEmptyProof
+import LeanProofs.User.Proof.LemmaSvecSliceLenEqProof
+import LeanProofs.User.Proof.InsertSortedProof
+import LeanProofs.User.Proof.SortedProof
 import LeanProofs.User.Proof.LemmaSvecAppendLenProof
 import LeanProofs.User.Proof.LemmaSvecAppendGetProof
