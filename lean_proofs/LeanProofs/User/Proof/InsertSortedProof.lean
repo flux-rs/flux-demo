@@ -80,7 +80,13 @@ theorem slice_sorted (v1 : SvecSVec Int) (l r : Int) (h1 : l ≥ 0 ∧ l ≤ v1.
   simp [i_bounds, j_bounds, j_lb']
   apply_assumption <;> omega
 
+namespace InsertSortedCustomKvarSolutions
+
 def k0 : Int → SmtMap Int Int → Int → Int → Prop := fun idx v_elems v_len elem_to_insert => 0 ≤ idx ∧ idx <= v_len ∧ (idx = 0 ∨ elem_to_insert > v_elems (idx - 1))
+
+end InsertSortedCustomKvarSolutions
+
+open InsertSortedCustomKvarSolutions
 
 def InsertSorted_proof : InsertSorted := by
   unfold InsertSorted

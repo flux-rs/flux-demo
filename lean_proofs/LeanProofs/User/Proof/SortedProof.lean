@@ -3,7 +3,13 @@ import LeanProofs.Flux.Struct.SvecSVec
 import LeanProofs.Flux.VC.Sorted
 import LeanProofs.User.SharedTheorems
 
+namespace SortedCustomKvarSolutions
+
 def k0 : Int → SmtMap Int Int → Int → SmtMap Int Int → Int → Prop := fun idx elems len _v_elems _v_len => idx ≥ 0 ∧ (svec_is_sorted <| SvecSVec.mkSvecSVec₀ elems len)
+
+end SortedCustomKvarSolutions
+
+open SortedCustomKvarSolutions
 
 def Sorted_proof : Sorted := by
   unfold Sorted
