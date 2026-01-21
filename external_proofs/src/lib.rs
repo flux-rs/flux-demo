@@ -5,6 +5,7 @@ mod svec;
 mod svec2;
 mod ghost_index;
 mod in_place_insertion_sort;
+mod fib;
 
 use svec::{SVec as MVec};
 use svec2::SVec;
