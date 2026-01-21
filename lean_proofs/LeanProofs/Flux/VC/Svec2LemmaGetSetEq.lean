@@ -4,6 +4,9 @@ import LeanProofs.User.Fun.Svec2VseqGet
 import LeanProofs.User.Fun.Svec2VseqSet
 import LeanProofs.User.Fun.Svec2VseqLen
 
+namespace F
+
+
 
 def Svec2LemmaGetSetEq := 
  ∀ (elems₀ : (VSeq Int)),
@@ -15,3 +18,4 @@ def Svec2LemmaGetSetEq :=
        (len₀ ≥ 0) ->
         (i₀ ≥ 0) ->
          ((svec2_vseq_get (t0 := Int) (svec2_vseq_set (t0 := Int) elems₀ i₀ e₀) i₀) = e₀)
+end F

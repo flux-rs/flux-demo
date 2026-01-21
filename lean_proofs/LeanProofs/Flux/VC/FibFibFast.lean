@@ -1,5 +1,8 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.User.Fun.FibFib
+
+namespace F
+
 namespace FibFibFastKVarSolutions
 
 -- cyclic (cut) kvars
@@ -32,3 +35,4 @@ def FibFibFast := ∃ k0 : (a0 : Int) -> (a1 : Int) -> (a2 : Int) -> (a3 : Int) 
    ((n₀ ≤ 1) ->
     (1 = (fib_fib n₀)))
    
+end F

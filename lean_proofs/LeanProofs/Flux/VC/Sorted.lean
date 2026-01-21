@@ -3,6 +3,9 @@ import LeanProofs.Flux.Struct.SvecSVec
 import LeanProofs.User.Fun.SvecEmptySeq
 import LeanProofs.User.Fun.SvecSvecSlice
 import LeanProofs.User.Fun.SvecIsSorted
+
+namespace F
+
 namespace SortedKVarSolutions
 
 -- cyclic (cut) kvars
@@ -46,3 +49,4 @@ def Sorted := ∃ k0 : (a0 : Int) -> (a1 : (SmtMap Int Int)) -> (a2 : Int) -> (a
          )
         )
      
+end F

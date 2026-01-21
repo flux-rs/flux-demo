@@ -1,6 +1,9 @@
 import LeanProofs.Flux.Prelude
 import LeanProofs.User.Fun.FibFib
 
+namespace F
+
+
 
 def FibFibSlow := 
  ∀ (n₀ : Int),
@@ -16,3 +19,4 @@ def FibFibSlow :=
    ((n₀ ≤ 1) ->
     (1 = (fib_fib n₀)))
    
+end F

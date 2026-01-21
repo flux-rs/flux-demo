@@ -3,6 +3,9 @@ import LeanProofs.Flux.Struct.SvecSVec
 import LeanProofs.User.Fun.SvecSvecAppend
 import LeanProofs.User.Fun.SvecSvecSlice
 import LeanProofs.User.Fun.SvecIsSorted
+
+namespace F
+
 namespace InsertSortedKVarSolutions
 
 -- cyclic (cut) kvars
@@ -60,3 +63,4 @@ def InsertSorted := ∃ k0 : (a0 : Int) -> (a1 : (SmtMap Int Int)) -> (a2 : Int)
          )
         )
       
+end F

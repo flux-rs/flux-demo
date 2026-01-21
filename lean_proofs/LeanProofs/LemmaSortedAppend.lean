@@ -1,5 +1,0 @@
-import LeanProofs.Lib
-import LeanProofs.Defs
-import LeanProofs.OpaqueSorts
-import LeanProofs.OpaqueFuncs
-def lemma_sorted_append := (∀ (reftgen_v1_0 : (Adt0 Int)), (∀ (reftgen_v2_1 : (Adt0 Int)), (∀ (__ : Int), (((svec_is_sorted reftgen_v1_0) ∧ (svec_is_sorted reftgen_v2_1) ∧ ((Adt0.fld0_1 reftgen_v1_0) > 0) ∧ ((Adt0.fld0_1 reftgen_v2_1) > 0) ∧ ((SmtMap_select (t0 := Int) (t1 := Int) (Adt0.fld0_0 reftgen_v1_0) ((Adt0.fld0_1 reftgen_v1_0) - 1)) ≤ (SmtMap_select (t0 := Int) (t1 := Int) (Adt0.fld0_0 reftgen_v2_1) 0))) -> (∀ (__ : Int), (((svec_svec_slice (t0 := Int) (Adt0.mkadt0_0 (Adt0.fld0_0 reftgen_v1_0) (Adt0.fld0_1 reftgen_v1_0)) 0 (Adt0.fld0_1 reftgen_v1_0)) = (Adt0.mkadt0_0 (Adt0.fld0_0 reftgen_v1_0) (Adt0.fld0_1 reftgen_v1_0))) -> (∀ (__ : Int), (((Adt0.fld0_1 reftgen_v1_0) ≥ 0) -> (∀ (__ : Int), (((svec_svec_slice (t0 := Int) (Adt0.mkadt0_0 (Adt0.fld0_0 reftgen_v2_1) (Adt0.fld0_1 reftgen_v2_1)) 0 (Adt0.fld0_1 reftgen_v2_1)) = (Adt0.mkadt0_0 (Adt0.fld0_0 reftgen_v2_1) (Adt0.fld0_1 reftgen_v2_1))) -> (∀ (__ : Int), (((Adt0.fld0_1 reftgen_v2_1) ≥ 0) -> (svec_is_sorted (svec_svec_append (t0 := Int) reftgen_v1_0 reftgen_v2_1))))))))))))))

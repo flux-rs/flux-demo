@@ -3,6 +3,9 @@ import LeanProofs.Flux.Struct.SvecSVec
 import LeanProofs.User.Fun.SvecSvecAppend
 import LeanProofs.User.Fun.SvecSvecSlice
 
+namespace F
+
+
 
 def LemmaAppendPushExtend := 
  ∀ (append₀ : (SvecSVec Int)),
@@ -17,3 +20,4 @@ def LemmaAppendPushExtend :=
           ((SvecSVec.len r₀) ≥ 0) ->
            (ext_idx₀ ≥ 0) ->
             ((SvecSVec.mkSvecSVec₀ (SmtMap_store (t0 := Int) (t1 := Int) (SvecSVec.elems append₀) (SvecSVec.len append₀) (SmtMap_select (t0 := Int) (t1 := Int) (SvecSVec.elems r₀) ext_idx₀)) ((SvecSVec.len append₀) + 1)) = (svec_svec_append (t0 := Int) l₀ (svec_svec_slice (t0 := Int) r₀ 0 (ext_idx₀ + 1))))
+end F
