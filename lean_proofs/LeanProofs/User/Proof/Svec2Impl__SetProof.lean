@@ -5,6 +5,6 @@ namespace F
 
 def Svec2Impl__Set_proof : Svec2Impl__Set := by
   unfold Svec2Impl__Set
-  sorry
+  trivial
 
 end F

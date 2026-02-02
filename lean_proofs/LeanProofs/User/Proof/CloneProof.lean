@@ -5,6 +5,6 @@ namespace F
 
 def Clone_proof : Clone := by
   unfold Clone
-  sorry
+  trivial
 
 end F

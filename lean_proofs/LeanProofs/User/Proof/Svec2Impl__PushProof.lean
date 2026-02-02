@@ -5,6 +5,6 @@ namespace F
 
 def Svec2Impl__Push_proof : Svec2Impl__Push := by
   unfold Svec2Impl__Push
-  sorry
+  trivial
 
 end F

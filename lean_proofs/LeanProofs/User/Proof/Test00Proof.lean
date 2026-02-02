@@ -5,6 +5,6 @@ namespace F
 
 def Test00_proof : Test00 := by
   unfold Test00
-  sorry
+  trivial
 
 end F
