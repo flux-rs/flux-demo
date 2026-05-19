@@ -234,3 +234,34 @@ enum Exp {
     #[variant((Id, Box<Exp[@e1]>, Box<Exp[@e2]>) -> Exp[{imm: false, anf: e1.anf && e2.anf}])]
     Let(Id, Box<Exp>, Box<Exp>),
 }
+
+// ---
+
+pub enum Reg {
+    RAX,
+    RBX,
+}
+
+#[refined_by(dst: bool)]
+pub enum Arg {
+    #[variant((i32) -> Arg[{dst: false}])]
+    Imm(i32),
+    #[variant((Reg) -> Arg[{dst: true}])]
+    Reg(Reg),
+    #[variant((Reg, i32) -> Arg[{dst: true}])]
+    Mem(Reg, i32),
+}
+
+// subset of Exp that are IMM
+#[alias(type Dst = Arg {a: a.dst})]
+type Dst = Arg;
+
+pub enum Instr {
+    Mov(Dst, Arg),
+}
+
+fn test_instr() -> Instr {
+    let i1 = Instr::Mov(Arg::Reg(Reg::RAX), Arg::Imm(44));
+    // let i2 = Instr::Mov(Arg::Imm(44), Arg::Reg(Reg::RAX));
+    i1
+}
