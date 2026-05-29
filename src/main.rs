@@ -34,6 +34,7 @@ pub mod typestate;
 // pub mod typestate_addr;
 // pub mod typestate_bits;
 
+pub mod ringbuffer;
 pub mod sparse;
 pub mod uninit;
 pub mod vectors;
