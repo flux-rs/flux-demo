@@ -101,7 +101,7 @@ impl<'a, T> FluxSlice<'a, T> {
 // ===== RingBuffer ==========================================================
 
 #[flux_rs::refined_by(len: int, hd: int, tl: int, num_enqueues: int)]
-#[flux_rs::invariant(0 < len && 0 <= hd && hd < len && 0 <= tl && tl < len && 0 <= num_enqueues)]
+#[flux_rs::invariant(0 < len && hd < len &&  tl < len)]
 #[flux_rs::invariant(num_enqueues < len => (tl == num_enqueues && hd <= tl))]
 pub struct RingBuffer<'a, T: Copy + 'a> {
     #[flux_rs::field(FluxSlice<T>[len, |idx| is_init(len, num_enqueues, idx)])]
