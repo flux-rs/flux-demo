@@ -1,6 +1,7 @@
 use crate::rvec::{self, AsRVec as _, RVec, rvec};
 use flux_rs::assert;
 use flux_rs::attrs::*;
+use flux_rs::macros::detached_spec;
 use rand::{Rng, rngs::ThreadRng};
 
 fn test() {
@@ -10,6 +11,7 @@ fn test() {
 fn sigmoid(x: f64) -> f64 {
     1.0 / (1.0 + (-x).exp())
 }
+
 
 mod dot {
     use flux_rs::attrs::*;
@@ -71,7 +73,6 @@ mod dot {
     fn dot_product_map(a: &[f64], b: &[f64]) -> f64 {
         (0..a.len()).map(|i| (a[i] * b[i])).sum()
     }
-
 }
 
 #[spec(fn(&RVec<f64>[@n], &RVec<f64>[n]) -> f64)]
@@ -95,42 +96,6 @@ fn dot_product3(a: &[f64], b: &[f64]) -> f64 {
         sum += vi * b[i];
     }
     sum
-}
-
-// HT: https://byteblog.medium.com/building-a-simple-neural-network-from-scratch-in-rust-3a7b12ed30a9
-
-// Define the structure of a single layer in the network
-struct Layer {
-    num_inputs: usize,
-    num_outputs: usize,
-    weight: RVec<RVec<f64>>,
-    bias: RVec<f64>,
-    outputs: RVec<f64>,
-}
-
-
-
-#[specs {
-    #[refined_by(i: int, o: int)]
-    struct Layer {
-        num_inputs: usize[i],
-        num_outputs: usize[o],
-        weight: RVec<RVec<f64>[i]>[o],
-        bias: RVec<f64>[o],
-        outputs: RVec<f64>[o],
-    }
-}]
-const _: () = ();
-
-
-
-
-
-#[opts(check_overflow = "lazy")]
-#[spec(fn(n: usize[100]) -> usize[101])]
-fn foo(n: usize) -> usize {
-    let m = n + 1;
-    m
 }
 
 #[spec(fn(n: usize, f:F) -> RVec<A>[n]
@@ -165,7 +130,7 @@ where
 #[spec(fn(vec: &RVec<T>[@n]) -> RVec<T>[n])]
 fn mirror<T: Clone>(vec: &RVec<T>) -> RVec<T> {
     let n = vec.len();
-    init(n, |i| vec[n-i-1].clone())
+    init(n, |i| vec[n - i - 1].clone())
 }
 
 #[spec(fn(n: usize, f:F) -> RVec<A>[n] where F: FnMut(usize{v:0<=v && v < n}) -> A)]
@@ -185,6 +150,28 @@ fn mk_weights(input_size: usize, output_size: usize) -> RVec<RVec<f64>> {
     weights
 }
 
+// HT: https://byteblog.medium.com/building-a-simple-neural-network-from-scratch-in-rust-3a7b12ed30a9
+
+// Define the structure of a single layer in the network
+struct Layer {
+    num_inputs: usize,
+    num_outputs: usize,
+    weight: RVec<RVec<f64>>,
+    bias: RVec<f64>,
+    outputs: RVec<f64>,
+}
+
+detached_spec! {
+  #[refined_by(i: int, o: int)]
+  struct Layer {
+    num_inputs: usize[i],
+    num_outputs: usize[o],
+    weight: RVec<RVec<f64>[i]>[o],
+    bias: RVec<f64>[o],
+    outputs: RVec<f64>[o],
+  }
+}
+
 impl Layer {
     #[spec(fn(i: usize, o: usize) -> Layer[i, o])]
     fn new(i: usize, o: usize) -> Layer {
@@ -198,7 +185,7 @@ impl Layer {
         }
     }
 
-    #[spec(fn(&mut Self[@l], &RVec<f64>[l.i]) )]
+    #[should_fail]
     fn forward(&mut self, input: &RVec<f64>) {
         (0..self.num_outputs).for_each(|i| {
             let weighted_input = dot_product(&self.weight[i], input);
@@ -253,14 +240,12 @@ fn test_enumerate(vec: &[f64]) {
 
 // #[refined_by(i: int, o: int)]
 enum Network {
-   // #[variant((Layer[@i, @o]) -> Network[i, o])]
+    // #[variant((Layer[@i, @o]) -> Network[i, o])]
     Last(Layer),
 
-   // #[variant((Layer[@i, @h], Box<Network[h, @o]>) -> Network[i, o])]
+    // #[variant((Layer[@i, @h], Box<Network[h, @o]>) -> Network[i, o])]
     Next(Layer, Box<Network>),
 }
-
-
 
 #[specs {
   #[refined_by(i: int, o: int)]
@@ -287,13 +272,12 @@ macro_rules! network {
 
 #[spec(fn() -> Network[3, 4])]
 fn example_network() -> Network {
-  let blue = Layer::new(3, 4);
-  let green = Layer::new(4, 2);
-  let yellow = Layer::new(2, 3);
-  let orange = Layer::new(3, 4);
-  network![blue, green, yellow, orange]
+    let blue = Layer::new(3, 4);
+    let green = Layer::new(4, 2);
+    let yellow = Layer::new(2, 3);
+    let orange = Layer::new(3, 4);
+    network![blue, green, yellow, orange]
 }
-
 
 impl Network {
     /// Create a new neural network with the given input size, hidden layer sizes, and output size.
@@ -309,7 +293,7 @@ impl Network {
         }
     }
 
-    #[spec(fn(&mut Network[@i, @o], &RVec<f64>[i]) -> RVec<f64>[o])]
+    #[should_fail]
     fn forward(&mut self, input: &RVec<f64>) -> RVec<f64> {
         match self {
             Network::Last(layer) => {

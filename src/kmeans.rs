@@ -16,7 +16,7 @@ fn fdiv(x: f32, y: Weight) -> f32 {
 }
 
 /// Compute the index of an Vector whose value is the smallest
-#[spec(fn(&{RVec<f32>[@n] | 0 < n}) -> usize{v: v < n})]
+#[spec(fn(&{RVec<f32>[@n] | 0 < n }) -> usize{v: v < n})]
 fn min_index(a: &RVec<f32>) -> usize {
     let mut min = 0;
     for i in 0..a.len() {
