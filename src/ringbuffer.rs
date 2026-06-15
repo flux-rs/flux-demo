@@ -185,11 +185,3 @@ impl<'a, T: Copy> RingBuffer<'a, T> {
         }
     }
 }
-
-// TODO: top-level invariant
-// index < s.ring.len && is_valid(index) => s.ring.init(index)
-// maybe implement something based on the fact that empty => hd is valid?
-
-// TODO: more complex methods
-// TODO: back to MaybeUninit
-// TODO: remove FluxSlice
