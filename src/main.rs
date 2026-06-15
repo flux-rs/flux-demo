@@ -23,6 +23,7 @@ pub mod lists;
 pub mod mapreduce;
 pub mod neural;
 pub mod ringbuffer;
+pub mod rbac;
 pub mod rset;
 pub mod rvec;
 pub mod scope;
