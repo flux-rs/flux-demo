@@ -2,9 +2,38 @@ use crate::basics::*;
 use crate::rvec::{RVec, rvec};
 use flux_rs::attrs::*;
 
-fn billy_bob() {
-    let n = 10;
-    assert(n == 10);
+fn test_push_len() {
+    let mut vec = RVec::new();
+    vec.push(10);
+    vec.push(20);
+    assert(vec.len() == 2);
+}
+
+#[spec(fn (n:usize, f:F) -> RVec<A>[n])]
+fn init<F, A>(n: usize, mut f: F) -> RVec<A>
+where
+    F: FnMut(usize) -> A,
+{
+    let mut i = 0;
+    let mut res = RVec::new();  // res: RVec<i32>[0]
+    while i < n {
+        res.push(f(i));
+        i += 1;                 // res: RVec<i32>[i]
+    }
+    res                         // res: RVec<i32>[n]
+}
+
+// FIX the error below!
+#[spec(fn (x: &RVec<f64>[@n], y: &RVec<f64>[@m]) -> f64 requires n == m)]
+fn dot(x: &RVec<f64>, y: &RVec<f64>) -> f64 {
+    let mut res = 0.0;
+    let mut i = 0;
+    let n = x.len();
+    while (i < n) {
+        res += x[i] * y[i];
+        i += 1;
+    }
+    res
 }
 
 #[spec(fn() -> usize{v: 10 <= v})]

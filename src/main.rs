@@ -9,7 +9,6 @@ flux_rs::defs! {
 
 extern crate flux_alloc;
 extern crate flux_core;
-
 pub mod anf;
 pub mod arrays;
 pub mod basics;
@@ -23,17 +22,14 @@ pub mod kmeans;
 pub mod lists;
 pub mod mapreduce;
 pub mod neural;
+pub mod ringbuffer;
 pub mod rbac;
 pub mod rset;
 pub mod rvec;
 pub mod scope;
-pub mod table;
-// pub mod spec;
-pub mod typestate;
-pub mod typestate_addr;
-// pub mod typestate_bits;
-
 pub mod sparse;
+pub mod table;
+pub mod typestate;
 pub mod uninit;
 pub mod vectors;
 

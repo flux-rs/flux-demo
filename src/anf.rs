@@ -86,6 +86,7 @@ fn exp1() -> Anf {
 
 //---------------------------------------------------------------------------------------
 
+#[spec(fn(&mut usize) -> Id)]
 fn fresh_id(count: &mut usize) -> Id {
     let name = format!("?tmp{}", count);
     *count += 1;
