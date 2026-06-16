@@ -78,7 +78,7 @@ impl<T> Default for VecDeque<T> {
     }
 }
 
-impl<T, A: Allocator> VecDeque<T, A> {
+impl<T, A: Allocator> VecDeque<T> {
     /// Marginally more convenient
     #[inline]
     fn ptr(&self) -> *mut T {
@@ -227,7 +227,7 @@ impl<T> VecDeque<T> {
     }
 }
 
-impl<T, A: Allocator> VecDeque<T, A> {
+impl<T, A: Allocator> VecDeque<T> {
     /// Creates an empty deque.
     ///
     /// # Examples
@@ -239,7 +239,7 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// ```
     #[inline]
     //#[unstable(feature = "allocator_api", issue = "32838")]
-    fn new_in(alloc: A) -> VecDeque<T, A> {
+    fn new_in(alloc: A) -> VecDeque<T> {
         VecDeque::with_capacity_in(INITIAL_CAPACITY, alloc)
     }
 
@@ -253,12 +253,16 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// let deque: VecDeque<u32> = VecDeque::with_capacity(10);
     /// ```
     //#[unstable(feature = "allocator_api", issue = "32838")]
-    fn with_capacity_in(capacity: usize, alloc: A) -> VecDeque<T, A> {
+    fn with_capacity_in(capacity: usize, alloc: A) -> VecDeque<T> {
         assert!(capacity < 1_usize << usize::BITS - 1, "capacity overflow");
         // +1 since the ringbuffer always leaves one space empty
         let cap = cmp::max(capacity + 1, MINIMUM_CAPACITY + 1).next_power_of_two();
 
-        VecDeque { tail: 0, head: 0, buf: RawVec::with_capacity_in(cap, alloc) }
+        VecDeque {
+            tail: 0,
+            head: 0,
+            buf: RawVec::with_capacity_in(cap, alloc),
+        }
     }
 
     /// Provides a reference to the element at the given index.
