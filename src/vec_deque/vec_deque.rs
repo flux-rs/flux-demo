@@ -91,6 +91,7 @@ impl<T> Default for VecDeque<T> {
 impl<T, A: Allocator> VecDeque<T, A> {
     /// Marginally more convenient
     #[inline]
+    #[flux_rs::sig(fn (self: &VecDeque<T,A>[@me]) -> *mut{p: p.addr == p.base && p.size == me.cap} T)]
     fn ptr(&self) -> *mut T {
         self.buf.ptr()
     }
