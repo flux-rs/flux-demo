@@ -406,7 +406,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     // so that all of the code that depends on `T` is within it, while as much
     // of the code that doesn't depend on `T` as possible is in functions that
     // are non-generic over `T`.
-    #[flux_rs::trusted]
+    #[flux_rs::trusted(reason = "TODO!")]
     fn grow_amortized(&mut self, len: usize, additional: usize) -> Result<(), TryReserveError> {
         // This is ensured by the calling contexts.
         debug_assert!(additional > 0);
@@ -436,7 +436,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     // The constraints on this method are much the same as those on
     // `grow_amortized`, but this method is usually instantiated less often so
     // it's less critical.
-    #[flux_rs::trusted]
+    #[flux_rs::trusted(reason = "TODO!")]
     fn grow_exact(&mut self, len: usize, additional: usize) -> Result<(), TryReserveError> {
         if mem::size_of::<T>() == 0 {
             // Since we return a capacity of `usize::MAX` when the type size is
@@ -453,7 +453,7 @@ impl<T, A: Allocator> RawVec<T, A> {
         Ok(())
     }
 
-    #[flux_rs::trusted]
+    // #[flux_rs::trusted(reason = "TODO!")]
     fn shrink(&mut self, cap: usize) -> Result<(), TryReserveError> {
         assert!(
             cap <= self.capacity(),
