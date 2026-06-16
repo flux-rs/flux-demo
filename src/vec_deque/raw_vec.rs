@@ -17,6 +17,8 @@ use std::boxed::Box;
 use std::collections::TryReserveError;
 use std::collections::TryReserveErrorKind::*;
 
+use crate::vec_deque::flux_specs::flux_todo_unique_new_unchecked;
+
 /// #[cfg(not(no_global_oom_handling))]
 enum AllocInit {
     /// The contents of the new memory are uninitialized.
@@ -47,9 +49,10 @@ enum AllocInit {
 /// Note that the excess of a zero-sized types is always infinite, so `capacity()` always returns
 /// `usize::MAX`. This means that you need to be careful when round-tripping this type with a
 /// `Box<[T]>`, since `capacity()` won't yield the length.
-#[flux_rs::refined_by(cap:int)]
+#[flux_rs::refined_by(cap:int, ptr:Unique)]
 #[allow(missing_debug_implementations)]
 pub(crate) struct RawVec<T, A: Allocator = Global> {
+    #[flux_rs::field({Unique<T>[ptr] | ptr.ptr.addr == ptr.ptr.base && ptr.ptr.size >= cap})]
     ptr: Unique<T>,
     #[flux_rs::field(usize[cap])]
     cap: usize,
@@ -133,7 +136,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// allocator for the returned `RawVec`.
     // #[cfg(not(no_global_oom_handling))]
     #[inline]
-    #[flux_rs::sig(fn (capacity: usize, alloc: A) -> RawVec<T,A>[capacity])]
+    #[flux_rs::sig(fn (capacity: usize, alloc: A) -> RawVec<T,A>{v: v.cap == capacity})]
     pub fn with_capacity_in(capacity: usize, alloc: A) -> Self {
         Self::allocate_in(capacity, AllocInit::Uninitialized, alloc)
     }
@@ -175,7 +178,7 @@ impl<T, A: Allocator> RawVec<T, A> {
 
     // #[cfg(not(no_global_oom_handling))]
     #[flux_rs::trusted(reason = "extern specs needed?")]
-    #[flux_rs::spec(fn (capacity: usize, init: AllocInit, alloc: A) -> Self[capacity])]
+    #[flux_rs::spec(fn (capacity: usize, init: AllocInit, alloc: A) -> Self{v: v.cap == capacity})]
     fn allocate_in(capacity: usize, init: AllocInit, alloc: A) -> Self {
         if mem::size_of::<T>() == 0 {
             Self::new_in(alloc)
@@ -203,7 +206,7 @@ impl<T, A: Allocator> RawVec<T, A> {
             // matches the size requested. If that ever changes, the capacity
             // here should change to `ptr.len() / mem::size_of::<T>()`.
             Self {
-                ptr: unsafe { Unique::new_unchecked(ptr.cast().as_ptr()) },
+                ptr: unsafe { flux_todo_unique_new_unchecked(ptr.cast().as_ptr()) },
                 cap: capacity,
                 alloc,
             }
@@ -221,9 +224,11 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// If the `ptr` and `capacity` come from a `RawVec` created via `alloc`, then this is
     /// guaranteed.
     #[inline]
+    #[flux_rs::spec(fn (*mut[@ptr] T, capacity: usize, alloc: A) -> RawVec<T, A>[{cap: capacity, ptr: ptr}]
+                    requires ptr.addr == ptr.base && ptr.size == capacity)]
     pub unsafe fn from_raw_parts_in(ptr: *mut T, capacity: usize, alloc: A) -> Self {
         Self {
-            ptr: unsafe { Unique::new_unchecked(ptr) },
+            ptr: unsafe { flux_todo_unique_new_unchecked(ptr) },
             cap: capacity,
             alloc,
         }
@@ -233,8 +238,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// `Unique::dangling()` if `capacity == 0` or `T` is zero-sized. In the former case, you must
     /// be careful.
     #[inline]
-    // #[flux_rs::trusted]
-    #[flux_rs::sig(fn (self: &RawVec<T,A>[@n]) -> *mut{p: p.addr == p.base && p.size == n} T)]
+    #[flux_rs::sig(fn (self: &RawVec<T,A>[@me]) -> *mut{p: p.addr == p.base && p.size >= me.cap} T)]
     pub fn ptr(&self) -> *mut T {
         self.ptr.as_ptr()
     }
@@ -345,7 +349,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// Aborts on OOM.
     // #[cfg(not(no_global_oom_handling))]
     #[flux_rs::trusted]
-    #[flux_rs::sig(fn (self: &mut RawVec<T, A>, len: usize, additional: usize) ensures self: RawVec<T, A>[len + additional])]
+    #[flux_rs::sig(fn (self: &mut RawVec<T, A>, len: usize, additional: usize) ensures self: RawVec<T, A>{v:v.cap == len + additional})]
     pub fn reserve_exact(&mut self, len: usize, additional: usize) {
         handle_reserve(self.try_reserve_exact(len, additional));
     }
@@ -386,11 +390,12 @@ impl<T, A: Allocator> RawVec<T, A> {
         additional > self.capacity().wrapping_sub(len)
     }
 
+    #[flux_rs::sig(fn (self: &mut RawVec<T, A>, ptr: NonNull<[u8]>{p: p.ptr.addr == p.ptr.base && p.ptr.size >= cap}, cap: usize) ensures self: RawVec<T, A>{v: v.cap == cap})]
     fn set_ptr_and_cap(&mut self, ptr: NonNull<[u8]>, cap: usize) {
         // Allocators currently return a `NonNull<[u8]>` whose length matches
         // the size requested. If that ever changes, the capacity here should
         // change to `ptr.len() / mem::size_of::<T>()`.
-        self.ptr = unsafe { Unique::new_unchecked(ptr.cast().as_ptr()) };
+        self.ptr = unsafe { flux_todo_unique_new_unchecked(ptr.cast().as_ptr()) };
         self.cap = cap;
     }
 
@@ -401,6 +406,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     // so that all of the code that depends on `T` is within it, while as much
     // of the code that doesn't depend on `T` as possible is in functions that
     // are non-generic over `T`.
+    #[flux_rs::trusted]
     fn grow_amortized(&mut self, len: usize, additional: usize) -> Result<(), TryReserveError> {
         // This is ensured by the calling contexts.
         debug_assert!(additional > 0);
@@ -430,6 +436,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     // The constraints on this method are much the same as those on
     // `grow_amortized`, but this method is usually instantiated less often so
     // it's less critical.
+    #[flux_rs::trusted]
     fn grow_exact(&mut self, len: usize, additional: usize) -> Result<(), TryReserveError> {
         if mem::size_of::<T>() == 0 {
             // Since we return a capacity of `usize::MAX` when the type size is
@@ -446,6 +453,7 @@ impl<T, A: Allocator> RawVec<T, A> {
         Ok(())
     }
 
+    #[flux_rs::trusted]
     fn shrink(&mut self, cap: usize) -> Result<(), TryReserveError> {
         assert!(
             cap <= self.capacity(),
@@ -478,6 +486,7 @@ impl<T, A: Allocator> RawVec<T, A> {
 // above `RawVec::grow_amortized` for details. (The `A` parameter isn't
 // significant, because the number of different `A` types seen in practice is
 // much smaller than the number of `T` types.)
+#[flux_rs::spec(fn (new_layout: Result<Layout, LayoutError>, current_memory: Option<(NonNull<u8>, Layout)>, alloc: &mut A) -> Result<NonNull<[u8]>{v: v.ptr.addr == v.ptr.base}, TryReserveError>)]
 #[inline(never)]
 fn finish_grow<A>(
     new_layout: Result<Layout, LayoutError>,

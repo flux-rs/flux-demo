@@ -15,6 +15,8 @@
 #![feature(rustc_allow_const_fn_unstable)]
 #![allow(macro_expanded_macro_exports_accessed_by_absolute_paths)]
 #![allow(unused_comparisons)]
+#![feature(sized_hierarchy)]
+
 flux_rs::defs! {
     qualifier MyQ1(x: int, y: int, z: int) { x == y + z }
     qualifier MyQ2(x: int, y: int, z: int) { x == y - z }

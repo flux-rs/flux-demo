@@ -12,14 +12,14 @@
 //! are not required to be copyable, and the queue will be sendable if the
 //! contained type is sendable.
 
+use crate::vec_deque;
+use core::ptr::{self, NonNull, Unique};
 use std::alloc::{Allocator, Global};
 pub use std::collections::vec_deque::*;
-use std::{cmp, mem, ptr};
+use std::{cmp, mem};
 #[allow(unsafe_op_in_unsafe_fn)]
 // use core::slice;
 use vec_deque::raw_vec::RawVec;
-
-use crate::vec_deque;
 
 // #[flux_rs::constant]
 const INITIAL_CAPACITY: usize = 7; // 2^3 - 1
@@ -60,7 +60,7 @@ type Size = usize;
 //#[cfg_attr(not(test), rustc_diagnostic_item = "VecDeque")]
 //#[stable(feature = "rust1", since = "1.0.0")]
 #[rustc_insignificant_dtor]
-#[flux_rs::refined_by(head:int, tail:int, cap:int)]
+#[flux_rs::refined_by(head:int, tail:int, cap:int, ptr:Unique)]
 pub struct VecDeque<
     T,
     //#[unstable(feature = "allocator_api", issue = "32838")]
@@ -75,7 +75,7 @@ pub struct VecDeque<
     tail: usize,
     #[flux_rs::field({ usize[head] | head < cap })]
     head: usize,
-    #[flux_rs::field({ RawVec<T, A>[cap] | pow2(cap) && 1 <= cap } )]
+    #[flux_rs::field({ RawVec<T, A>[cap, ptr] | pow2(cap) && 1 <= cap } )]
     buf: RawVec<T, A>,
 }
 
@@ -91,7 +91,7 @@ impl<T> Default for VecDeque<T> {
 impl<T, A: Allocator> VecDeque<T, A> {
     /// Marginally more convenient
     #[inline]
-    #[flux_rs::sig(fn (self: &VecDeque<T,A>[@me]) -> *mut{p: p.addr == p.base && p.size == me.cap} T)]
+    #[flux_rs::sig(fn (self: &VecDeque<T,A>[@me]) -> *mut{p: p.addr == p.base && p.size >= me.cap} T)]
     fn ptr(&self) -> *mut T {
         self.buf.ptr()
     }
