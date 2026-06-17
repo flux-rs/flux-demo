@@ -294,12 +294,14 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// Aborts on OOM.
     // #[cfg(not(no_global_oom_handling))]
     #[inline]
+    #[flux_rs::spec(fn (self: &mut RawVec<T, A>[@me], len: usize{len <= me.cap}, additional: usize) ensures self: RawVec<T, A>{v:v.cap >= len + additional})]
     pub fn reserve(&mut self, len: usize, additional: usize) {
         // Callers expect this function to be very cheap when there is already sufficient capacity.
         // Therefore, we move all the resizing and error-handling logic from grow_amortized and
         // handle_reserve behind a call, while making sure that this function is likely to be
         // inlined as just a comparison and a call if the comparison fails.
         #[cold]
+        #[flux_rs::spec(fn (self: &mut RawVec<T, A>[@me], len: usize{len <= me.cap}, additional: usize) ensures self: RawVec<T, A>{v:v.cap >= len + additional})]
         fn do_reserve_and_handle<T, A: Allocator>(
             slf: &mut RawVec<T, A>,
             len: usize,
@@ -317,11 +319,15 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// oft-instantiated `Vec::push()`, which does its own capacity check.
     // #[cfg(not(no_global_oom_handling))]
     #[inline(never)]
+    #[flux_rs::spec(fn (self: &mut RawVec<T, A>[@me], len: usize{len <= me.cap}) ensures self: RawVec<T, A>{v:v.cap >= len + 1})]
     pub fn reserve_for_push(&mut self, len: usize) {
         handle_reserve(self.grow_amortized(len, 1));
     }
 
     /// The same as `reserve`, but returns on errors instead of panicking or aborting.
+    #[flux_rs::spec(fn (self: &mut RawVec<T, A>[@me], len: usize{len <= me.cap}, additional: usize) -> Result<(), TryReserveError>
+                    ensures self: RawVec<T, A>{v:v.cap >= len + additional}
+     )]
     pub fn try_reserve(&mut self, len: usize, additional: usize) -> Result<(), TryReserveError> {
         if self.needs_to_grow(len, additional) {
             self.grow_amortized(len, additional)
@@ -348,13 +354,15 @@ impl<T, A: Allocator> RawVec<T, A> {
     ///
     /// Aborts on OOM.
     // #[cfg(not(no_global_oom_handling))]
-    #[flux_rs::trusted]
-    #[flux_rs::sig(fn (self: &mut RawVec<T, A>, len: usize, additional: usize) ensures self: RawVec<T, A>{v:v.cap == len + additional})]
+    #[flux_rs::sig(fn (self: &mut RawVec<T, A>[@old], len: usize{len <= old.cap}, additional: usize) ensures self: RawVec<T, A>{v: old.cap < len + additional => v.cap == len + additional})]
     pub fn reserve_exact(&mut self, len: usize, additional: usize) {
         handle_reserve(self.try_reserve_exact(len, additional));
     }
 
     /// The same as `reserve_exact`, but returns on errors instead of panicking or aborting.
+    // #[flux_rs::trusted]
+    #[flux_rs::sig(fn (self: &mut RawVec<T, A>[@old], len: usize{len <= old.cap}, additional: usize) -> Result<(), TryReserveError>
+                   ensures self: RawVec<T, A>{v: old.cap < len + additional => v.cap == len + additional})]
     pub fn try_reserve_exact(
         &mut self,
         len: usize,
@@ -386,8 +394,12 @@ impl<T, A: Allocator> RawVec<T, A> {
 impl<T, A: Allocator> RawVec<T, A> {
     /// Returns if the buffer needs to grow to fulfill the needed extra capacity.
     /// Mainly used to make inlining reserve-calls possible without inlining `grow`.
+    #[flux_rs::trusted(reason = "extern-spec: wrapping-sub")]
+    #[flux_rs::spec(fn (&RawVec<T, A>[@me], len: usize{len <= me.cap}, additional: usize) -> bool[additional > me.cap - len])]
     fn needs_to_grow(&self, len: usize, additional: usize) -> bool {
-        additional > self.capacity().wrapping_sub(len)
+        let cap = self.capacity();
+        let sub = cap.wrapping_sub(len);
+        additional > sub
     }
 
     #[flux_rs::sig(fn (self: &mut RawVec<T, A>, ptr: NonNull<[u8]>{p: p.ptr.addr == p.ptr.base && p.ptr.size >= cap}, cap: usize) ensures self: RawVec<T, A>{v: v.cap == cap})]
@@ -407,6 +419,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     // of the code that doesn't depend on `T` as possible is in functions that
     // are non-generic over `T`.
     #[flux_rs::trusted(reason = "TODO!")]
+    #[flux_rs::spec(fn (self: &mut RawVec<T, A>[@me], len: usize{len <= me.cap}, additional: usize) -> _ ensures self: RawVec<T, A>{v:v.cap >= len + additional})]
     fn grow_amortized(&mut self, len: usize, additional: usize) -> Result<(), TryReserveError> {
         // This is ensured by the calling contexts.
         debug_assert!(additional > 0);
@@ -437,6 +450,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     // `grow_amortized`, but this method is usually instantiated less often so
     // it's less critical.
     #[flux_rs::trusted(reason = "TODO!")]
+    #[flux_rs::sig(fn (self: &mut RawVec<T, A>[@old], len: usize{len <= old.cap}, additional: usize) -> _ ensures self: RawVec<T, A>{v: v.cap == len + additional})]
     fn grow_exact(&mut self, len: usize, additional: usize) -> Result<(), TryReserveError> {
         if mem::size_of::<T>() == 0 {
             // Since we return a capacity of `usize::MAX` when the type size is
@@ -453,7 +467,7 @@ impl<T, A: Allocator> RawVec<T, A> {
         Ok(())
     }
 
-    // #[flux_rs::trusted(reason = "TODO!")]
+    #[flux_rs::trusted(reason = "Layout/sizeof")]
     fn shrink(&mut self, cap: usize) -> Result<(), TryReserveError> {
         assert!(
             cap <= self.capacity(),
