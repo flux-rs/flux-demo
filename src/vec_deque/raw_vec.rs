@@ -149,35 +149,7 @@ impl<T, A: Allocator> RawVec<T, A> {
         Self::allocate_in(capacity, AllocInit::Zeroed, alloc)
     }
 
-    /// Converts the entire buffer into `Box<[MaybeUninit<T>]>` with the specified `len`.
-    ///
-    /// Note that this will correctly reconstitute any `cap` changes
-    /// that may have been performed. (See description of type for details.)
-    ///
-    /// # Safety
-    ///
-    /// * `len` must be greater than or equal to the most recently requested capacity, and
-    /// * `len` must be less than or equal to `self.capacity()`.
-    ///
-    /// Note, that the requested capacity and `self.capacity()` could differ, as
-    /// an allocator could overallocate and return a greater memory block than requested.
-    #[flux_rs::trusted(reason = "extern specs for `me.alloc`?")]
-    pub unsafe fn into_box(self, len: usize) -> Box<[MaybeUninit<T>], A> {
-        // Sanity-check one half of the safety requirement (we cannot check the other half).
-        debug_assert!(
-            len <= self.capacity(),
-            "`len` must be smaller than or equal to `self.capacity()`"
-        );
-
-        let me = ManuallyDrop::new(self);
-        unsafe {
-            let slice = slice::from_raw_parts_mut(me.ptr() as *mut MaybeUninit<T>, len);
-            Box::from_raw_in(slice, ptr::read(&me.alloc))
-        }
-    }
-
-    // #[cfg(not(no_global_oom_handling))]
-    #[flux_rs::trusted(reason = "extern specs needed?")]
+    #[flux_rs::trusted(reason = "extern spec: Layout")]
     #[flux_rs::spec(fn (capacity: usize, init: AllocInit, alloc: A) -> Self{v: v.cap == capacity})]
     fn allocate_in(capacity: usize, init: AllocInit, alloc: A) -> Self {
         if mem::size_of::<T>() == 0 {
@@ -360,7 +332,6 @@ impl<T, A: Allocator> RawVec<T, A> {
     }
 
     /// The same as `reserve_exact`, but returns on errors instead of panicking or aborting.
-    // #[flux_rs::trusted]
     #[flux_rs::sig(fn (self: &mut RawVec<T, A>[@old], len: usize{len <= old.cap}, additional: usize) -> Result<(), TryReserveError>
                    ensures self: RawVec<T, A>{v: old.cap < len + additional => v.cap == len + additional})]
     pub fn try_reserve_exact(
@@ -418,7 +389,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     // so that all of the code that depends on `T` is within it, while as much
     // of the code that doesn't depend on `T` as possible is in functions that
     // are non-generic over `T`.
-    #[flux_rs::trusted(reason = "TODO!")]
+    #[flux_rs::trusted(reason = "extern-spec: Layout")]
     #[flux_rs::spec(fn (self: &mut RawVec<T, A>[@me], len: usize{len <= me.cap}, additional: usize) -> _ ensures self: RawVec<T, A>{v:v.cap >= len + additional})]
     fn grow_amortized(&mut self, len: usize, additional: usize) -> Result<(), TryReserveError> {
         // This is ensured by the calling contexts.
@@ -449,7 +420,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     // The constraints on this method are much the same as those on
     // `grow_amortized`, but this method is usually instantiated less often so
     // it's less critical.
-    #[flux_rs::trusted(reason = "TODO!")]
+    #[flux_rs::trusted(reason = "extern-spec: Layout")]
     #[flux_rs::sig(fn (self: &mut RawVec<T, A>[@old], len: usize{len <= old.cap}, additional: usize) -> _ ensures self: RawVec<T, A>{v: v.cap == len + additional})]
     fn grow_exact(&mut self, len: usize, additional: usize) -> Result<(), TryReserveError> {
         if mem::size_of::<T>() == 0 {
@@ -467,7 +438,7 @@ impl<T, A: Allocator> RawVec<T, A> {
         Ok(())
     }
 
-    #[flux_rs::trusted(reason = "Layout/sizeof")]
+    #[flux_rs::trusted(reason = "extern-spec: Layout")]
     fn shrink(&mut self, cap: usize) -> Result<(), TryReserveError> {
         assert!(
             cap <= self.capacity(),
