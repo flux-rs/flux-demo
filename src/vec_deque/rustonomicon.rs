@@ -96,7 +96,6 @@ pub struct Vec<T> {
 }
 
 impl<T> Vec<T> {
-    #[flux_rs::trusted]
     #[flux_rs::sig(fn (self: &Vec<T>[@me]) -> *mut{p: p.addr == p.base && p.size >= me.raw.cap} T)]
     fn ptr(&self) -> *mut T {
         self.buf.ptr.as_ptr()
