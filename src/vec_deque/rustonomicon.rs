@@ -72,7 +72,7 @@ impl<T> RawVec<T> {
 }
 
 impl<T> Drop for RawVec<T> {
-    #[flux_rs::trusted]
+    #[flux_rs::trusted(reason = "todo: init")]
     fn drop(&mut self) {
         let elem_size = mem::size_of::<T>();
 
@@ -131,8 +131,7 @@ impl<T> Vec<T> {
         self.len += 1;
     }
 
-    #[flux_rs::trusted]
-    #[flux_rs::sig(fn (self: &strg Vec<T>[@me]) -> Option<T> ensures self: Vec<T>)]
+    #[flux_rs::sig(fn (self: &mut Vec<T>[@me]) -> Option<T> ensures self: Vec<T>)]
     pub fn pop(&mut self) -> Option<T> {
         if self.len == 0 {
             None
@@ -161,7 +160,6 @@ impl<T> Vec<T> {
         self.len += 1;
     }
 
-    #[flux_rs::trusted]
     #[flux_rs::sig(fn (self: &strg Vec<T>[@me], index: usize{index < me.len}) -> T ensures self: Vec<T>)]
     pub fn remove(&mut self, index: usize) -> T {
         assert!(index < self.len, "index out of bounds");
@@ -179,7 +177,7 @@ impl<T> Vec<T> {
         }
     }
 
-    #[flux_rs::trusted]
+    #[flux_rs::trusted(reason = "todo: self.len = 0 breaks the invariant!")]
     pub fn drain(&mut self) -> Drain<'_, T> {
         let iter = unsafe { RawValIter::new(&self) };
 
@@ -205,17 +203,12 @@ impl<T> Drop for Vec<T> {
 impl<T> Deref for Vec<T> {
     type Target = [T];
     fn deref(&self) -> &[T] {
-        unsafe {
-            let len = self.len;
-            let data = self.ptr();
-            let x = 22;
-            std::slice::from_raw_parts(data, len)
-        } // TODO: spec!
+        unsafe { std::slice::from_raw_parts(self.ptr(), self.len) }
     }
 }
 
-#[flux_rs::ignore]
 impl<T> DerefMut for Vec<T> {
+    #[flux_rs::spec(fn(self: &mut Self[@v]) -> _)] // TODO: this is rather silly
     fn deref_mut(&mut self) -> &mut [T] {
         unsafe { std::slice::from_raw_parts_mut(self.ptr(), self.len) }
     }
@@ -224,7 +217,6 @@ impl<T> DerefMut for Vec<T> {
 impl<T> IntoIterator for Vec<T> {
     type Item = T;
     type IntoIter = IntoIter<T>;
-    #[flux_rs::trusted]
     fn into_iter(self) -> IntoIter<T> {
         let (iter, buf) = unsafe { (RawValIter::new(&self), ptr::read(&self.buf)) };
 
@@ -240,7 +232,6 @@ struct RawValIter<T> {
 }
 
 impl<T> RawValIter<T> {
-    #[flux_rs::trusted]
     unsafe fn new(slice: &[T]) -> Self {
         RawValIter {
             start: slice.as_ptr(),
@@ -275,7 +266,6 @@ impl<T> Iterator for RawValIter<T> {
         }
     }
 
-    #[flux_rs::trusted]
     fn size_hint(&self) -> (usize, Option<usize>) {
         let elem_size = mem::size_of::<T>();
         let len =
@@ -314,7 +304,7 @@ impl<T> Iterator for IntoIter<T> {
     fn next(&mut self) -> Option<T> {
         self.iter.next()
     }
-    #[flux_rs::trusted]
+
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.iter.size_hint()
     }
@@ -327,8 +317,8 @@ impl<T> DoubleEndedIterator for IntoIter<T> {
     }
 }
 
+#[flux_rs::ignore]
 impl<T> Drop for IntoIter<T> {
-    #[flux_rs::trusted]
     fn drop(&mut self) {
         for _ in &mut *self {}
     }
@@ -345,7 +335,7 @@ impl<'a, T> Iterator for Drain<'a, T> {
     fn next(&mut self) -> Option<T> {
         self.iter.next()
     }
-    #[flux_rs::trusted]
+
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.iter.size_hint()
     }
@@ -358,8 +348,8 @@ impl<'a, T> DoubleEndedIterator for Drain<'a, T> {
     }
 }
 
+#[flux_rs::ignore]
 impl<'a, T> Drop for Drain<'a, T> {
-    #[flux_rs::trusted]
     fn drop(&mut self) {
         // pre-drain the iter
         for _ in &mut *self {}
