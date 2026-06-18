@@ -1,4 +1,5 @@
 use std::alloc::{self, Layout};
+use std::hint::select_unpredictable;
 use std::marker::PhantomData;
 use std::mem;
 use std::ops::{Deref, DerefMut};
@@ -7,7 +8,7 @@ use std::ptr::{self, NonNull};
 use crate::vec_deque::flux_specs::{flux_nonnull_new, flux_unsafe_expect};
 
 #[flux_rs::refined_by(ptr:ptr, cap: int)]
-#[flux_rs::invariant(ptr.size == cap && cap <= isize::MAX)]
+#[flux_rs::invariant(ptr.size == cap && cap <= isize::MAX && ptr.addr == ptr.base)]
 struct RawVec<T> {
     #[flux_rs::field(NonNull<T>[ptr])]
     ptr: NonNull<T>,
@@ -87,7 +88,7 @@ impl<T> Drop for RawVec<T> {
 }
 
 #[flux_rs::refined_by(raw:RawVec, len: int)]
-#[flux_rs::invariant(len <= raw.cap)]
+#[flux_rs::invariant(len <= raw.cap && raw.cap == raw.ptr.size)]
 pub struct Vec<T> {
     #[flux_rs::field(RawVec<T>[raw])]
     buf: RawVec<T>,
@@ -96,7 +97,7 @@ pub struct Vec<T> {
 }
 
 impl<T> Vec<T> {
-    #[flux_rs::sig(fn (self: &Vec<T>[@me]) -> *mut{p: p.addr == p.base && p.size >= me.raw.cap} T)]
+    #[flux_rs::sig(fn (self: &Vec<T>[@me]) -> *mut[me.raw.ptr] T)]
     fn ptr(&self) -> *mut T {
         self.buf.ptr.as_ptr()
     }
@@ -120,7 +121,10 @@ impl<T> Vec<T> {
         }
 
         unsafe {
-            ptr::write(self.ptr().add(self.len), elem);
+            let ptr0 = self.ptr();
+            let ptr1 = ptr0.add(self.len);
+
+            ptr::write(ptr1, elem);
         }
 
         // Can't overflow, we'll OOM first.
@@ -192,7 +196,6 @@ impl<T> Vec<T> {
 }
 
 impl<T> Drop for Vec<T> {
-    #[flux_rs::trusted]
     fn drop(&mut self) {
         while let Some(_) = self.pop() {}
         // deallocation is handled by RawVec
@@ -201,9 +204,13 @@ impl<T> Drop for Vec<T> {
 
 impl<T> Deref for Vec<T> {
     type Target = [T];
-    #[flux_rs::trusted]
     fn deref(&self) -> &[T] {
-        unsafe { std::slice::from_raw_parts(self.ptr(), self.len) }
+        unsafe {
+            let len = self.len;
+            let data = self.ptr();
+            let x = 22;
+            std::slice::from_raw_parts(data, len)
+        } // TODO: spec!
     }
 }
 
