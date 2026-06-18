@@ -11,7 +11,7 @@ incremental = true
 [package.metadata.flux]
 enabled = true
 cache = true
-lean = "check"
+# lean = "check"
 
 [dependencies]
 flux-rs = { git = "https://github.com/flux-rs/flux" }

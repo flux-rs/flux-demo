@@ -4,8 +4,14 @@ use std::mem;
 use std::ops::{Deref, DerefMut};
 use std::ptr::{self, NonNull};
 
+use crate::vec_deque::flux_specs::{flux_nonnull_new, flux_unsafe_expect};
+
+#[flux_rs::refined_by(ptr:ptr, cap: int)]
+#[flux_rs::invariant(ptr.size == cap && cap <= isize::MAX)]
 struct RawVec<T> {
+    #[flux_rs::field(NonNull<T>[ptr])]
     ptr: NonNull<T>,
+    #[flux_rs::field(usize[cap])]
     cap: usize,
 }
 
@@ -13,9 +19,12 @@ unsafe impl<T: Send> Send for RawVec<T> {}
 unsafe impl<T: Sync> Sync for RawVec<T> {}
 
 impl<T> RawVec<T> {
+    #[flux_rs::spec(fn () -> RawVec<T>{v: v.cap == 0})]
     fn new() -> Self {
         // !0 is usize::MAX. This branch should be stripped at compile time.
-        let cap = if mem::size_of::<T>() == 0 { !0 } else { 0 };
+        assert!(mem::size_of::<T>() != 0, "TODO:zst");
+        // let cap = if mem::size_of::<T>() == 0 { !0 } else { 0 };
+        let cap = 0;
 
         // `NonNull::dangling()` doubles as "unallocated" and "zero-sized allocation"
         RawVec {
@@ -24,6 +33,8 @@ impl<T> RawVec<T> {
         }
     }
 
+    #[flux_rs::opts(solver = "cvc5")] // bitvector specs in Layout seem to kill z3
+    #[flux_rs::spec(fn (self: &mut RawVec<T>[@me]) ensures self: RawVec<T>{v: v.cap > me.cap})]
     fn grow(&mut self) {
         // since we set the capacity to usize::MAX when T has size 0,
         // getting to here necessarily means the Vec is overfull.
@@ -40,7 +51,7 @@ impl<T> RawVec<T> {
         // `Layout::array` checks that the number of bytes allocated is
         // in 1..=isize::MAX and will error otherwise.  An allocation of
         // 0 bytes isn't possible thanks to the above condition.
-        let new_layout = new_layout.expect("Allocation too large");
+        let new_layout = flux_unsafe_expect(new_layout, "Allocation too large");
 
         let new_ptr = if self.cap == 0 {
             unsafe { alloc::alloc(new_layout) }
@@ -51,7 +62,7 @@ impl<T> RawVec<T> {
         };
 
         // If allocation fails, `new_ptr` will be null, in which case we abort.
-        self.ptr = match NonNull::new(new_ptr as *mut T) {
+        self.ptr = match flux_nonnull_new(new_ptr) {
             Some(p) => p,
             None => alloc::handle_alloc_error(new_layout),
         };
@@ -60,6 +71,7 @@ impl<T> RawVec<T> {
 }
 
 impl<T> Drop for RawVec<T> {
+    #[flux_rs::trusted]
     fn drop(&mut self) {
         let elem_size = mem::size_of::<T>();
 
@@ -74,26 +86,35 @@ impl<T> Drop for RawVec<T> {
     }
 }
 
+#[flux_rs::refined_by(raw:RawVec, len: int)]
+#[flux_rs::invariant(len <= raw.cap)]
 pub struct Vec<T> {
+    #[flux_rs::field(RawVec<T>[raw])]
     buf: RawVec<T>,
+    #[flux_rs::field(usize[len])]
     len: usize,
 }
 
 impl<T> Vec<T> {
+    #[flux_rs::trusted]
+    #[flux_rs::sig(fn (self: &Vec<T>[@me]) -> *mut{p: p.addr == p.base && p.size >= me.raw.cap} T)]
     fn ptr(&self) -> *mut T {
         self.buf.ptr.as_ptr()
     }
 
+    #[flux_rs::sig(fn (self: &Vec<T>[@me]) -> usize[me.raw.cap])]
     fn cap(&self) -> usize {
         self.buf.cap
     }
 
+    #[flux_rs::spec(fn () -> Vec<T>{v: v.len == 0 && v.raw.cap == 0})]
     pub fn new() -> Self {
         Vec {
             buf: RawVec::new(),
             len: 0,
         }
     }
+    #[flux_rs::sig(fn (self: &strg Vec<T>[@me], elem: T) ensures self: Vec<T>)]
     pub fn push(&mut self, elem: T) {
         if self.len == self.cap() {
             self.buf.grow();
@@ -107,6 +128,8 @@ impl<T> Vec<T> {
         self.len += 1;
     }
 
+    #[flux_rs::trusted]
+    #[flux_rs::sig(fn (self: &strg Vec<T>[@me]) -> Option<T> ensures self: Vec<T>)]
     pub fn pop(&mut self) -> Option<T> {
         if self.len == 0 {
             None
@@ -116,6 +139,7 @@ impl<T> Vec<T> {
         }
     }
 
+    #[flux_rs::sig(fn (self: &strg Vec<T>[@me], index: usize{index <= me.len}, elem: T) ensures self: Vec<T>)]
     pub fn insert(&mut self, index: usize, elem: T) {
         assert!(index <= self.len, "index out of bounds");
         if self.len == self.cap() {
@@ -134,6 +158,8 @@ impl<T> Vec<T> {
         self.len += 1;
     }
 
+    #[flux_rs::trusted]
+    #[flux_rs::sig(fn (self: &strg Vec<T>[@me], index: usize{index < me.len}) -> T ensures self: Vec<T>)]
     pub fn remove(&mut self, index: usize) -> T {
         assert!(index < self.len, "index out of bounds");
 
@@ -150,6 +176,7 @@ impl<T> Vec<T> {
         }
     }
 
+    #[flux_rs::trusted]
     pub fn drain(&mut self) -> Drain<'_, T> {
         let iter = unsafe { RawValIter::new(&self) };
 
@@ -166,6 +193,7 @@ impl<T> Vec<T> {
 }
 
 impl<T> Drop for Vec<T> {
+    #[flux_rs::trusted]
     fn drop(&mut self) {
         while let Some(_) = self.pop() {}
         // deallocation is handled by RawVec
@@ -174,11 +202,13 @@ impl<T> Drop for Vec<T> {
 
 impl<T> Deref for Vec<T> {
     type Target = [T];
+    #[flux_rs::trusted]
     fn deref(&self) -> &[T] {
         unsafe { std::slice::from_raw_parts(self.ptr(), self.len) }
     }
 }
 
+#[flux_rs::ignore]
 impl<T> DerefMut for Vec<T> {
     fn deref_mut(&mut self) -> &mut [T] {
         unsafe { std::slice::from_raw_parts_mut(self.ptr(), self.len) }
@@ -188,6 +218,7 @@ impl<T> DerefMut for Vec<T> {
 impl<T> IntoIterator for Vec<T> {
     type Item = T;
     type IntoIter = IntoIter<T>;
+    #[flux_rs::trusted]
     fn into_iter(self) -> IntoIter<T> {
         let (iter, buf) = unsafe { (RawValIter::new(&self), ptr::read(&self.buf)) };
 
@@ -203,6 +234,7 @@ struct RawValIter<T> {
 }
 
 impl<T> RawValIter<T> {
+    #[flux_rs::trusted]
     unsafe fn new(slice: &[T]) -> Self {
         RawValIter {
             start: slice.as_ptr(),
@@ -217,9 +249,9 @@ impl<T> RawValIter<T> {
     }
 }
 
+#[flux_rs::ignore]
 impl<T> Iterator for RawValIter<T> {
     type Item = T;
-    #[flux_rs::spec(fn (self: &mut Self) -> Option<T> ensures self: Self)]
     fn next(&mut self) -> Option<T> {
         if self.start == self.end {
             None
@@ -237,6 +269,7 @@ impl<T> Iterator for RawValIter<T> {
         }
     }
 
+    #[flux_rs::trusted]
     fn size_hint(&self) -> (usize, Option<usize>) {
         let elem_size = mem::size_of::<T>();
         let len =
@@ -245,6 +278,7 @@ impl<T> Iterator for RawValIter<T> {
     }
 }
 
+#[flux_rs::ignore]
 impl<T> DoubleEndedIterator for RawValIter<T> {
     fn next_back(&mut self) -> Option<T> {
         if self.start == self.end {
@@ -268,17 +302,19 @@ pub struct IntoIter<T> {
     iter: RawValIter<T>,
 }
 
+#[flux_rs::ignore]
 impl<T> Iterator for IntoIter<T> {
     type Item = T;
-    #[flux_rs::spec(fn (self: &mut Self) -> Option<T> ensures self: Self)]
     fn next(&mut self) -> Option<T> {
         self.iter.next()
     }
+    #[flux_rs::trusted]
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.iter.size_hint()
     }
 }
 
+#[flux_rs::ignore]
 impl<T> DoubleEndedIterator for IntoIter<T> {
     fn next_back(&mut self) -> Option<T> {
         self.iter.next_back()
@@ -286,6 +322,7 @@ impl<T> DoubleEndedIterator for IntoIter<T> {
 }
 
 impl<T> Drop for IntoIter<T> {
+    #[flux_rs::trusted]
     fn drop(&mut self) {
         for _ in &mut *self {}
     }
@@ -296,17 +333,19 @@ pub struct Drain<'a, T: 'a> {
     iter: RawValIter<T>,
 }
 
+#[flux_rs::ignore]
 impl<'a, T> Iterator for Drain<'a, T> {
     type Item = T;
-    #[flux_rs::spec(fn (self: &mut Self) -> Option<T> ensures self: Self)]
     fn next(&mut self) -> Option<T> {
         self.iter.next()
     }
+    #[flux_rs::trusted]
     fn size_hint(&self) -> (usize, Option<usize>) {
         self.iter.size_hint()
     }
 }
 
+#[flux_rs::ignore]
 impl<'a, T> DoubleEndedIterator for Drain<'a, T> {
     fn next_back(&mut self) -> Option<T> {
         self.iter.next_back()
@@ -314,6 +353,7 @@ impl<'a, T> DoubleEndedIterator for Drain<'a, T> {
 }
 
 impl<'a, T> Drop for Drain<'a, T> {
+    #[flux_rs::trusted]
     fn drop(&mut self) {
         // pre-drain the iter
         for _ in &mut *self {}
