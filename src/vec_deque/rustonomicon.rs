@@ -97,12 +97,12 @@ pub struct Vec<T> {
 }
 
 impl<T> Vec<T> {
-    #[flux_rs::sig(fn (self: &Vec<T>[@me]) -> *mut[me.raw.ptr] T)]
+    #[flux_rs::spec(fn (self: &Vec<T>[@me]) -> *mut[me.raw.ptr] T)]
     fn ptr(&self) -> *mut T {
         self.buf.ptr.as_ptr()
     }
 
-    #[flux_rs::sig(fn (self: &Vec<T>[@me]) -> usize[me.raw.cap])]
+    #[flux_rs::spec(fn (self: &Vec<T>[@me]) -> usize[me.raw.cap])]
     fn cap(&self) -> usize {
         self.buf.cap
     }
@@ -114,7 +114,7 @@ impl<T> Vec<T> {
             len: 0,
         }
     }
-    #[flux_rs::sig(fn (self: &strg Vec<T>[@me], elem: T) ensures self: Vec<T>)]
+    #[flux_rs::spec(fn (self: &strg Vec<T>[@me], elem: T) ensures self: Vec<T>)]
     pub fn push(&mut self, elem: T) {
         if self.len == self.cap() {
             self.buf.grow();
@@ -131,7 +131,7 @@ impl<T> Vec<T> {
         self.len += 1;
     }
 
-    #[flux_rs::sig(fn (self: &mut Vec<T>[@me]) -> Option<T> ensures self: Vec<T>)]
+    #[flux_rs::spec(fn (self: &mut Vec<T>[@me]) -> Option<T> ensures self: Vec<T>)]
     pub fn pop(&mut self) -> Option<T> {
         if self.len == 0 {
             None
@@ -141,7 +141,7 @@ impl<T> Vec<T> {
         }
     }
 
-    #[flux_rs::sig(fn (self: &strg Vec<T>[@me], index: usize{index <= me.len}, elem: T) ensures self: Vec<T>)]
+    #[flux_rs::spec(fn (self: &strg Vec<T>[@me], index: usize{index <= me.len}, elem: T) ensures self: Vec<T>)]
     pub fn insert(&mut self, index: usize, elem: T) {
         assert!(index <= self.len, "index out of bounds");
         if self.len == self.cap() {
@@ -160,7 +160,7 @@ impl<T> Vec<T> {
         self.len += 1;
     }
 
-    #[flux_rs::sig(fn (self: &strg Vec<T>[@me], index: usize{index < me.len}) -> T ensures self: Vec<T>)]
+    #[flux_rs::spec(fn (self: &strg Vec<T>[@me], index: usize{index < me.len}) -> T ensures self: Vec<T>)]
     pub fn remove(&mut self, index: usize) -> T {
         assert!(index < self.len, "index out of bounds");
 
