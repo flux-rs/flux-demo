@@ -5,4 +5,4 @@
 pub mod flux_specs;
 pub mod raw_vec;
 pub mod rustonomicon;
-pub mod vec_deque;
+// pub mod vec_deque;

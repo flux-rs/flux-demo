@@ -8,7 +8,13 @@ use std::ptr::{self, NonNull};
 use crate::vec_deque::flux_specs::{flux_nonnull_new, flux_unsafe_expect};
 
 #[flux_rs::refined_by(ptr:ptr, cap: int)]
-#[flux_rs::invariant(ptr.size == cap && cap <= isize::MAX && ptr.addr == ptr.base)]
+#[flux_rs::invariant(ptr.size == cap * T::size_of() &&
+                     cap <= isize::MAX &&
+                     ptr.addr == ptr.base &&
+                     T::size_of() > 0 &&
+                     T::align_of() > 0 &&
+                     ptr.addr > 0 &&
+                     ptr.addr % T::align_of() == 0)]
 struct RawVec<T> {
     #[flux_rs::field(NonNull<T>[ptr])]
     ptr: NonNull<T>,
@@ -88,7 +94,7 @@ impl<T> Drop for RawVec<T> {
 }
 
 #[flux_rs::refined_by(raw:RawVec, len: int)]
-#[flux_rs::invariant(len <= raw.cap && raw.cap == raw.ptr.size)]
+#[flux_rs::invariant(len <= raw.cap)]
 pub struct Vec<T> {
     #[flux_rs::field(RawVec<T>[raw])]
     buf: RawVec<T>,
@@ -114,6 +120,8 @@ impl<T> Vec<T> {
             len: 0,
         }
     }
+
+    // #[flux_rs::opts(solver = "cvc5")]
     #[flux_rs::spec(fn (self: &strg Vec<T>[@me], elem: T) ensures self: Vec<T>)]
     pub fn push(&mut self, elem: T) {
         if self.len == self.cap() {
@@ -131,6 +139,7 @@ impl<T> Vec<T> {
         self.len += 1;
     }
 
+    #[flux_rs::opts(solver = "cvc5")]
     #[flux_rs::spec(fn (self: &mut Vec<T>[@me]) -> Option<T> ensures self: Vec<T>)]
     pub fn pop(&mut self) -> Option<T> {
         if self.len == 0 {

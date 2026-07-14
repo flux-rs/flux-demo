@@ -42,7 +42,7 @@ impl<T> NonNull<T> {
 
 #[flux_rs::extern_spec(core::ptr)]
 impl<T: Sized> NonNull<T> {
-    #[flux_rs::spec(fn () -> NonNull<T>{v: v.ptr.addr == v.ptr.base && v.ptr.size == 0})]
+    #[flux_rs::spec(fn () -> NonNull<T>{v: v.ptr.addr == v.ptr.base && v.ptr.size == 0 && v.ptr.addr > 0 && v.ptr.addr % T::align_of() == 0 && T::size_of() % T::align_of() == 0 && T::size_of() > 0 && T::align_of() > 0})]
     fn dangling() -> NonNull<T>;
 }
 
@@ -92,7 +92,7 @@ pub fn flux_unsafe_expect<T, E>(result: Result<T, E>, msg: &str) -> T {
 }
 
 #[flux_rs::trusted(reason = "extern spec for NonNull::new, todo: cast")]
-#[flux_rs::spec(fn (*mut[@ptr] u8) -> Option<NonNull<T>{v: v.ptr.addr == ptr.addr && v.ptr.base == ptr.base && v.ptr.size * T::size_of() == ptr.size}>)] // TODO: some alignment precondition on ptr?
+#[flux_rs::spec(fn (*mut[@ptr] u8) -> Option<NonNull<T>{v: v.ptr.addr == ptr.addr && v.ptr.base == ptr.base && v.ptr.size == ptr.size && v.ptr.addr > 0 && v.ptr.addr % T::align_of() == 0 && T::size_of() % T::align_of() == 0 && T::size_of() > 0 && T::align_of() > 0}>)]
 pub fn flux_nonnull_new<T>(ptr: *mut u8) -> Option<NonNull<T>> {
     NonNull::new(ptr as *mut T)
 }

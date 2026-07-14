@@ -52,7 +52,7 @@ enum AllocInit {
 #[flux_rs::refined_by(cap:int, ptr:Unique)]
 #[allow(missing_debug_implementations)]
 pub(crate) struct RawVec<T, A: Allocator = Global> {
-    #[flux_rs::field({Unique<T>[ptr] | ptr.ptr.addr == ptr.ptr.base && ptr.ptr.size >= cap})]
+    #[flux_rs::field({Unique<T>[ptr] | ptr.ptr.addr == ptr.ptr.base && ptr.ptr.size >= cap * T::size_of()})]
     ptr: Unique<T>,
     #[flux_rs::field(usize[cap])]
     cap: usize,
@@ -197,7 +197,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// guaranteed.
     #[inline]
     #[flux_rs::spec(fn (*mut[@ptr] T, capacity: usize, alloc: A) -> RawVec<T, A>[{cap: capacity, ptr: ptr}]
-                    requires ptr.addr == ptr.base && ptr.size == capacity)]
+                    requires ptr.addr == ptr.base && ptr.size >= capacity * T::size_of())]
     pub unsafe fn from_raw_parts_in(ptr: *mut T, capacity: usize, alloc: A) -> Self {
         Self {
             ptr: unsafe { flux_todo_unique_new_unchecked(ptr) },
@@ -210,7 +210,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// `Unique::dangling()` if `capacity == 0` or `T` is zero-sized. In the former case, you must
     /// be careful.
     #[inline]
-    #[flux_rs::sig(fn (self: &RawVec<T,A>[@me]) -> *mut{p: p.addr == p.base && p.size >= me.cap} T)]
+    #[flux_rs::sig(fn (self: &RawVec<T,A>[@me]) -> *mut{p: p.addr == p.base && p.size >= me.cap * T::size_of()} T)]
     pub fn ptr(&self) -> *mut T {
         self.ptr.as_ptr()
     }
@@ -373,7 +373,7 @@ impl<T, A: Allocator> RawVec<T, A> {
         additional > sub
     }
 
-    #[flux_rs::sig(fn (self: &mut RawVec<T, A>, ptr: NonNull<[u8]>{p: p.ptr.addr == p.ptr.base && p.ptr.size >= cap}, cap: usize) ensures self: RawVec<T, A>{v: v.cap == cap})]
+    #[flux_rs::sig(fn (self: &mut RawVec<T, A>, ptr: NonNull<[u8]>{p: p.ptr.addr == p.ptr.base && p.ptr.size >= cap * T::size_of()}, cap: usize) ensures self: RawVec<T, A>{v: v.cap == cap})]
     fn set_ptr_and_cap(&mut self, ptr: NonNull<[u8]>, cap: usize) {
         // Allocators currently return a `NonNull<[u8]>` whose length matches
         // the size requested. If that ever changes, the capacity here should
