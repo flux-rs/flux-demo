@@ -15,8 +15,11 @@ cache = true
 
 [dependencies]
 flux-rs = { git = "https://github.com/flux-rs/flux" }
-flux-core = { git = "https://github.com/flux-rs/flux" }
-flux-alloc = { git = "https://github.com/flux-rs/flux" }
+flux-core = { path = "../flux/lib/flux-core" }
+flux-alloc = { path = "../flux/lib/flux-alloc" }
+# flux-core = { git = "https://github.com/flux-rs/flux" }
+# flux-alloc = { git = "https://github.com/flux-rs/flux" }
+
 rand = "0.8"
 im = "15.1.0"
 

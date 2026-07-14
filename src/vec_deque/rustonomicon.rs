@@ -7,19 +7,14 @@ use std::ptr::{self, NonNull};
 
 use crate::vec_deque::flux_specs::{flux_nonnull_new, flux_unsafe_expect};
 
-// flux_rs::defs! {
-//     // fn raw_vec_ptr(rv: RawVec) -> ptr {
-//     //     ptr {base: rv.base, addr: rv.addr, size: rv.size}
-//     // }
-// }
-
 #[flux_rs::refined_by(base:int, addr:int, size:int, cap:int)]
 #[flux_rs::invariant(size == cap * T::size_of() &&
                      cap <= isize::MAX &&
                      addr == base &&
                      T::size_of() > 0 &&
                      addr > 0 &&
-                     addr % T::align_of() == 0)]
+                     aligned_to(addr, T::align_of())
+                     )]
 struct RawVec<T> {
     #[flux_rs::field(NonNull<T>[base, addr, size])]
     ptr: NonNull<T>,
@@ -37,12 +32,10 @@ impl<T> RawVec<T> {
         assert!(mem::size_of::<T>() != 0, "TODO:zst");
         // let cap = if mem::size_of::<T>() == 0 { !0 } else { 0 };
         let cap = 0;
+        let ptr = NonNull::dangling();
 
         // `NonNull::dangling()` doubles as "unallocated" and "zero-sized allocation"
-        RawVec {
-            ptr: NonNull::dangling(),
-            cap,
-        }
+        RawVec { ptr, cap }
     }
 
     #[flux_rs::opts(solver = "cvc5")] // bitvector specs in Layout seem to kill z3

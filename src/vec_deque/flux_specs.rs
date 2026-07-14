@@ -4,6 +4,12 @@ use std::{
     ptr::{NonNull, Unique},
 };
 
+flux_rs::defs! {
+    fn aligned_to(addr: int, align: int) -> bool {
+        addr % align == 0
+    }
+}
+
 #[flux_rs::extern_spec(core::ptr)]
 #[flux_rs::refined_by(ptr:ptr)]
 struct Unique<T>;
@@ -16,7 +22,7 @@ impl<T> Unique<T> {
 
 #[flux_rs::extern_spec(core::ptr)]
 impl<T: Sized> Unique<T> {
-    #[flux_rs::spec(fn () -> Unique<T>{v: v.ptr.addr == v.ptr.base && v.ptr.size == 0})]
+    #[flux_rs::spec(fn () -> Unique<T>{v: v.ptr.addr == v.ptr.base && v.ptr.size == 0 && aligned_to(v.ptr.addr, T::align_of())})]
     fn dangling() -> Self;
 }
 

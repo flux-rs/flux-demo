@@ -114,7 +114,9 @@ impl<T, A: Allocator> VecDeque<T, A> {
     #[flux_rs::sig(fn (self: &mut VecDeque<T,A>[@me], off: usize{ off < me.cap }, value: T) )]
     unsafe fn buffer_write(&mut self, off: usize, value: T) {
         unsafe {
-            ptr::write(self.ptr().add(off), value);
+            let ptr = self.ptr();
+            let dst = ptr.add(off);
+            ptr::write(dst, value);
         }
     }
 
