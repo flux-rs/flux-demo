@@ -7,16 +7,21 @@ use std::ptr::{self, NonNull};
 
 use crate::vec_deque::flux_specs::{flux_nonnull_new, flux_unsafe_expect};
 
-#[flux_rs::refined_by(ptr:ptr, cap: int)]
-#[flux_rs::invariant(ptr.size == cap * T::size_of() &&
+// flux_rs::defs! {
+//     // fn raw_vec_ptr(rv: RawVec) -> ptr {
+//     //     ptr {base: rv.base, addr: rv.addr, size: rv.size}
+//     // }
+// }
+
+#[flux_rs::refined_by(base:int, addr:int, size:int, cap:int)]
+#[flux_rs::invariant(size == cap * T::size_of() &&
                      cap <= isize::MAX &&
-                     ptr.addr == ptr.base &&
+                     addr == base &&
                      T::size_of() > 0 &&
-                     T::align_of() > 0 &&
-                     ptr.addr > 0 &&
-                     ptr.addr % T::align_of() == 0)]
+                     addr > 0 &&
+                     addr % T::align_of() == 0)]
 struct RawVec<T> {
-    #[flux_rs::field(NonNull<T>[ptr])]
+    #[flux_rs::field(NonNull<T>[base, addr, size])]
     ptr: NonNull<T>,
     #[flux_rs::field(usize[cap])]
     cap: usize,
@@ -103,7 +108,7 @@ pub struct Vec<T> {
 }
 
 impl<T> Vec<T> {
-    #[flux_rs::spec(fn (self: &Vec<T>[@me]) -> *mut[me.raw.ptr] T)]
+    #[flux_rs::spec(fn (self: &Vec<T>[@me]) -> *mut[me.raw.base, me.raw.addr, me.raw.size] T)]
     fn ptr(&self) -> *mut T {
         self.buf.ptr.as_ptr()
     }

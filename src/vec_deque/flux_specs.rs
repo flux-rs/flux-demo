@@ -26,15 +26,15 @@ impl<T: Sized> Unique<T> {
 //     unsafe fn new_unchecked(ptr: *mut T) -> Self;
 // }
 
-#[flux_rs::extern_spec(core::ptr)]
-#[flux_rs::refined_by(ptr: ptr)]
-#[flux_rs::invariant(ptr.addr == ptr.base)]
-struct NonNull<T>;
+// #[flux_rs::extern_spec(core::ptr)]
+// #[flux_rs::refined_by(ptr: ptr)]
+// #[flux_rs::invariant(ptr.addr == ptr.base)]
+// struct NonNull<T>;
 
 #[flux_rs::extern_spec(core::ptr)]
 impl<T> NonNull<T> {
-    #[flux_rs::spec(fn (self: NonNull<T>[@ptr]) -> *mut[ptr] T)]
-    fn as_ptr(self) -> *mut T;
+    // #[flux_rs::spec(fn (self: NonNull<T>[@ptr]) -> *mut[ptr] T)]
+    // fn as_ptr(self) -> *mut T;
 
     #[flux_rs::spec(fn (self: NonNull<T>[@ptr]) -> NonNull<U>[ptr])]
     fn cast<U>(self) -> NonNull<U>;
@@ -42,7 +42,7 @@ impl<T> NonNull<T> {
 
 #[flux_rs::extern_spec(core::ptr)]
 impl<T: Sized> NonNull<T> {
-    #[flux_rs::spec(fn () -> NonNull<T>{v: v.ptr.addr == v.ptr.base && v.ptr.size == 0 && v.ptr.addr > 0 && v.ptr.addr % T::align_of() == 0 && T::size_of() % T::align_of() == 0 && T::size_of() > 0 && T::align_of() > 0})]
+    #[flux_rs::spec(fn () -> NonNull<T>{v: v.addr == v.base && v.size == 0 && v.addr > 0 && v.addr % T::align_of() == 0})]
     fn dangling() -> NonNull<T>;
 }
 
@@ -56,7 +56,7 @@ unsafe fn realloc(ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8;
 
 #[flux_rs::extern_spec(core::alloc)]
 trait Allocator {
-    #[flux_rs::spec(fn (&Self, layout: Layout) -> Result<NonNull<[u8]>{v: v.ptr.addr == v.ptr.base}, AllocError>)]
+    #[flux_rs::spec(fn (&Self, layout: Layout) -> Result<NonNull<[u8]>{v: v.addr == v.base}, AllocError>)]
     fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError>;
 
     #[flux_rs::spec(fn (&Self, ptr: NonNull<u8>, old_layout: Layout, new_layout: Layout) -> Result<NonNull<[u8]>, AllocError>)]
@@ -68,7 +68,7 @@ trait Allocator {
     ) -> Result<NonNull<[u8]>, AllocError>;
 
     #[flux_rs::spec(fn (&Self, ptr: NonNull<u8>, old_layout: Layout, new_layout: Layout)
-      -> Result<NonNull<[u8]>{v: v.ptr.addr == v.ptr.base}, AllocError>)]
+      -> Result<NonNull<[u8]>{v: v.addr == v.base}, AllocError>)]
     unsafe fn shrink(
         &self,
         ptr: NonNull<u8>,
@@ -92,7 +92,7 @@ pub fn flux_unsafe_expect<T, E>(result: Result<T, E>, msg: &str) -> T {
 }
 
 #[flux_rs::trusted(reason = "extern spec for NonNull::new, todo: cast")]
-#[flux_rs::spec(fn (*mut[@ptr] u8) -> Option<NonNull<T>{v: v.ptr.addr == ptr.addr && v.ptr.base == ptr.base && v.ptr.size == ptr.size && v.ptr.addr > 0 && v.ptr.addr % T::align_of() == 0 && T::size_of() % T::align_of() == 0 && T::size_of() > 0 && T::align_of() > 0}>)]
+#[flux_rs::spec(fn (*mut[@ptr] u8) -> Option<NonNull<T>{v: v.addr == ptr.addr && v.base == ptr.base && v.size == ptr.size && v.addr > 0 && v.addr % T::align_of() == 0}>)]
 pub fn flux_nonnull_new<T>(ptr: *mut u8) -> Option<NonNull<T>> {
     NonNull::new(ptr as *mut T)
 }

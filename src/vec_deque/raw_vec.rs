@@ -373,7 +373,7 @@ impl<T, A: Allocator> RawVec<T, A> {
         additional > sub
     }
 
-    #[flux_rs::sig(fn (self: &mut RawVec<T, A>, ptr: NonNull<[u8]>{p: p.ptr.addr == p.ptr.base && p.ptr.size >= cap * T::size_of()}, cap: usize) ensures self: RawVec<T, A>{v: v.cap == cap})]
+    #[flux_rs::sig(fn (self: &mut RawVec<T, A>, ptr: NonNull<[u8]>{p: p.addr == p.base && p.size >= cap * T::size_of()}, cap: usize) ensures self: RawVec<T, A>{v: v.cap == cap})]
     fn set_ptr_and_cap(&mut self, ptr: NonNull<[u8]>, cap: usize) {
         // Allocators currently return a `NonNull<[u8]>` whose length matches
         // the size requested. If that ever changes, the capacity here should
