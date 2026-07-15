@@ -75,7 +75,7 @@ pub struct VecDeque<
     tail: usize,
     #[flux_rs::field({ usize[head] | head < cap })]
     head: usize,
-    #[flux_rs::field({ RawVec<T, A>[cap, ptr] | pow2(cap) && 1 <= cap } )]
+    #[flux_rs::field({ RawVec<T, A>[cap, ptr] | pow2(cap) && 1 <= cap && T::size_of() >= 0 } )]
     buf: RawVec<T, A>,
 }
 
@@ -91,7 +91,7 @@ impl<T> Default for VecDeque<T> {
 impl<T, A: Allocator> VecDeque<T, A> {
     /// Marginally more convenient
     #[inline]
-    #[flux_rs::sig(fn (self: &VecDeque<T,A>[@me]) -> *mut{p: p.addr == p.base && p.size >= me.cap * T::size_of()} T)]
+    #[flux_rs::sig(fn (self: &VecDeque<T,A>[@me]) -> *mut{p: p.addr == p.base && p.base == me.ptr.ptr.base && p.size >= me.cap * T::size_of() && p.size >= 0 && p.addr % T::align_of() == 0 && p.addr > 0 && T::size_of() >= 0} T)]
     fn ptr(&self) -> *mut T {
         self.buf.ptr()
     }
@@ -144,7 +144,7 @@ impl<T, A: Allocator> VecDeque<T, A> {
 
     /// Copies a contiguous block of memory len long from src to dst
     #[inline]
-    #[flux_rs::sig(fn (self: &VecDeque<T,A>[@me], dst: usize{dst + len <= me.cap}, src: usize{src + len <= me.cap}, len: usize))]
+    #[flux_rs::sig(fn (self: &VecDeque<T,A>[@me], dst: usize{dst + len <= me.cap}, src: usize{src + len <= me.cap && (src + len <= dst || dst + len <= src)}, len: usize))]
     unsafe fn copy_nonoverlapping(&self, dst: usize, src: usize, len: usize) {
         assert(dst + len <= self.cap());
         assert(src + len <= self.cap());

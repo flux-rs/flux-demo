@@ -52,7 +52,7 @@ enum AllocInit {
 #[flux_rs::refined_by(cap:int, ptr:Unique)]
 #[allow(missing_debug_implementations)]
 pub(crate) struct RawVec<T, A: Allocator = Global> {
-    #[flux_rs::field({Unique<T>[ptr] | ptr.ptr.addr == ptr.ptr.base && ptr.ptr.size >= cap * T::size_of()})]
+    #[flux_rs::field({Unique<T>[ptr] | ptr.ptr.addr == ptr.ptr.base && ptr.ptr.size >= cap * T::size_of() && ptr.ptr.size >= 0 && ptr.ptr.addr % T::align_of() == 0 && ptr.ptr.addr > 0})]
     ptr: Unique<T>,
     #[flux_rs::field(usize[cap])]
     cap: usize,
@@ -136,7 +136,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// allocator for the returned `RawVec`.
     // #[cfg(not(no_global_oom_handling))]
     #[inline]
-    #[flux_rs::sig(fn (capacity: usize, alloc: A) -> RawVec<T,A>{v: v.cap == capacity})]
+    #[flux_rs::sig(fn (capacity: usize, alloc: A) -> RawVec<T,A>{v: v.cap == capacity && T::size_of() >= 0})]
     pub fn with_capacity_in(capacity: usize, alloc: A) -> Self {
         Self::allocate_in(capacity, AllocInit::Uninitialized, alloc)
     }
@@ -150,7 +150,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     }
 
     #[flux_rs::trusted(reason = "extern spec: Layout")]
-    #[flux_rs::spec(fn (capacity: usize, init: AllocInit, alloc: A) -> Self{v: v.cap == capacity})]
+    #[flux_rs::spec(fn (capacity: usize, init: AllocInit, alloc: A) -> Self{v: v.cap == capacity && T::size_of() >= 0})]
     fn allocate_in(capacity: usize, init: AllocInit, alloc: A) -> Self {
         if mem::size_of::<T>() == 0 {
             Self::new_in(alloc)
@@ -197,7 +197,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// guaranteed.
     #[inline]
     #[flux_rs::spec(fn (*mut[@ptr] T, capacity: usize, alloc: A) -> RawVec<T, A>[{cap: capacity, ptr: ptr}]
-                    requires ptr.addr == ptr.base && ptr.size >= capacity * T::size_of())]
+                    requires ptr.addr == ptr.base && ptr.size >= capacity * T::size_of() && ptr.size >= 0 && ptr.addr % T::align_of() == 0 && ptr.addr > 0)]
     pub unsafe fn from_raw_parts_in(ptr: *mut T, capacity: usize, alloc: A) -> Self {
         Self {
             ptr: unsafe { flux_todo_unique_new_unchecked(ptr) },
@@ -210,7 +210,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// `Unique::dangling()` if `capacity == 0` or `T` is zero-sized. In the former case, you must
     /// be careful.
     #[inline]
-    #[flux_rs::sig(fn (self: &RawVec<T,A>[@me]) -> *mut{p: p.addr == p.base && p.size >= me.cap * T::size_of()} T)]
+    #[flux_rs::sig(fn (self: &RawVec<T,A>[@me]) -> *mut{p: p.addr == p.base && p.base == me.ptr.ptr.base && p.size >= me.cap * T::size_of() && p.size >= 0 && p.addr % T::align_of() == 0 && p.addr > 0} T)]
     pub fn ptr(&self) -> *mut T {
         self.ptr.as_ptr()
     }
@@ -373,7 +373,7 @@ impl<T, A: Allocator> RawVec<T, A> {
         additional > sub
     }
 
-    #[flux_rs::sig(fn (self: &mut RawVec<T, A>, ptr: NonNull<[u8]>{p: p.addr == p.base && p.size >= cap * T::size_of()}, cap: usize) ensures self: RawVec<T, A>{v: v.cap == cap})]
+    #[flux_rs::sig(fn (self: &mut RawVec<T, A>, ptr: NonNull<[u8]>{p: p.addr == p.base && p.size >= cap * T::size_of() && p.size >= 0 && p.addr % T::align_of() == 0 && p.addr > 0}, cap: usize) ensures self: RawVec<T, A>{v: v.cap == cap})]
     fn set_ptr_and_cap(&mut self, ptr: NonNull<[u8]>, cap: usize) {
         // Allocators currently return a `NonNull<[u8]>` whose length matches
         // the size requested. If that ever changes, the capacity here should

@@ -22,7 +22,7 @@ impl<T> Unique<T> {
 
 #[flux_rs::extern_spec(core::ptr)]
 impl<T: Sized> Unique<T> {
-    #[flux_rs::spec(fn () -> Unique<T>{v: v.ptr.addr == v.ptr.base && v.ptr.size == 0 && aligned_to(v.ptr.addr, T::align_of())})]
+    #[flux_rs::spec(fn () -> Unique<T>{v: v.ptr.addr == v.ptr.base && v.ptr.size == 0 && aligned_to(v.ptr.addr, T::align_of()) && v.ptr.addr > 0})]
     fn dangling() -> Self;
 }
 
