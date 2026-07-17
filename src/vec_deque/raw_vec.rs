@@ -95,6 +95,7 @@ impl<T> RawVec<T, Global> {
     // #[cfg(not(any(no_global_oom_handling, test)))]
     #[must_use]
     #[inline]
+    #[flux_rs::spec(fn (capacity: usize) -> Self requires T::size_of() > 0)]
     pub fn with_capacity(capacity: usize) -> Self {
         Self::with_capacity_in(capacity, Global)
     }
@@ -103,6 +104,7 @@ impl<T> RawVec<T, Global> {
     //#[cfg(not(any(no_global_oom_handling, test)))]
     #[must_use]
     #[inline]
+    #[flux_rs::spec(fn (capacity: usize) -> Self requires T::size_of() > 0)]
     pub fn with_capacity_zeroed(capacity: usize) -> Self {
         Self::with_capacity_zeroed_in(capacity, Global)
     }
@@ -139,7 +141,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// allocator for the returned `RawVec`.
     // #[cfg(not(no_global_oom_handling))]
     #[inline]
-    #[flux_rs::sig(fn (capacity: usize, alloc: A) -> RawVec<T,A>{v: v.cap == capacity && T::size_of() >= 0})]
+    #[flux_rs::sig(fn (capacity: usize, alloc: A) -> RawVec<T,A>{v: v.cap == capacity} requires T::size_of() > 0)]
     pub fn with_capacity_in(capacity: usize, alloc: A) -> Self {
         Self::allocate_in(capacity, AllocInit::Uninitialized, alloc)
     }
@@ -148,12 +150,13 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// of allocator for the returned `RawVec`.
     // #[cfg(not(no_global_oom_handling))]
     #[inline]
+    #[flux_rs::spec(fn (capacity: usize, alloc: A) -> Self requires T::size_of() > 0)]
     pub fn with_capacity_zeroed_in(capacity: usize, alloc: A) -> Self {
         Self::allocate_in(capacity, AllocInit::Zeroed, alloc)
     }
 
-    #[flux_rs::trusted(reason = "extern spec: Layout")]
-    #[flux_rs::spec(fn (capacity: usize, init: AllocInit, alloc: A) -> Self{v: v.cap == capacity && T::size_of() >= 0})]
+    // #[flux_rs::trusted(reason = "extern spec: Layout")]
+    #[flux_rs::spec(fn (capacity: usize, init: AllocInit, alloc: A) -> Self{v: v.cap == capacity} requires T::size_of() > 0)]
     fn allocate_in(capacity: usize, init: AllocInit, alloc: A) -> Self {
         if mem::size_of::<T>() == 0 {
             Self::new_in(alloc)
@@ -474,7 +477,7 @@ impl<T, A: Allocator> RawVec<T, A> {
 // above `RawVec::grow_amortized` for details. (The `A` parameter isn't
 // significant, because the number of different `A` types seen in practice is
 // much smaller than the number of `T` types.)
-#[flux_rs::spec(fn (new_layout: Result<Layout, LayoutError>, current_memory: Option<(NonNull<u8>, Layout)>, alloc: &mut A) -> Result<NonNull<[u8]>, TryReserveError>)]
+// #[flux_rs::spec(fn (new_layout: Result<Layout, LayoutError>, current_memory: Option<(NonNull<u8>, Layout)>, alloc: &mut A) -> Result<NonNull<[u8]>, TryReserveError>)]
 #[inline(never)]
 fn finish_grow<A>(
     new_layout: Result<Layout, LayoutError>,

@@ -62,8 +62,11 @@ unsafe fn realloc(ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8;
 
 #[flux_rs::extern_spec(core::alloc)]
 trait Allocator {
-    #[flux_rs::spec(fn (&Self, layout: Layout) -> Result<NonNull<[u8]>{v: v.addr == v.base}, AllocError>)]
+    #[flux_rs::spec(fn (&Self, layout: Layout) -> Result<NonNull<[u8]>{v: v.addr == v.base && v.size >= layout.size && v.addr > 0 && v.addr % layout.align == 0}, AllocError>)]
     fn allocate(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError>;
+
+    #[flux_rs::spec(fn (&Self, layout: Layout) -> Result<NonNull<[u8]>{v: v.addr == v.base && v.size >= layout.size && v.addr > 0 && v.addr % layout.align == 0}, AllocError>)]
+    fn allocate_zeroed(&self, layout: Layout) -> Result<NonNull<[u8]>, AllocError>;
 
     #[flux_rs::spec(fn (&Self, ptr: NonNull<u8>, old_layout: Layout, new_layout: Layout) -> Result<NonNull<[u8]>, AllocError>)]
     unsafe fn grow(

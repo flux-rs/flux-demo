@@ -83,6 +83,8 @@ pub struct VecDeque<
 impl<T> Default for VecDeque<T> {
     /// Creates an empty deque.
     #[inline]
+    #[flux_rs::trusted_impl(reason = "silly T::size_of() > 0")]
+    #[flux_rs::spec(fn () -> VecDeque<T> requires T::size_of() > 0)]
     fn default() -> VecDeque<T> {
         VecDeque::new()
     }
@@ -99,7 +101,7 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// Marginally more convenient
     #[inline]
     #[flux_rs::trusted]
-    #[flux_rs::sig(fn (self: &VecDeque<T,A>[@me]) -> usize{v : v == me.cap && size(v) })]
+    #[flux_rs::sig(fn (self: &VecDeque<T,A>[@me]) -> usize{v : v == me.cap && size(v) } )]
     fn cap(&self) -> usize {
         if mem::size_of::<T>() == 0 {
             // For zero sized types, we are always at maximum capacity
@@ -235,6 +237,7 @@ impl<T> VecDeque<T> {
     #[inline]
     //#[stable(feature = "rust1", since = "1.0.0")]
     #[must_use]
+    #[flux_rs::spec(fn () -> VecDeque<T> requires T::size_of() > 0)]
     pub fn new() -> VecDeque<T> {
         VecDeque::new_in(Global)
     }
@@ -250,7 +253,7 @@ impl<T> VecDeque<T> {
     #[inline]
     //#[stable(feature = "rust1", since = "1.0.0")]
     #[must_use]
-    #[flux_rs::sig(fn(capacity: usize{capacity < MAXIMUM_ZST_CAPACITY}) -> VecDeque<T>)]
+    #[flux_rs::sig(fn(capacity: usize{capacity < MAXIMUM_ZST_CAPACITY}) -> VecDeque<T> requires T::size_of() > 0)]
     pub fn with_capacity(capacity: usize) -> VecDeque<T> {
         Self::with_capacity_in(capacity, Global)
     }
@@ -268,6 +271,7 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// ```
     #[inline]
     //#[unstable(feature = "allocator_api", issue = "32838")]
+    #[flux_rs::spec(fn (alloc: A) -> VecDeque<T, A> requires T::size_of() > 0)]
     fn new_in(alloc: A) -> VecDeque<T, A> {
         VecDeque::with_capacity_in(INITIAL_CAPACITY, alloc)
     }
@@ -282,7 +286,7 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// let deque: VecDeque<u32> = VecDeque::with_capacity(10);
     /// ```
     //#[unstable(feature = "allocator_api", issue = "32838")]
-    #[flux_rs::sig(fn (capacity: usize{capacity < MAXIMUM_ZST_CAPACITY}, alloc: A) -> VecDeque<T, A>{v: v.head == 0 && v.tail == 0 && capacity <= v.cap})]
+    #[flux_rs::sig(fn (capacity: usize{capacity < MAXIMUM_ZST_CAPACITY}, alloc: A) -> VecDeque<T, A>{v: v.head == 0 && v.tail == 0 && capacity <= v.cap} requires T::size_of() > 0)]
     fn with_capacity_in(capacity: usize, alloc: A) -> VecDeque<T, A> {
         // FLUX-TODO: same as MAXIMUM_ZST_CAPACITY?: assert!(capacity < 1_usize << usize::BITS - 1, "capacity overflow");
         assert(capacity < MAXIMUM_ZST_CAPACITY);
