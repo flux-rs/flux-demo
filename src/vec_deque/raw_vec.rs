@@ -51,6 +51,7 @@ enum AllocInit {
 /// `Box<[T]>`, since `capacity()` won't yield the length.
 #[flux_rs::refined_by(cap:int, ptr:Unique)]
 #[allow(missing_debug_implementations)]
+#[flux_rs::invariant(cap <= usize::MAX && T::size_of() > 0)]
 pub(crate) struct RawVec<T, A: Allocator = Global> {
     #[flux_rs::field({Unique<T>[ptr] | ptr.ptr.addr == ptr.ptr.base && ptr.ptr.size >= cap * T::size_of() && ptr.ptr.size >= 0 && ptr.ptr.addr % T::align_of() == 0 && ptr.ptr.addr > 0})]
     ptr: Unique<T>,
@@ -73,6 +74,7 @@ impl<T> RawVec<T, Global> {
     /// `RawVec` with capacity `usize::MAX`. Useful for implementing
     /// delayed allocation.
     #[must_use]
+    #[flux_rs::spec(fn () -> _ requires T::size_of() > 0)]
     pub const fn new() -> Self {
         Self::new_in(Global)
     }
@@ -123,6 +125,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// Like `new`, but parameterized over the choice of allocator for
     /// the returned `RawVec`.
     #[rustc_allow_const_fn_unstable(const_fn)]
+    #[flux_rs::spec(fn (_) -> _ requires T::size_of() > 0)]
     pub const fn new_in(alloc: A) -> Self {
         // `cap: 0` means "unallocated". zero-sized types are ignored.
         Self {
@@ -197,7 +200,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     /// guaranteed.
     #[inline]
     #[flux_rs::spec(fn (*mut[@ptr] T, capacity: usize, alloc: A) -> RawVec<T, A>[{cap: capacity, ptr: ptr}]
-                    requires ptr.addr == ptr.base && ptr.size >= capacity * T::size_of() && ptr.size >= 0 && ptr.addr % T::align_of() == 0 && ptr.addr > 0)]
+                    requires capacity <= usize::MAX && ptr.addr == ptr.base && ptr.size >= capacity * T::size_of() && ptr.size >= 0 && ptr.addr % T::align_of() == 0 && ptr.addr > 0 && T::size_of() > 0)]
     pub unsafe fn from_raw_parts_in(ptr: *mut T, capacity: usize, alloc: A) -> Self {
         Self {
             ptr: unsafe { flux_todo_unique_new_unchecked(ptr) },
@@ -219,6 +222,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     ///
     /// This will always be `usize::MAX` if `T` is zero-sized.
     #[inline(always)]
+    #[flux_rs::spec(fn (&Self[@me]) -> usize[me.cap])]
     pub fn capacity(&self) -> usize {
         if mem::size_of::<T>() == 0 {
             usize::MAX
@@ -365,7 +369,6 @@ impl<T, A: Allocator> RawVec<T, A> {
 impl<T, A: Allocator> RawVec<T, A> {
     /// Returns if the buffer needs to grow to fulfill the needed extra capacity.
     /// Mainly used to make inlining reserve-calls possible without inlining `grow`.
-    #[flux_rs::trusted(reason = "extern-spec: wrapping-sub")]
     #[flux_rs::spec(fn (&RawVec<T, A>[@me], len: usize{len <= me.cap}, additional: usize) -> bool[additional > me.cap - len])]
     fn needs_to_grow(&self, len: usize, additional: usize) -> bool {
         let cap = self.capacity();
@@ -373,7 +376,7 @@ impl<T, A: Allocator> RawVec<T, A> {
         additional > sub
     }
 
-    #[flux_rs::sig(fn (self: &mut RawVec<T, A>, ptr: NonNull<[u8]>{p: p.addr == p.base && p.size >= cap * T::size_of() && p.size >= 0 && p.addr % T::align_of() == 0 && p.addr > 0}, cap: usize) ensures self: RawVec<T, A>{v: v.cap == cap})]
+    #[flux_rs::sig(fn (self: &mut RawVec<T, A>, ptr: NonNull<[u8]>{p: p.addr == p.base && p.size >= cap * T::size_of() && p.size >= 0 && p.addr % T::align_of() == 0 && p.addr > 0}, cap: usize{cap <= usize::MAX}) ensures self: RawVec<T, A>{v: v.cap == cap})]
     fn set_ptr_and_cap(&mut self, ptr: NonNull<[u8]>, cap: usize) {
         // Allocators currently return a `NonNull<[u8]>` whose length matches
         // the size requested. If that ever changes, the capacity here should
@@ -420,7 +423,7 @@ impl<T, A: Allocator> RawVec<T, A> {
     // The constraints on this method are much the same as those on
     // `grow_amortized`, but this method is usually instantiated less often so
     // it's less critical.
-    #[flux_rs::trusted(reason = "extern-spec: Layout")]
+    #[flux_rs::trusted(reason = "extern-spec: Layout (finish_grow)")]
     #[flux_rs::sig(fn (self: &mut RawVec<T, A>[@old], len: usize{len <= old.cap}, additional: usize) -> _ ensures self: RawVec<T, A>{v: v.cap == len + additional})]
     fn grow_exact(&mut self, len: usize, additional: usize) -> Result<(), TryReserveError> {
         if mem::size_of::<T>() == 0 {

@@ -13,7 +13,8 @@ use crate::vec_deque::flux_specs::{flux_nonnull_new, flux_unsafe_expect};
                      addr == base &&
                      T::size_of() > 0 &&
                      addr > 0 &&
-                     aligned_to(addr, T::align_of())
+                     aligned_to(addr, T::align_of()) &&
+                     aligned_to(T::size_of(), T::align_of())
                      )]
 struct RawVec<T> {
     #[flux_rs::field(NonNull<T>[base, addr, size])]
@@ -76,7 +77,9 @@ impl<T> RawVec<T> {
 }
 
 impl<T> Drop for RawVec<T> {
-    #[flux_rs::trusted(reason = "todo: init")]
+    #[flux_rs::trusted(
+        reason = "todo: layout...unwrap -- is_valid_array_layout required, holds as invariant on self.cap"
+    )]
     fn drop(&mut self) {
         let elem_size = mem::size_of::<T>();
 
@@ -92,7 +95,9 @@ impl<T> Drop for RawVec<T> {
 }
 
 #[flux_rs::refined_by(raw:RawVec, len: int)]
-#[flux_rs::invariant(len <= raw.cap)]
+#[flux_rs::invariant(len <= raw.cap &&
+                     aligned_to(T::size_of(), T::align_of())
+)]
 pub struct Vec<T> {
     #[flux_rs::field(RawVec<T>[raw])]
     buf: RawVec<T>,
@@ -119,8 +124,7 @@ impl<T> Vec<T> {
         }
     }
 
-    // #[flux_rs::opts(solver = "cvc5")]
-    #[flux_rs::spec(fn (self: &strg Vec<T>[@me], elem: T) ensures self: Vec<T>)]
+    #[flux_rs::spec(fn (self: &mut Vec<T>[@me], elem: T) ensures self: Vec<T>)]
     pub fn push(&mut self, elem: T) {
         if self.len == self.cap() {
             self.buf.grow();
@@ -184,7 +188,7 @@ impl<T> Vec<T> {
         }
     }
 
-    #[flux_rs::trusted(reason = "todo: self.len = 0 breaks the invariant!")]
+    #[flux_rs::spec(fn (me: &mut Self) -> _ ensures me: Self)]
     pub fn drain(&mut self) -> Drain<'_, T> {
         let iter = unsafe { RawValIter::new(&self) };
 
