@@ -61,6 +61,7 @@ type Size = usize;
 //#[stable(feature = "rust1", since = "1.0.0")]
 #[rustc_insignificant_dtor]
 #[flux_rs::refined_by(head:int, tail:int, cap:int, ptr:Unique)]
+#[flux_rs::invariant(T::size_of() > 0)]
 pub struct VecDeque<
     T,
     //#[unstable(feature = "allocator_api", issue = "32838")]
@@ -75,7 +76,7 @@ pub struct VecDeque<
     tail: usize,
     #[flux_rs::field({ usize[head] | head < cap })]
     head: usize,
-    #[flux_rs::field({ RawVec<T, A>[cap, ptr] | pow2(cap) && 1 <= cap && T::size_of() >= 0 } )]
+    #[flux_rs::field({ RawVec<T, A>[cap, ptr] | pow2(cap) && 1 <= cap && T::size_of() > 0 } )]
     buf: RawVec<T, A>,
 }
 
@@ -100,7 +101,6 @@ impl<T, A: Allocator> VecDeque<T, A> {
 
     /// Marginally more convenient
     #[inline]
-    #[flux_rs::trusted]
     #[flux_rs::sig(fn (self: &VecDeque<T,A>[@me]) -> usize{v : v == me.cap && size(v) } )]
     fn cap(&self) -> usize {
         if mem::size_of::<T>() == 0 {
@@ -581,7 +581,7 @@ impl<T, A: Allocator> VecDeque<T, A> {
 
 /// Returns the index in the underlying buffer for a given logical element index.
 #[inline]
-#[flux_rs::trusted]
+#[flux_rs::trusted(reason = "bitvector blowup")]
 #[flux_rs::sig(fn (index: usize, size:Size) -> usize{v: v < size})]
 fn wrap_index(index: usize, size: Size) -> usize {
     // size is always a power of 2
@@ -598,13 +598,13 @@ fn count(tail: usize, head: usize, size: Size) -> usize {
     wrap_index(head.wrapping_sub(tail), size)
 }
 
-#[flux_rs::trusted] // exponents
+#[flux_rs::trusted(reason = "exponents")]
 #[flux_rs::sig(fn (n:usize{pow2(n)}) -> bool{v: pow2(2*n)})]
 fn lem_power_two(_: usize) -> bool {
     true
 }
 
-#[flux_rs::trusted] // exponents
+#[flux_rs::trusted(reason = "exponents")]
 #[flux_rs::sig(fn (n:usize) -> bool[pow2(n)])]
 fn is_power_of_two(n: usize) -> bool {
     // n.count_ones() == 1
@@ -614,12 +614,13 @@ fn is_power_of_two(n: usize) -> bool {
 #[flux_rs::sig(fn(bool[true]))]
 fn assert(_: bool) {}
 
-#[flux_rs::trusted] // extern-spec for `max` and `next_power_of_two`
+#[flux_rs::trusted(reason = "extern-spec for `max` and `next_power_of_two`")]
 #[flux_rs::sig(fn (capacity: usize) -> usize{v:capacity <= v && pow2(v) && 1 <= v})]
 fn real_capacity(capacity: usize) -> usize {
     cmp::max(capacity + 1, MINIMUM_CAPACITY + 1).next_power_of_two()
 }
-#[flux_rs::trusted] // closure
+
+#[flux_rs::trusted(reason = "extern-spec for `max` and `next_power_of_two`")]
 #[flux_rs::sig(fn (old_cap: usize, used_cap: usize, additional: usize) -> usize{v: used_cap + additional <= v && pow2(v) && (old_cap < v => 2 * old_cap <= v) })]
 fn new_capacity(_old_cap: usize, used_cap: usize, additional: usize) -> usize {
     used_cap
