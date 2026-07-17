@@ -316,7 +316,6 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// assert_eq!(buf.get(1), Some(&4));
     /// ```
     //#[stable(feature = "rust1", since = "1.0.0")]
-    #[flux_rs::trusted] // ptr
     pub fn get(&self, index: usize) -> Option<&T> {
         if index < self.len() {
             let idx = self.wrap_add(self.tail, index);
@@ -346,7 +345,7 @@ impl<T, A: Allocator> VecDeque<T, A> {
     /// assert_eq!(buf[1], 7);
     /// ```
     //#[stable(feature = "rust1", since = "1.0.0")]
-    #[flux_rs::trusted]
+    #[flux_rs::spec(fn (self: &mut Self[@me], index: usize) -> Option<&mut T> ensures self: Self)]
     pub fn get_mut(&mut self, index: usize) -> Option<&mut T> {
         if index < self.len() {
             let idx = self.wrap_add(self.tail, index);
@@ -604,7 +603,7 @@ fn lem_power_two(_: usize) -> bool {
     true
 }
 
-#[flux_rs::trusted(reason = "exponents")]
+#[flux_rs::trusted(reason = "exponents")] // exponents
 #[flux_rs::sig(fn (n:usize) -> bool[pow2(n)])]
 fn is_power_of_two(n: usize) -> bool {
     // n.count_ones() == 1
