@@ -10,7 +10,6 @@ incremental = true
 
 [package.metadata.flux]
 enabled = true
-cache = true
 lean = "check"
 
 [dependencies]
