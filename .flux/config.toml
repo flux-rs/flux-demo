@@ -1,0 +1,5 @@
+[build]
+fluxflags = ["-Fscrape-quals=true"]
+
+[cache]
+enabled = true
